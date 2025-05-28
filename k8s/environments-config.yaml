@@ -1,0 +1,89 @@
+# ConfigMap para diferentes entornos
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config-dev
+  namespace: ecommerce
+data:
+  SPRING_PROFILES_ACTIVE: "dev"
+  LOG_LEVEL: "DEBUG"
+  METRICS_ENABLED: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config-stage
+  namespace: ecommerce
+data:
+  SPRING_PROFILES_ACTIVE: "stage"
+  LOG_LEVEL: "INFO"
+  METRICS_ENABLED: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config-prod
+  namespace: ecommerce
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  LOG_LEVEL: "WARN"
+  METRICS_ENABLED: "true"
+---
+# Secrets para credenciales
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+  namespace: ecommerce
+type: Opaque
+stringData:
+  DB_USERNAME: "admin"
+  DB_PASSWORD: "changeme"
+  JWT_SECRET: "your-jwt-secret-key"
+---
+# HorizontalPodAutoscaler para escalado automático
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: api-gateway-hpa
+#   namespace: ecommerce
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: api-gateway
+#   minReplicas: 2
+#   maxReplicas: 10
+#   metrics:
+#   - type: Resource
+#     resource:
+#       name: cpu
+#       target:
+#         type: Utilization
+#         averageUtilization: 70
+#   - type: Resource
+#     resource:
+#       name: memory
+#       target:
+#         type: Utilization
+#         averageUtilization: 80
+# ---
+# apiVersion: autoscaling/v2
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: order-service-hpa
+#   namespace: ecommerce
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: order-service
+#   minReplicas: 2
+#   maxReplicas: 8
+#   metrics:
+#   - type: Resource
+#     resource:
+#       name: cpu
+#       target:
+#         type: Utilization
+#         averageUtilization: 70
