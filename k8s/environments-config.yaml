@@ -37,9 +37,9 @@ metadata:
   namespace: ecommerce
 type: Opaque
 stringData:
-  DB_USERNAME: "admin"
-  DB_PASSWORD: "changeme"
-  JWT_SECRET: "your-jwt-secret-key"
+  DB_USERNAME: ""
+  DB_PASSWORD: ""
+  JWT_SECRET: ""
 ---
 # HorizontalPodAutoscaler para escalado automático
 # apiVersion: autoscaling/v2

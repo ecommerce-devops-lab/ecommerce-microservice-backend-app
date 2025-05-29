@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VerificationTokenMappingHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">user-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.helper</a> &gt; <span class="el_source">VerificationTokenMappingHelper.java</span></div><h1>VerificationTokenMappingHelper.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.helper;
+
+import com.selimhorri.app.domain.Credential;
+import com.selimhorri.app.domain.VerificationToken;
+import com.selimhorri.app.dto.CredentialDto;
+import com.selimhorri.app.dto.VerificationTokenDto;
+
+public interface VerificationTokenMappingHelper {
+	
+	public static VerificationTokenDto map(final VerificationToken verificationToken) {
+<span class="nc" id="L11">		return VerificationTokenDto.builder()</span>
+<span class="nc" id="L12">				.verificationTokenId(verificationToken.getVerificationTokenId())</span>
+<span class="nc" id="L13">				.token(verificationToken.getToken())</span>
+<span class="nc" id="L14">				.expireDate(verificationToken.getExpireDate())</span>
+<span class="nc" id="L15">				.credentialDto(</span>
+<span class="nc" id="L16">						CredentialDto.builder()</span>
+<span class="nc" id="L17">							.credentialId(verificationToken.getCredential().getCredentialId())</span>
+<span class="nc" id="L18">							.username(verificationToken.getCredential().getUsername())</span>
+<span class="nc" id="L19">							.password(verificationToken.getCredential().getPassword())</span>
+<span class="nc" id="L20">							.roleBasedAuthority(verificationToken.getCredential().getRoleBasedAuthority())</span>
+<span class="nc" id="L21">							.isEnabled(verificationToken.getCredential().getIsEnabled())</span>
+<span class="nc" id="L22">							.isAccountNonExpired(verificationToken.getCredential().getIsAccountNonExpired())</span>
+<span class="nc" id="L23">							.isAccountNonLocked(verificationToken.getCredential().getIsAccountNonLocked())</span>
+<span class="nc" id="L24">							.isCredentialsNonExpired(verificationToken.getCredential().getIsCredentialsNonExpired())</span>
+<span class="nc" id="L25">							.build())</span>
+<span class="nc" id="L26">				.build();</span>
+	}
+	
+	public static VerificationToken map(final VerificationTokenDto verificationTokenDto) {
+<span class="nc" id="L30">		return VerificationToken.builder()</span>
+<span class="nc" id="L31">				.verificationTokenId(verificationTokenDto.getVerificationTokenId())</span>
+<span class="nc" id="L32">				.token(verificationTokenDto.getToken())</span>
+<span class="nc" id="L33">				.expireDate(verificationTokenDto.getExpireDate())</span>
+<span class="nc" id="L34">				.credential(</span>
+<span class="nc" id="L35">						Credential.builder()</span>
+<span class="nc" id="L36">							.credentialId(verificationTokenDto.getCredentialDto().getCredentialId())</span>
+<span class="nc" id="L37">							.username(verificationTokenDto.getCredentialDto().getUsername())</span>
+<span class="nc" id="L38">							.password(verificationTokenDto.getCredentialDto().getPassword())</span>
+<span class="nc" id="L39">							.roleBasedAuthority(verificationTokenDto.getCredentialDto().getRoleBasedAuthority())</span>
+<span class="nc" id="L40">							.isEnabled(verificationTokenDto.getCredentialDto().getIsEnabled())</span>
+<span class="nc" id="L41">							.isAccountNonExpired(verificationTokenDto.getCredentialDto().getIsAccountNonExpired())</span>
+<span class="nc" id="L42">							.isAccountNonLocked(verificationTokenDto.getCredentialDto().getIsAccountNonLocked())</span>
+<span class="nc" id="L43">							.isCredentialsNonExpired(verificationTokenDto.getCredentialDto().getIsCredentialsNonExpired())</span>
+<span class="nc" id="L44">							.build())</span>
+<span class="nc" id="L45">				.build();</span>
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

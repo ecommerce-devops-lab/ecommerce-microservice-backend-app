@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderItemResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">shipping-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.resource</a> &gt; <span class="el_source">OrderItemResource.java</span></div><h1>OrderItemResource.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.resource;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.selimhorri.app.domain.id.OrderItemId;
+import com.selimhorri.app.dto.OrderItemDto;
+import com.selimhorri.app.dto.response.collection.DtoCollectionResponse;
+import com.selimhorri.app.service.OrderItemService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@RestController
+@RequestMapping(&quot;/api/shippings&quot;)
+<span class="nc" id="L26">@Slf4j</span>
+<span class="nc" id="L27">@RequiredArgsConstructor</span>
+public class OrderItemResource {
+	
+	private final OrderItemService orderItemService;
+	
+	@GetMapping
+	public ResponseEntity&lt;DtoCollectionResponse&lt;OrderItemDto&gt;&gt; findAll() {
+<span class="nc" id="L34">		log.info(&quot;*** OrderItemDto List, controller; fetch all orderItems *&quot;);</span>
+<span class="nc" id="L35">		return ResponseEntity.ok(new DtoCollectionResponse&lt;&gt;(this.orderItemService.findAll()));</span>
+	}
+	
+	@GetMapping(&quot;/{orderId}/{productId}&quot;)
+	public ResponseEntity&lt;OrderItemDto&gt; findById(
+			@PathVariable(&quot;orderId&quot;) final String orderId, 
+			@PathVariable(&quot;productId&quot;) final String productId) {
+<span class="nc" id="L42">		log.info(&quot;*** OrderItemDto, resource; fetch orderItem by id *&quot;);</span>
+<span class="nc" id="L43">		return ResponseEntity.ok(this.orderItemService.findById(</span>
+<span class="nc" id="L44">				new OrderItemId(Integer.parseInt(orderId), Integer.parseInt(productId))));</span>
+	}
+	
+	@GetMapping(&quot;/find&quot;)
+	public ResponseEntity&lt;OrderItemDto&gt; findById(
+			@RequestBody 
+			@NotNull(message = &quot;Input must not be NULL&quot;) 
+			@Valid final OrderItemId orderItemId) {
+<span class="nc" id="L52">		log.info(&quot;*** OrderItemDto, resource; fetch orderItem by id *&quot;);</span>
+<span class="nc" id="L53">		return ResponseEntity.ok(this.orderItemService.findById(orderItemId));</span>
+	}
+	
+	@PostMapping
+	public ResponseEntity&lt;OrderItemDto&gt; save(
+			@RequestBody 
+			@NotNull(message = &quot;Input must not be NULL&quot;) 
+			@Valid final OrderItemDto orderItemDto) {
+<span class="nc" id="L61">		log.info(&quot;*** OrderItemDto, resource; save orderItem *&quot;);</span>
+<span class="nc" id="L62">		return ResponseEntity.ok(this.orderItemService.save(orderItemDto));</span>
+	}
+	
+	@PutMapping
+	public ResponseEntity&lt;OrderItemDto&gt; update(
+			@RequestBody 
+			@NotNull(message = &quot;Input must not be NULL&quot;) 
+			@Valid final OrderItemDto orderItemDto) {
+<span class="nc" id="L70">		log.info(&quot;*** OrderItemDto, resource; update orderItem *&quot;);</span>
+<span class="nc" id="L71">		return ResponseEntity.ok(this.orderItemService.update(orderItemDto));</span>
+	}
+	
+	@DeleteMapping(&quot;/{orderId}/{productId}&quot;)
+	public ResponseEntity&lt;Boolean&gt; deleteById(
+			@PathVariable(&quot;orderId&quot;) final String orderId, 
+			@PathVariable(&quot;productId&quot;) final String productId) {
+<span class="nc" id="L78">		log.info(&quot;*** Boolean, resource; delete orderItem by id *&quot;);</span>
+<span class="nc" id="L79">		this.orderItemService.deleteById(new OrderItemId(Integer.parseInt(orderId), Integer.parseInt(productId)));</span>
+<span class="nc" id="L80">		return ResponseEntity.ok(true);</span>
+	}
+	
+	@DeleteMapping(&quot;/delete&quot;)
+	public ResponseEntity&lt;Boolean&gt; deleteById(
+			@RequestBody 
+			@NotNull(message = &quot;Input must not be NULL&quot;) 
+			@Valid final OrderItemId orderItemId) {
+<span class="nc" id="L88">		log.info(&quot;*** Boolean, resource; delete orderItem by id *&quot;);</span>
+<span class="nc" id="L89">		this.orderItemService.deleteById(orderItemId);</span>
+<span class="nc" id="L90">		return ResponseEntity.ok(true);</span>
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
