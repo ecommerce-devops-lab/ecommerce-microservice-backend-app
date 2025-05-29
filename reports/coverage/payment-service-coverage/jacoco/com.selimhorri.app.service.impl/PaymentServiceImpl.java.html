@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">payment-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.service.impl</a> &gt; <span class="el_source">PaymentServiceImpl.java</span></div><h1>PaymentServiceImpl.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.service.impl;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.selimhorri.app.constant.AppConstant;
+import com.selimhorri.app.dto.OrderDto;
+import com.selimhorri.app.dto.PaymentDto;
+import com.selimhorri.app.exception.wrapper.PaymentNotFoundException;
+import com.selimhorri.app.helper.PaymentMappingHelper;
+import com.selimhorri.app.repository.PaymentRepository;
+import com.selimhorri.app.service.PaymentService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Transactional
+<span class="fc" id="L24">@Slf4j</span>
+<span class="fc" id="L25">@RequiredArgsConstructor</span>
+public class PaymentServiceImpl implements PaymentService {
+	
+	private final PaymentRepository paymentRepository;
+	private final RestTemplate restTemplate;
+	
+	@Override
+	public List&lt;PaymentDto&gt; findAll() {
+<span class="fc" id="L33">		log.info(&quot;*** PaymentDto List, service; fetch all payments *&quot;);</span>
+<span class="fc" id="L34">		return this.paymentRepository.findAll()</span>
+<span class="fc" id="L35">				.stream()</span>
+<span class="fc" id="L36">					.map(PaymentMappingHelper::map)</span>
+<span class="fc" id="L37">					.map(p -&gt; {</span>
+<span class="fc" id="L38">						p.setOrderDto(this.restTemplate.getForObject(AppConstant.DiscoveredDomainsApi</span>
+<span class="fc" id="L39">								.ORDER_SERVICE_API_URL + &quot;/&quot; + p.getOrderDto().getOrderId(), OrderDto.class));</span>
+<span class="fc" id="L40">						return p;</span>
+					})
+<span class="fc" id="L42">					.distinct()</span>
+<span class="fc" id="L43">					.collect(Collectors.toUnmodifiableList());</span>
+	}
+	
+	@Override
+	public PaymentDto findById(final Integer paymentId) {
+<span class="fc" id="L48">		log.info(&quot;*** PaymentDto, service; fetch payment by id *&quot;);</span>
+<span class="fc" id="L49">		return this.paymentRepository.findById(paymentId)</span>
+<span class="fc" id="L50">				.map(PaymentMappingHelper::map)</span>
+<span class="fc" id="L51">				.map(p -&gt; {</span>
+<span class="fc" id="L52">					p.setOrderDto(this.restTemplate.getForObject(AppConstant.DiscoveredDomainsApi</span>
+<span class="fc" id="L53">							.ORDER_SERVICE_API_URL + &quot;/&quot; + p.getOrderDto().getOrderId(), OrderDto.class));</span>
+<span class="fc" id="L54">					return p;</span>
+				})
+<span class="fc" id="L56">				.orElseThrow(() -&gt; new PaymentNotFoundException(String.format(&quot;Payment with id: %d not found&quot;, paymentId)));</span>
+	}
+	
+	@Override
+	public PaymentDto save(final PaymentDto paymentDto) {
+<span class="fc" id="L61">		log.info(&quot;*** PaymentDto, service; save payment *&quot;);</span>
+<span class="fc" id="L62">		return PaymentMappingHelper.map(this.paymentRepository</span>
+<span class="fc" id="L63">				.save(PaymentMappingHelper.map(paymentDto)));</span>
+	}
+	
+	@Override
+	public PaymentDto update(final PaymentDto paymentDto) {
+<span class="fc" id="L68">		log.info(&quot;*** PaymentDto, service; update payment *&quot;);</span>
+<span class="fc" id="L69">		return PaymentMappingHelper.map(this.paymentRepository</span>
+<span class="fc" id="L70">				.save(PaymentMappingHelper.map(paymentDto)));</span>
+	}
+	
+	@Override
+	public void deleteById(final Integer paymentId) {
+<span class="fc" id="L75">		log.info(&quot;*** Void, service; delete payment by id *&quot;);</span>
+<span class="fc" id="L76">		this.paymentRepository.deleteById(paymentId);</span>
+<span class="fc" id="L77">	}</span>
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

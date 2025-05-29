@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Order.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">order-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.domain</a> &gt; <span class="el_source">Order.java</span></div><h1>Order.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.domain;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.selimhorri.app.constant.AppConstant;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = &quot;orders&quot;)
+<span class="nc" id="L34">@NoArgsConstructor</span>
+<span class="fc" id="L35">@AllArgsConstructor</span>
+<span class="nc bnc" id="L36" title="All 40 branches missed.">@EqualsAndHashCode(callSuper = true, exclude = {&quot;cart&quot;})</span>
+<span class="nc" id="L37">@Data</span>
+<span class="pc" id="L38">@Builder</span>
+public final class Order extends AbstractMappedEntity implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = &quot;order_id&quot;, unique = true, nullable = false, updatable = false)
+<span class="fc" id="L46">	private Integer orderId;</span>
+	
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
+	@JsonFormat(pattern = AppConstant.LOCAL_DATE_TIME_FORMAT, shape = Shape.STRING)
+	@DateTimeFormat(pattern = AppConstant.LOCAL_DATE_TIME_FORMAT)
+	@Column(name = &quot;order_date&quot;)
+<span class="fc" id="L53">	private LocalDateTime orderDate;</span>
+	
+	@Column(name = &quot;order_desc&quot;)
+<span class="fc" id="L56">	private String orderDesc;</span>
+	
+	@Column(name = &quot;order_fee&quot;, columnDefinition = &quot;decimal&quot;)
+<span class="fc" id="L59">	private Double orderFee;</span>
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = &quot;cart_id&quot;)
+<span class="fc" id="L63">	private Cart cart;</span>
+	
+}
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

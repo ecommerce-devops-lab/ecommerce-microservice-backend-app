@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Address.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">user-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.domain</a> &gt; <span class="el_source">Address.java</span></div><h1>Address.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.domain;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = &quot;address&quot;)
+<span class="nc" id="L22">@NoArgsConstructor</span>
+<span class="nc" id="L23">@AllArgsConstructor</span>
+<span class="nc bnc" id="L24" title="All 40 branches missed.">@EqualsAndHashCode(callSuper = true, exclude = {&quot;user&quot;})</span>
+<span class="nc" id="L25">@Data</span>
+<span class="nc" id="L26">@Builder</span>
+public final class Address extends AbstractMappedEntity implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = &quot;address_id&quot;, unique = true, nullable = false, updatable = false)
+<span class="nc" id="L34">	private Integer addressId;</span>
+	
+	@Column(name = &quot;full_address&quot;, unique = true)
+<span class="nc" id="L37">	private String fullAddress;</span>
+	
+	@Column(name = &quot;postal_code&quot;)
+<span class="nc" id="L40">	private String postalCode;</span>
+	
+<span class="nc" id="L42">	private String city;</span>
+	
+	@ManyToOne
+	@JoinColumn(name = &quot;user_id&quot;)
+<span class="nc" id="L46">	private User user;</span>
+	
+}
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

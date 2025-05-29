@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionMsg.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">order-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.exception.payload</a> &gt; <span class="el_source">ExceptionMsg.java</span></div><h1>ExceptionMsg.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.exception.payload;
+
+import java.io.Serializable;
+import java.time.ZonedDateTime;
+
+import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
+import com.selimhorri.app.constant.AppConstant;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+<span class="nc" id="L21">@RequiredArgsConstructor</span>
+<span class="nc" id="L22">@AllArgsConstructor</span>
+<span class="nc bnc" id="L23" title="All 36 branches missed.">@Data</span>
+<span class="nc" id="L24">@Builder</span>
+public final class ExceptionMsg  implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	@JsonSerialize(using = ZonedDateTimeSerializer.class)
+	@JsonFormat(shape = Shape.STRING, pattern = AppConstant.ZONED_DATE_TIME_FORMAT)
+<span class="nc" id="L31">	private final ZonedDateTime timestamp;</span>
+	
+	@JsonInclude(value = Include.NON_NULL)
+<span class="nc" id="L34">	private Throwable throwable;</span>
+<span class="nc" id="L35">	private final HttpStatus httpStatus;</span>
+<span class="nc" id="L36">	private final String msg;</span>
+	
+}
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

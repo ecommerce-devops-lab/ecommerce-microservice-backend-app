@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppConstant.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">user-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.constant</a> &gt; <span class="el_source">AppConstant.java</span></div><h1>AppConstant.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.constant;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public abstract class AppConstant {
+	
+	public static final String LOCAL_DATE_FORMAT = &quot;dd-MM-yyyy&quot;;
+	public static final String LOCAL_DATE_TIME_FORMAT = &quot;dd-MM-yyyy__HH:mm:ss:SSSSSS&quot;;
+	public static final String ZONED_DATE_TIME_FORMAT = &quot;dd-MM-yyyy__HH:mm:ss:SSSSSS&quot;;
+	public static final String INSTANT_FORMAT = &quot;dd-MM-yyyy__HH:mm:ss:SSSSSS&quot;;
+	
+<span class="nc" id="L14">	@NoArgsConstructor(access = AccessLevel.PRIVATE)</span>
+	public abstract class DiscoveredDomainsApi {
+		
+		public static final String USER_SERVICE_HOST = &quot;http://USER-SERVICE/user-service&quot;;
+		public static final String USER_SERVICE_API_URL = &quot;http://USER-SERVICE/user-service/api/users&quot;;
+		
+		public static final String PRODUCT_SERVICE_HOST = &quot;http://PRODUCT-SERVICE/product-service&quot;;
+		public static final String PRODUCT_SERVICE_API_URL = &quot;http://PRODUCT-SERVICE/product-service/api/products&quot;;
+		
+		public static final String ORDER_SERVICE_HOST = &quot;http://ORDER-SERVICE/order-service&quot;;
+		public static final String ORDER_SERVICE_API_URL = &quot;http://ORDER-SERVICE/order-service/api/orders&quot;;
+		
+		public static final String FAVOURITE_SERVICE_HOST = &quot;http://FAVOURITE-SERVICE/favourite-service&quot;;
+		public static final String FAVOURITE_SERVICE_API_URL = &quot;http://FAVOURITE-SERVICE/favourite-service/api/favourites&quot;;
+		
+		public static final String PAYMENT_SERVICE_HOST = &quot;http://PAYMENT-SERVICE/payment-service&quot;;
+		public static final String PAYMENT_SERVICE_API_URL = &quot;http://PAYMENT-SERVICE/payment-service/api/payments&quot;;
+		
+		public static final String SHIPPING_SERVICE_HOST = &quot;http://SHIPPING-SERVICE/shipping-service&quot;;
+		public static final String SHIPPING_SERVICE_API_URL = &quot;http://SHIPPING-SERVICE/shipping-service/api/shippings&quot;;
+		
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

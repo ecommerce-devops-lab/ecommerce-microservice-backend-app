@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CartServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">order-service</a> &gt; <a href="index.source.html" class="el_package">com.selimhorri.app.service.impl</a> &gt; <span class="el_source">CartServiceImpl.java</span></div><h1>CartServiceImpl.java</h1><pre class="source lang-java linenums">package com.selimhorri.app.service.impl;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.selimhorri.app.constant.AppConstant;
+import com.selimhorri.app.dto.CartDto;
+import com.selimhorri.app.dto.UserDto;
+import com.selimhorri.app.exception.wrapper.CartNotFoundException;
+import com.selimhorri.app.helper.CartMappingHelper;
+import com.selimhorri.app.repository.CartRepository;
+import com.selimhorri.app.service.CartService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Transactional
+<span class="nc" id="L24">@Slf4j</span>
+<span class="nc" id="L25">@RequiredArgsConstructor</span>
+public class CartServiceImpl implements CartService {
+	
+	private final CartRepository cartRepository;
+	private final RestTemplate restTemplate;
+	
+	@Override
+	public List&lt;CartDto&gt; findAll() {
+<span class="nc" id="L33">		log.info(&quot;*** CartDto List, service; fetch all carts *&quot;);</span>
+<span class="nc" id="L34">		return this.cartRepository.findAll()</span>
+<span class="nc" id="L35">				.stream()</span>
+<span class="nc" id="L36">					.map(CartMappingHelper::map)</span>
+<span class="nc" id="L37">					.map(c -&gt; {</span>
+<span class="nc" id="L38">						c.setUserDto(this.restTemplate.getForObject(AppConstant.DiscoveredDomainsApi</span>
+<span class="nc" id="L39">								.USER_SERVICE_API_URL + &quot;/&quot; + c.getUserDto().getUserId(), UserDto.class));</span>
+<span class="nc" id="L40">						return c;</span>
+					})
+<span class="nc" id="L42">					.distinct()</span>
+<span class="nc" id="L43">					.collect(Collectors.toUnmodifiableList());</span>
+	}
+	
+	@Override
+	public CartDto findById(final Integer cartId) {
+<span class="nc" id="L48">		log.info(&quot;*** CartDto, service; fetch cart by id *&quot;);</span>
+<span class="nc" id="L49">		return this.cartRepository.findById(cartId)</span>
+<span class="nc" id="L50">				.map(CartMappingHelper::map)</span>
+<span class="nc" id="L51">				.map(c -&gt; {</span>
+<span class="nc" id="L52">					c.setUserDto(this.restTemplate.getForObject(AppConstant.DiscoveredDomainsApi</span>
+<span class="nc" id="L53">							.USER_SERVICE_API_URL + &quot;/&quot; + c.getUserDto().getUserId(), UserDto.class));</span>
+<span class="nc" id="L54">					return c;</span>
+				})
+<span class="nc" id="L56">				.orElseThrow(() -&gt; new CartNotFoundException(String</span>
+<span class="nc" id="L57">						.format(&quot;Cart with id: %d not found&quot;, cartId)));</span>
+	}
+	
+	@Override
+	public CartDto save(final CartDto cartDto) {
+<span class="nc" id="L62">		log.info(&quot;*** CartDto, service; save cart *&quot;);</span>
+<span class="nc" id="L63">		return CartMappingHelper.map(this.cartRepository</span>
+<span class="nc" id="L64">				.save(CartMappingHelper.map(cartDto)));</span>
+	}
+	
+	@Override
+	public CartDto update(final CartDto cartDto) {
+<span class="nc" id="L69">		log.info(&quot;*** CartDto, service; update cart *&quot;);</span>
+<span class="nc" id="L70">		return CartMappingHelper.map(this.cartRepository</span>
+<span class="nc" id="L71">				.save(CartMappingHelper.map(cartDto)));</span>
+	}
+	
+	@Override
+	public CartDto update(final Integer cartId, final CartDto cartDto) {
+<span class="nc" id="L76">		log.info(&quot;*** CartDto, service; update cart with cartId *&quot;);</span>
+<span class="nc" id="L77">		return CartMappingHelper.map(this.cartRepository</span>
+<span class="nc" id="L78">				.save(CartMappingHelper.map(this.findById(cartId))));</span>
+	}
+	
+	@Override
+	public void deleteById(final Integer cartId) {
+<span class="nc" id="L83">		log.info(&quot;*** Void, service; delete cart by id *&quot;);</span>
+<span class="nc" id="L84">		this.cartRepository.deleteById(cartId);</span>
+<span class="nc" id="L85">	}</span>
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
