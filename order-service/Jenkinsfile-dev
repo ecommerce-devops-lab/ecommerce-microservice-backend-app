@@ -1,0 +1,140 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_REGISTRY = 'juanmadiaz45'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        KUBECONFIG = credentials('k8s-config')
+        SONAR_TOKEN = credentials('sonarqube-token')
+        SERVICE_NAME = 'order-service'
+        SERVICE_PORT = '8300'
+    }
+    
+    tools {
+        maven 'Maven-3.8.4'
+        jdk 'OpenJDK-11'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'develop', 
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh 'mvn clean compile'
+                }
+            }
+        }
+        
+        stage('Unit Tests') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    publishTestResults testResultsPattern: "${SERVICE_NAME}/target/surefire-reports/*.xml"
+                    publishCoverage adapters: [jacocoAdapter()], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                }
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME} \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh 'mvn package -DskipTests'
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    script {
+                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:dev-${IMAGE_TAG}")
+                        docker.withRegistry('', 'docker-hub-credentials') {
+                            image.push()
+                            image.push("dev-latest")
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Dev') {
+            steps {
+                script {
+                    sh """
+                        kubectl config use-context minikube
+                        envsubst < k8s/dev-deployment.yaml | kubectl apply -f - -n ecommerce-dev
+                        kubectl rollout status deployment/${SERVICE_NAME} -n ecommerce-dev
+                    """
+                }
+            }
+        }
+        
+        stage('Smoke Tests') {
+            steps {
+                script {
+                    sh """
+                        sleep 30
+                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-dev &
+                        sleep 10
+                        curl -f http://localhost:${SERVICE_PORT}/actuator/health || exit 1
+                        pkill -f "kubectl port-forward"
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            emailext (
+                subject: "✅ Dev Deploy Success - ${SERVICE_NAME} #${BUILD_NUMBER}",
+                body: "Development deployment completed successfully for ${SERVICE_NAME}",
+                to: "${env.CHANGE_AUTHOR_EMAIL}"
+            )
+        }
+        failure {
+            emailext (
+                subject: "❌ Dev Deploy Failed - ${SERVICE_NAME} #${BUILD_NUMBER}",
+                body: "Development deployment failed for ${SERVICE_NAME}. Check Jenkins logs.",
+                to: "${env.CHANGE_AUTHOR_EMAIL}"
+            )
+        }
+    }
+}

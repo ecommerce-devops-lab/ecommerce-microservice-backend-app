@@ -1,0 +1,206 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_REGISTRY = 'juanmadiaz45'
+        RELEASE_VERSION = "${params.RELEASE_VERSION ?: '1.0.0'}"
+        KUBECONFIG = credentials('k8s-config')
+        SERVICE_NAME = 'shipping-service'
+        SERVICE_PORT = '8600'
+    }
+    
+    parameters {
+        string(name: 'RELEASE_VERSION', defaultValue: '1.0.0', description: 'Version to release')
+        choice(name: 'DEPLOYMENT_STRATEGY', choices: ['rolling', 'blue-green'], description: 'Deployment strategy')
+        booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'Skip tests for hotfix')
+    }
+    
+    tools {
+        maven 'Maven-3.8.4'
+        jdk 'OpenJDK-11'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
+            }
+        }
+        
+        stage('Pre-deployment Validation') {
+            when {
+                not { params.SKIP_TESTS }
+            }
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        dir("${SERVICE_NAME}") {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Security Audit') {
+                    steps {
+                        dir("${SERVICE_NAME}") {
+                            sh 'mvn audit:audit'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Release') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh """
+                        mvn versions:set -DnewVersion=${RELEASE_VERSION}
+                        mvn clean package -DskipTests
+                    """
+                }
+            }
+        }
+        
+        stage('Build Production Image') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    script {
+                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:${RELEASE_VERSION}")
+                        docker.withRegistry('', 'docker-hub-credentials') {
+                            image.push()
+                            image.push("prod-latest")
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Production') {
+            steps {
+                script {
+                    if (params.DEPLOYMENT_STRATEGY == 'blue-green') {
+                        sh """
+                            # Blue-Green Deployment
+                            export DEPLOYMENT_COLOR=green
+                            envsubst < k8s/prod-deployment.yaml | kubectl apply -f - -n ecommerce-prod
+                            kubectl rollout status deployment/${SERVICE_NAME}-green -n ecommerce-prod
+                            
+                            # Switch traffic
+                            kubectl patch service ${SERVICE_NAME} -n ecommerce-prod -p '{"spec":{"selector":{"color":"green"}}}'
+                            
+                            # Clean up blue deployment after validation
+                            sleep 60
+                            kubectl delete deployment ${SERVICE_NAME}-blue -n ecommerce-prod --ignore-not-found=true
+                        """
+                    } else {
+                        sh """
+                            envsubst < k8s/prod-deployment.yaml | kubectl apply -f - -n ecommerce-prod
+                            kubectl rollout status deployment/${SERVICE_NAME} -n ecommerce-prod --timeout=600s
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Production Validation') {
+            steps {
+                script {
+                    sh """
+                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-prod &
+                        PORT_FORWARD_PID=\$!
+                        sleep 30
+                        
+                        # Health check
+                        curl -f http://localhost:${SERVICE_PORT}/actuator/health
+                        
+                        # Basic functionality test
+                        curl -f http://localhost:${SERVICE_PORT}/actuator/info
+                        
+                        kill \$PORT_FORWARD_PID
+                    """
+                }
+            }
+        }
+        
+        stage('Generate Release Notes') {
+            steps {
+                script {
+                    sh """
+                        # Generar notas de release automáticas
+                        git log --oneline --since="7 days ago" > CHANGELOG.md
+                        echo "## Release ${RELEASE_VERSION}" > release_notes.md
+                        echo "### Date: \$(date)" >> release_notes.md
+                        echo "### Changes:" >> release_notes.md
+                        cat CHANGELOG.md >> release_notes.md
+                        
+                        # Crear tag de release
+                        git tag -a v${RELEASE_VERSION} -m "Release version ${RELEASE_VERSION}"
+                        git push origin v${RELEASE_VERSION}
+                    """
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'release_notes.md', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Monitoring Setup') {
+            steps {
+                script {
+                    sh """
+                        # Configurar alertas específicas para esta release
+                        kubectl apply -f k8s/monitoring/alerts-${SERVICE_NAME}.yaml -n ecommerce-prod
+                        
+                        # Configurar dashboard de monitoreo
+                        kubectl apply -f k8s/monitoring/dashboard-${SERVICE_NAME}.yaml -n ecommerce-prod
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            script {
+                def releaseNotes = readFile('release_notes.md')
+                emailext (
+                    subject: "🚀 Production Release Success - ${SERVICE_NAME} v${RELEASE_VERSION}",
+                    body: """
+                        Production deployment completed successfully!
+                        
+                        Service: ${SERVICE_NAME}
+                        Version: ${RELEASE_VERSION}
+                        Build: #${BUILD_NUMBER}
+                        
+                        Release Notes:
+                        ${releaseNotes}
+                    """,
+                    to: "devops-team@company.com"
+                )
+                
+                // Notificar a Slack
+                slackSend(
+                    channel: '#deployments',
+                    color: 'good',
+                    message: "✅ *${SERVICE_NAME} v${RELEASE_VERSION}* deployed to production successfully!"
+                )
+            }
+        }
+        failure {
+            emailext (
+                subject: "🚨 Production Release Failed - ${SERVICE_NAME} v${RELEASE_VERSION}",
+                body: "Production deployment failed. Immediate attention required.",
+                to: "devops-team@company.com"
+            )
+            
+            slackSend(
+                channel: '#deployments',
+                color: 'danger',
+                message: "❌ *${SERVICE_NAME} v${RELEASE_VERSION}* production deployment failed!"
+            )
+        }
+    }
+}

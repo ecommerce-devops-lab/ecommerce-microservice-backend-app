@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Servicio Jenkins
+  jenkins:
+    image: jenkins/jenkins:lts-jdk11
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Para usar Docker desde Jenkins
+    networks:
+      - ci-network
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    restart: unless-stopped
+
+  # Base de datos para SonarQube
+  sonarqube-db:
+    image: postgres:13
+    container_name: sonarqube-db
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - ci-network
+    restart: unless-stopped
+
+  # Servicio SonarQube
+  sonarqube:
+    image: sonarqube:lts
+    container_name: sonarqube
+    depends_on:
+      - sonarqube-db
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://sonarqube-db:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    ports:
+      - "9000:9000"
+    networks:
+      - ci-network
+    restart: unless-stopped
+
+  # Opcional: Agente de construcción (puedes escalar según necesidad)
+  jenkins-agent:
+    image: jenkins/ssh-agent:jdk11
+    container_name: jenkins-agent
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=[TU_CLAVE_PUBLICA_AQUI]
+    networks:
+      - ci-network
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+  postgresql_data:
+  sonarqube_data:
+  sonarqube_extensions:
+
+networks:
+  ci-network:
+    driver: bridge

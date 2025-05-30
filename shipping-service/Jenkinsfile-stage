@@ -1,0 +1,184 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_REGISTRY = 'juanmadiaz45'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        KUBECONFIG = credentials('k8s-config')
+        SERVICE_NAME = 'shipping-service'
+        SERVICE_PORT = '8600'
+    }
+    
+    tools {
+        maven 'Maven-3.8.4'
+        jdk 'OpenJDK-11'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
+            }
+        }
+        
+        stage('Build & Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        dir("${SERVICE_NAME}") {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        dir("${SERVICE_NAME}") {
+                            sh 'mvn verify -P integration-tests'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME}-stage \
+                                -Dsonar.branch.name=main
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh '''
+                        mvn org.owasp:dependency-check-maven:check
+                        mvn compile org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                            -Dsonar.dependencyCheck.reportPath=target/dependency-check-report.xml
+                    '''
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    script {
+                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:stage-${IMAGE_TAG}")
+                        docker.withRegistry('', 'docker-hub-credentials') {
+                            image.push()
+                            image.push("stage-latest")
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to Staging') {
+            steps {
+                script {
+                    sh """
+                        envsubst < k8s/stage-deployment.yaml | kubectl apply -f - -n ecommerce-stage
+                        kubectl rollout status deployment/${SERVICE_NAME} -n ecommerce-stage --timeout=300s
+                    """
+                }
+            }
+        }
+        
+        stage('Integration Tests in K8s') {
+            steps {
+                script {
+                    sh """
+                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-stage &
+                        PORT_FORWARD_PID=\$!
+                        sleep 30
+                        
+                        # Ejecutar pruebas de integración
+                        cd ${SERVICE_NAME}
+                        mvn test -Dtest=**/*IntegrationTest -Dserver.url=http://localhost:${SERVICE_PORT}
+                        
+                        kill \$PORT_FORWARD_PID
+                    """
+                }
+            }
+        }
+        
+        stage('E2E Tests') {
+            steps {
+                script {
+                    sh """
+                        # Configurar port-forwarding para todos los servicios necesarios
+                        kubectl port-forward service/order-service 8300:8300 -n ecommerce-stage &
+                        kubectl port-forward service/payment-service 8400:8400 -n ecommerce-stage &
+                        kubectl port-forward service/product-service 8500:8500 -n ecommerce-stage &
+                        
+                        sleep 45
+                        
+                        # Ejecutar pruebas E2E
+                        cd e2e-tests
+                        npm install
+                        npm run test:staging
+                        
+                        # Limpiar port-forwards
+                        pkill -f "kubectl port-forward"
+                    """
+                }
+            }
+        }
+        
+        stage('Performance Tests') {
+            steps {
+                script {
+                    sh """
+                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-stage &
+                        sleep 30
+                        
+                        cd performance-tests
+                        pip install locust
+                        locust -f locustfile.py --host=http://localhost:${SERVICE_PORT} \
+                               --users=50 --spawn-rate=5 --run-time=300s --html=report.html
+                        
+                        pkill -f "kubectl port-forward"
+                    """
+                }
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'performance-tests',
+                        reportFiles: 'report.html',
+                        reportName: 'Performance Test Report'
+                    ])
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            emailext (
+                subject: "✅ Stage Tests Passed - ${SERVICE_NAME} #${BUILD_NUMBER}",
+                body: "All staging tests passed for ${SERVICE_NAME}. Ready for production deployment.",
+                to: "${env.CHANGE_AUTHOR_EMAIL}"
+            )
+        }
+        failure {
+            emailext (
+                subject: "❌ Stage Tests Failed - ${SERVICE_NAME} #${BUILD_NUMBER}",
+                body: "Staging tests failed for ${SERVICE_NAME}. Deployment blocked.",
+                to: "${env.CHANGE_AUTHOR_EMAIL}"
+            )
+        }
+    }
+}
