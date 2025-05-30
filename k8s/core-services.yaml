@@ -10,7 +10,7 @@ spec:
   ports:
     - port: 9411
       targetPort: 9411
-  type: ClusterIP
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -69,7 +69,7 @@ spec:
   ports:
     - port: 8761
       targetPort: 8761
-  type: ClusterIP
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment

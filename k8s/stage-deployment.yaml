@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${SERVICE_NAME}
+  namespace: ecommerce-stage
+  labels:
+    app: ${SERVICE_NAME}
+    environment: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${SERVICE_NAME}
+        environment: staging
+    spec:
+      containers:
+        - name: ${SERVICE_NAME}
+          image: ${DOCKER_REGISTRY}/${SERVICE_NAME}:stage-${IMAGE_TAG}
+          ports:
+            - containerPort: ${SERVICE_PORT}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "stage"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: host
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+          resources:
+            requests:
+              memory: "384Mi"
+              cpu: "250m"
+            limits:
+              memory: "768Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: ${SERVICE_PORT}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: ${SERVICE_PORT}
+            initialDelaySeconds: 120
+            periodSeconds: 30

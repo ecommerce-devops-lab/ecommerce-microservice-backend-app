@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${SERVICE_NAME}${DEPLOYMENT_COLOR:+-${DEPLOYMENT_COLOR}}
+  namespace: ecommerce-prod
+  labels:
+    app: ${SERVICE_NAME}
+    environment: production
+    color: ${DEPLOYMENT_COLOR:-blue}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME}
+      color: ${DEPLOYMENT_COLOR:-blue}
+  template:
+    metadata:
+      labels:
+        app: ${SERVICE_NAME}
+        environment: production
+        color: ${DEPLOYMENT_COLOR:-blue}
+    spec:
+      containers:
+        - name: ${SERVICE_NAME}
+          image: ${DOCKER_REGISTRY}/${SERVICE_NAME}:${RELEASE_VERSION}
+          ports:
+            - containerPort: ${SERVICE_PORT}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: prod-db-credentials
+                  key: host
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prod-db-credentials
+                  key: password
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: ${SERVICE_PORT}
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: ${SERVICE_PORT}
+            initialDelaySeconds: 180
+            periodSeconds: 30
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${SERVICE_NAME}
+  namespace: ecommerce-prod
+spec:
+  selector:
+    app: ${SERVICE_NAME}
+    color: blue
+  ports:
+    - port: ${SERVICE_PORT}
+      targetPort: ${SERVICE_PORT}
+  type: ClusterIP

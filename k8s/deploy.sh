@@ -7,7 +7,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}🔹 Iniciando Minikube...${NC}"
-minikube start --cpus=6 --memory=6144
+minikube start --driver=docker --cpus=6 --memory=6144
 
 echo -e "${BLUE}🐳 Configurando Docker para usar el Docker daemon de Minikube...${NC}"
 eval $(minikube docker-env)
@@ -33,15 +33,15 @@ else
     exit 1
 fi
 
-echo -e "${YELLOW}⏳ Esperando a que los servicios core estén listos...${NC}"
-echo "Esperando Zipkin..."
-kubectl wait --for=condition=ready pod -l app=zipkin -n ecommerce --timeout=300s
+# echo -e "${YELLOW}⏳ Esperando a que los servicios core estén listos...${NC}"
+# echo "Esperando Zipkin..."
+# kubectl wait --for=condition=ready pod -l app=zipkin -n ecommerce --timeout=300s
 
-echo "Esperando Service Discovery..."
-kubectl wait --for=condition=ready pod -l app=service-discovery -n ecommerce --timeout=300s
+# echo "Esperando Service Discovery..."
+# kubectl wait --for=condition=ready pod -l app=service-discovery -n ecommerce --timeout=300s
 
-echo "Esperando Cloud Config..."
-kubectl wait --for=condition=ready pod -l app=cloud-config -n ecommerce --timeout=300s
+# echo "Esperando Cloud Config..."
+# kubectl wait --for=condition=ready pod -l app=cloud-config -n ecommerce --timeout=300s
 
 echo -e "${BLUE}🚀 Desplegando microservicios...${NC}"
 if [ -f "microservices.yaml" ]; then
