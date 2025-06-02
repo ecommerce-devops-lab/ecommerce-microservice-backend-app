@@ -1,0 +1,80 @@
+name: Development Pipeline
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'order-service/**'
+      - 'payment-service/**'
+      - 'product-service/**'
+      - 'shipping-service/**'
+      - 'user-service/**'
+  pull_request:
+    branches: [ develop ]
+
+env:
+  JENKINS_URL: ${{ secrets.JENKINS_URL }}
+  JENKINS_USER: ${{ secrets.JENKINS_USER }}
+  JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      order-service: ${{ steps.changes.outputs.order-service }}
+      payment-service: ${{ steps.changes.outputs.payment-service }}
+      product-service: ${{ steps.changes.outputs.product-service }}
+      shipping-service: ${{ steps.changes.outputs.shipping-service }}
+      user-service: ${{ steps.changes.outputs.user-service }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            order-service:
+              - 'order-service/**'
+            payment-service:
+              - 'payment-service/**'
+            product-service:
+              - 'product-service/**'
+            shipping-service:
+              - 'shipping-service/**'
+            user-service:
+              - 'user-service/**'
+
+  trigger-order-service:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.order-service == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/order-service-dev/build" \
+            --data-urlencode json='{"parameter": [{"name":"BRANCH_NAME", "value":"'${GITHUB_REF_NAME}'"},{"name":"COMMIT_SHA", "value":"'${GITHUB_SHA}'"}]}'
+
+  trigger-payment-service:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.payment-service == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/payment-service-dev/build" \
+            --data-urlencode json='{"parameter": [{"name":"BRANCH_NAME", "value":"'${GITHUB_REF_NAME}'"},{"name":"COMMIT_SHA", "value":"'${GITHUB_SHA}'"}]}'
+
+  trigger-product-service:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.product-service == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job
+        run: |
+          curl -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/product-service-dev/build" \
+            --data-urlencode json='{"parameter": [{"name":"BRANCH_NAME", "value":"'${GITHUB_REF_NAME}'"},{"name":"COMMIT_SHA", "value":"'${GITHUB_SHA}'"}]}'
