@@ -7,6 +7,7 @@ pipeline {
     }
     
     environment {
+        GITHUB_TOKEN = credentials('github-token')
         DOCKER_REGISTRY = 'juanmadiaz45'
         IMAGE_TAG = "${params.COMMIT_SHA.take(7)}-${BUILD_NUMBER}"
         KUBECONFIG = credentials('k8s-config')
@@ -17,7 +18,7 @@ pipeline {
     
     tools {
         maven 'Maven-3.8.4'
-        jdk 'OpenJDK-11'
+        jdk 'Temurin-17'
     }
     
     stages {
@@ -42,21 +43,26 @@ pipeline {
         }
         
         stage('Build & Test') {
-            steps {
-                dir("${SERVICE_NAME}") {
-                    sh '''
-                        mvn clean compile test
-                        mvn jacoco:report
-                    '''
-                }
-            }
-            post {
-                always {
-                    publishTestResults testResultsPattern: "${SERVICE_NAME}/target/surefire-reports/*.xml"
-                    publishCoverage adapters: [jacocoAdapter()], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
-                }
+        steps {
+            dir("${SERVICE_NAME}") {
+                sh '''
+                    echo "JAVA_HOME: ${JAVA_HOME}"
+                    mvn clean compile test
+                    mvn jacoco:report
+                '''
             }
         }
+        post {
+            always {
+                junit "${SERVICE_NAME}/target/surefire-reports/*.xml"
+                jacoco(
+                    execPattern: "${SERVICE_NAME}/target/jacoco.exec",
+                    classPattern: "${SERVICE_NAME}/target/classes",
+                    sourcePattern: "${SERVICE_NAME}/src/main/java"
+                )
+            }
+        }
+    }
         
         stage('SonarQube Analysis') {
             steps {
