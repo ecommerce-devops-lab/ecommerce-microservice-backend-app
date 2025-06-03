@@ -1,0 +1,157 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'develop', description: 'Branch to build')
+        string(name: 'COMMIT_SHA', defaultValue: 'HEAD', description: 'Commit SHA')
+    }
+    
+    environment {
+        DOCKER_REGISTRY = 'juanmadiaz45'
+        IMAGE_TAG = "${params.COMMIT_SHA.take(7)}-${BUILD_NUMBER}"
+        KUBECONFIG = credentials('k8s-config')
+        SONAR_TOKEN = credentials('sonarqube-token')
+        SERVICE_NAME = getServiceName()
+        SERVICE_PORT = getServicePort()
+    }
+    
+    tools {
+        maven 'Maven-3.8.4'
+        jdk 'OpenJDK-11'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: "${params.BRANCH_NAME}", 
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
+                
+                script {
+                    def hasChanges = sh(
+                        script: "git diff --name-only HEAD~1 HEAD | grep -q '^${SERVICE_NAME}/' || echo 'no-changes'",
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (hasChanges == 'no-changes' && params.BRANCH_NAME != 'develop') {
+                        currentBuild.result = 'NOT_BUILT'
+                        error("No changes detected for ${SERVICE_NAME}, skipping build")
+                    }
+                }
+            }
+        }
+        
+        stage('Build & Test') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh '''
+                        mvn clean compile test
+                        mvn jacoco:report
+                    '''
+                }
+            }
+            post {
+                always {
+                    publishTestResults testResultsPattern: "${SERVICE_NAME}/target/surefire-reports/*.xml"
+                    publishCoverage adapters: [jacocoAdapter()], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                }
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME} \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_TOKEN \
+                                -Dsonar.branch.name=${BRANCH_NAME}
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        
+        stage('Package & Deploy') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh 'mvn package -DskipTests'
+                    
+                    script {
+                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:dev-${IMAGE_TAG}")
+                        docker.withRegistry('', 'docker-hub-credentials') {
+                            image.push()
+                            image.push("dev-latest")
+                        }
+                    }
+                }
+                
+                script {
+                    sh """
+                        export SERVICE_NAME=${SERVICE_NAME}
+                        export SERVICE_PORT=${SERVICE_PORT}
+                        export IMAGE_TAG=${IMAGE_TAG}
+                        envsubst < k8s/dev-deployment.yaml | kubectl apply -f - -n ecommerce-dev
+                        kubectl rollout status deployment/${SERVICE_NAME} -n ecommerce-dev --timeout=300s
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            sh """
+                curl -X POST \
+                    -H "Authorization: token \${GITHUB_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    https://api.github.com/repos/your-org/ecommerce-microservices/statuses/${params.COMMIT_SHA} \
+                    -d '{
+                        "state": "success",
+                        "target_url": "${BUILD_URL}",
+                        "description": "Development build passed",
+                        "context": "jenkins/dev-${SERVICE_NAME}"
+                    }'
+            """
+        }
+        failure {
+            sh """
+                curl -X POST \
+                    -H "Authorization: token \${GITHUB_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    https://api.github.com/repos/your-org/ecommerce-microservices/statuses/${params.COMMIT_SHA} \
+                    -d '{
+                        "state": "failure",
+                        "target_url": "${BUILD_URL}",
+                        "description": "Development build failed",
+                        "context": "jenkins/dev-${SERVICE_NAME}"
+                    }'
+            """
+        }
+    }
+}
+
+def getServiceName() {
+    return JOB_NAME.split('-')[0..-2].join('-')
+}
+
+def getServicePort() {
+    def ports = [
+        'order-service': '8300',
+        'payment-service': '8400',
+        'product-service': '8500',
+        'shipping-service': '8600',
+        'user-service': '8700'
+    ]
+    return ports[getServiceName()] ?: '8080'
+}
