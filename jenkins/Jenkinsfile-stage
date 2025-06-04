@@ -1,0 +1,469 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'staging', description: 'Branch to test')
+        choice(name: 'PERFORMANCE_LEVEL', choices: ['light', 'normal', 'heavy', 'stress'], description: 'Performance test level')
+        booleanParam(name: 'SKIP_PERFORMANCE_TESTS', defaultValue: false, description: 'Skip performance tests')
+    }
+    
+    environment {
+        DOCKER_REGISTRY = 'juanmadiaz45'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        KUBECONFIG = credentials('k8s-config')
+        SERVICE_NAME = 'user-service'
+        NAMESPACE = 'ecommerce-stage'
+        PERFORMANCE_THRESHOLD_95TH = '2000'  // ms
+        PERFORMANCE_THRESHOLD_FAILURE_RATE = '5'  // %
+    }
+    
+    tools {
+        maven 'Maven-3.8.4'
+        jdk 'OpenJDK-11'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: "${params.BRANCH_NAME}", 
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
+            }
+        }
+        
+        stage('Build & Test') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh '''
+                        mvn clean compile test
+                        mvn jacoco:report
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit "${SERVICE_NAME}/target/surefire-reports/*.xml"
+                    jacoco(
+                        execPattern: "${SERVICE_NAME}/target/jacoco.exec",
+                        classPattern: "${SERVICE_NAME}/target/classes",
+                        sourcePattern: "${SERVICE_NAME}/src/main/java"
+                    )
+                }
+            }
+        }
+        
+        stage('Package & Deploy to Staging') {
+            steps {
+                dir("${SERVICE_NAME}") {
+                    sh 'mvn package -DskipTests'
+                    
+                    script {
+                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:stage-${IMAGE_TAG}")
+                        docker.withRegistry('', 'docker-hub-credentials') {
+                            image.push()
+                        }
+                    }
+                }
+                
+                script {
+                    sh """
+                        export SERVICE_NAME=${SERVICE_NAME}
+                        export IMAGE_TAG=${IMAGE_TAG}
+                        export NAMESPACE=${NAMESPACE}
+                        envsubst < k8s/stage-deployment.yaml | kubectl apply -f - -n ${NAMESPACE}
+                        kubectl rollout status deployment/${SERVICE_NAME} -n ${NAMESPACE} --timeout=600s
+                    """
+                }
+            }
+        }
+        
+        stage('Wait for Service Ready') {
+            steps {
+                script {
+                    sh """
+                        # Esperar a que el servicio esté completamente listo
+                        sleep 60
+                        
+                        # Verificar health check
+                        kubectl wait --for=condition=ready pod -l app=${SERVICE_NAME} -n ${NAMESPACE} --timeout=300s
+                        
+                        # Port forward para pruebas locales
+                        kubectl port-forward -n ${NAMESPACE} svc/${SERVICE_NAME} 8700:8700 &
+                        PF_PID=\$!
+                        echo \$PF_PID > port-forward.pid
+                        
+                        # Esperar a que el port-forward esté activo
+                        sleep 30
+                        
+                        # Verificar conectividad
+                        curl -f http://localhost:8700/user-service/actuator/health || exit 1
+                    """
+                }
+            }
+        }
+        
+        stage('Setup Performance Tests') {
+            when {
+                not { params.SKIP_PERFORMANCE_TESTS }
+            }
+            steps {
+                script {
+                    sh '''
+                        # Instalar dependencias de Python para Locust
+                        python3 -m pip install --user locust faker requests pandas matplotlib
+                        
+                        # Crear directorio para pruebas de performance
+                        mkdir -p performance-tests/reports
+                        
+                        # Copiar archivos de prueba
+                        cp -r ${WORKSPACE}/performance-tests/* performance-tests/ || true
+                    '''
+                }
+            }
+        }
+        
+        stage('Performance Tests') {
+            when {
+                not { params.SKIP_PERFORMANCE_TESTS }
+            }
+            parallel {
+                stage('Load Test') {
+                    steps {
+                        script {
+                            sh """
+                                cd performance-tests
+                                
+                                # Ejecutar prueba de carga según el nivel seleccionado
+                                case "${params.PERFORMANCE_LEVEL}" in
+                                    "light")
+                                        USERS=25
+                                        SPAWN_RATE=5
+                                        DURATION=180s
+                                        ;;
+                                    "normal")
+                                        USERS=50
+                                        SPAWN_RATE=10
+                                        DURATION=300s
+                                        ;;
+                                    "heavy")
+                                        USERS=100
+                                        SPAWN_RATE=20
+                                        DURATION=300s
+                                        ;;
+                                    "stress")
+                                        USERS=200
+                                        SPAWN_RATE=50
+                                        DURATION=180s
+                                        ;;
+                                    *)
+                                        USERS=50
+                                        SPAWN_RATE=10
+                                        DURATION=300s
+                                        ;;
+                                esac
+                                
+                                echo "Ejecutando prueba de performance: \$USERS usuarios, \$SPAWN_RATE spawn/s, \$DURATION"
+                                
+                                # Ejecutar Locust
+                                python3 -m locust \\
+                                    --host=http://localhost:8700 \\
+                                    --users=\$USERS \\
+                                    --spawn-rate=\$SPAWN_RATE \\
+                                    --run-time=\$DURATION \\
+                                    --headless \\
+                                    --html=reports/performance-report-${BUILD_NUMBER}.html \\
+                                    --csv=reports/performance-data-${BUILD_NUMBER} \\
+                                    --user-classes=UserServiceUser \\
+                                    --logfile=reports/performance-${BUILD_NUMBER}.log \\
+                                    --loglevel=INFO
+                            """
+                        }
+                    }
+                    post {
+                        always {
+                            // Archivar reportes de performance
+                            archiveArtifacts artifacts: 'performance-tests/reports/**/*', allowEmptyArchive: true
+                        }
+                    }
+                }
+                
+                stage('Endpoint Specific Tests') {
+                    steps {
+                        script {
+                            sh """
+                                cd performance-tests
+                                
+                                # Pruebas específicas para cada endpoint crítico
+                                
+                                # Test para endpoint de usuarios
+                                python3 -m locust \\
+                                    --host=http://localhost:8700 \\
+                                    --users=30 \\
+                                    --spawn-rate=10 \\
+                                    --run-time=120s \\
+                                    --headless \\
+                                    --html=reports/users-endpoint-${BUILD_NUMBER}.html \\
+                                    --csv=reports/users-endpoint-${BUILD_NUMBER} \\
+                                    --user-classes=UserServiceUser \\
+                                    --logfile=reports/users-endpoint-${BUILD_NUMBER}.log
+                                
+                                sleep 30
+                                
+                                # Test para endpoint de credenciales
+                                python3 -m locust \\
+                                    --host=http://localhost:8700 \\
+                                    --users=20 \\
+                                    --spawn-rate=8 \\
+                                    --run-time=120s \\
+                                    --headless \\
+                                    --html=reports/credentials-endpoint-${BUILD_NUMBER}.html \\
+                                    --csv=reports/credentials-endpoint-${BUILD_NUMBER} \\
+                                    --user-classes=CredentialServiceUser \\
+                                    --logfile=reports/credentials-endpoint-${BUILD_NUMBER}.log
+                            """
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Analyze Performance Results') {
+            when {
+                not { params.SKIP_PERFORMANCE_TESTS }
+            }
+            steps {
+                script {
+                    sh """
+                        cd performance-tests
+                        
+                        # Análisis de resultados con Python
+                        python3 << 'EOF'
+import pandas as pd
+import json
+import sys
+import glob
+
+def analyze_performance_results():
+    results = {}
+    csv_files = glob.glob('reports/*-${BUILD_NUMBER}_stats.csv')
+    
+    print("📊 Análisis de Resultados de Performance")
+    print("=" * 60)
+    
+    overall_passed = True
+    
+    for csv_file in csv_files:
+        test_name = csv_file.split('/')[-1].replace('-${BUILD_NUMBER}_stats.csv', '')
+        print(f"\\n🔸 Analizando: {test_name}")
+        
+        try:
+            df = pd.read_csv(csv_file)
+            if df.empty:
+                continue
+                
+            # Métricas principales
+            total_requests = df['Request Count'].sum()
+            total_failures = df['Failure Count'].sum()
+            avg_response_time = df['Average Response Time'].mean()
+            percentile_95 = df['95%'].max() if '95%' in df.columns else 0
+            failure_rate = (total_failures / total_requests * 100) if total_requests > 0 else 0
+            
+            print(f"  📈 Total Requests: {total_requests:,}")
+            print(f"  ⏱️  Avg Response Time: {avg_response_time:.2f}ms")
+            print(f"  📊 95th Percentile: {percentile_95:.2f}ms")
+            print(f"  ❌ Failure Rate: {failure_rate:.2f}%")
+            
+            # Verificar umbrales
+            test_passed = True
+            
+            if percentile_95 > ${PERFORMANCE_THRESHOLD_95TH}:
+                print(f"  ⚠️  FALLO: 95th percentile ({percentile_95:.2f}ms) > ${PERFORMANCE_THRESHOLD_95TH}ms")
+                test_passed = False
+                
+            if failure_rate > ${PERFORMANCE_THRESHOLD_FAILURE_RATE}:
+                print(f"  ⚠️  FALLO: Failure rate ({failure_rate:.2f}%) > ${PERFORMANCE_THRESHOLD_FAILURE_RATE}%")
+                test_passed = False
+                
+            if test_passed:
+                print(f"  ✅ PASÓ: Todas las métricas dentro de los umbrales")
+            else:
+                overall_passed = False
+                
+            # Guardar resultados
+            results[test_name] = {
+                'total_requests': int(total_requests),
+                'avg_response_time': float(avg_response_time),
+                'percentile_95': float(percentile_95),
+                'failure_rate': float(failure_rate),
+                'passed': test_passed
+            }
+            
+        except Exception as e:
+            print(f"  ❌ Error procesando {csv_file}: {e}")
+            overall_passed = False
+    
+    # Guardar resultados en JSON para uso posterior
+    with open('reports/performance-results-${BUILD_NUMBER}.json', 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    print(f"\\n{'='*60}")
+    if overall_passed:
+        print("🎉 TODAS LAS PRUEBAS DE PERFORMANCE PASARON")
+        sys.exit(0)
+    else:
+        print("💥 ALGUNAS PRUEBAS DE PERFORMANCE FALLARON")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    analyze_performance_results()
+EOF
+                    """
+                }
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'performance-tests/reports',
+                        reportFiles: "performance-report-${BUILD_NUMBER}.html",
+                        reportName: 'Performance Test Report',
+                        reportTitles: ''
+                    ])
+                }
+                failure {
+                    script {
+                        sh '''
+                            echo "⚠️ Las pruebas de performance fallaron para ${SERVICE_NAME}"
+                            echo "Revisa los reportes para más detalles"
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Performance Baseline Comparison') {
+            when {
+                not { params.SKIP_PERFORMANCE_TESTS }
+            }
+            steps {
+                script {
+                    sh """
+                        cd performance-tests
+                        
+                        # Comparar con baseline anterior si existe
+                        python3 << 'EOF'
+import json
+import glob
+import os
+
+def compare_with_baseline():
+    current_results_file = 'reports/performance-results-${BUILD_NUMBER}.json'
+    
+    if not os.path.exists(current_results_file):
+        print("No se encontraron resultados actuales para comparar")
+        return
+        
+    with open(current_results_file, 'r') as f:
+        current_results = json.load(f)
+    
+    # Buscar baseline anterior
+    baseline_files = sorted(glob.glob('reports/performance-results-*.json'))
+    baseline_files = [f for f in baseline_files if f != current_results_file]
+    
+    if not baseline_files:
+        print("No hay baseline anterior para comparar")
+        # Guardar como baseline
+        with open('reports/performance-baseline.json', 'w') as f:
+            json.dump(current_results, f, indent=2)
+        print("📊 Guardado como nuevo baseline")
+        return
+    
+    # Usar el baseline más reciente
+    baseline_file = baseline_files[-1]
+    with open(baseline_file, 'r') as f:
+        baseline_results = json.load(f)
+    
+    print("🔍 Comparación con Baseline Anterior")
+    print("=" * 50)
+    
+    for test_name in current_results:
+        if test_name not in baseline_results:
+            continue
+            
+        current = current_results[test_name]
+        baseline = baseline_results[test_name]
+        
+        print(f"\\n📊 {test_name}:")
+        
+        # Comparar métricas
+        response_time_change = ((current['avg_response_time'] - baseline['avg_response_time']) / baseline['avg_response_time']) * 100
+        percentile_95_change = ((current['percentile_95'] - baseline['percentile_95']) / baseline['percentile_95']) * 100
+        
+        print(f"  Response Time: {current['avg_response_time']:.2f}ms vs {baseline['avg_response_time']:.2f}ms ({response_time_change:+.1f}%)")
+        print(f"  95th Percentile: {current['percentile_95']:.2f}ms vs {baseline['percentile_95']:.2f}ms ({percentile_95_change:+.1f}%)")
+        
+        if abs(response_time_change) > 20:
+            print(f"  ⚠️  Cambio significativo en tiempo de respuesta: {response_time_change:+.1f}%")
+        elif response_time_change < -5:
+            print(f"  ✅ Mejora en tiempo de respuesta: {response_time_change:+.1f}%")
+
+if __name__ == "__main__":
+    compare_with_baseline()
+EOF
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                sh '''
+                    if [ -f port-forward.pid ]; then
+                        PF_PID=$(cat port-forward.pid)
+                        kill $PF_PID 2>/dev/null || true
+                        rm port-forward.pid
+                    fi
+                '''
+            }
+        }
+        success {
+            script {
+                // Notificar éxito
+                sh '''
+                    echo "✅ Pipeline de performance completado exitosamente"
+                    echo "Servicio: ${SERVICE_NAME}"
+                    echo "Nivel de prueba: ${PERFORMANCE_LEVEL}"
+                '''
+            }
+        }
+        failure {
+            script {
+                // Notificar fallo y recopilar logs
+                sh '''
+                    echo "❌ Pipeline de performance falló"
+                    
+                    # Recopilar logs del servicio
+                    kubectl logs -l app=${SERVICE_NAME} -n ${NAMESPACE} --tail=100 > service-logs.txt || true
+                    
+                    # Recopilar eventos de Kubernetes
+                    kubectl get events -n ${NAMESPACE} --sort-by='.lastTimestamp' > k8s-events.txt || true
+                '''
+                
+                archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+            }
+        }
+        cleanup {
+            sh '''
+                # Limpiar imágenes Docker locales
+                docker rmi ${DOCKER_REGISTRY}/${SERVICE_NAME}:stage-${IMAGE_TAG} 2>/dev/null || true
+                
+                # Limpiar archivos temporales
+                rm -rf performance-tests/reports/*.log
+            '''
+        }
+    }
+}

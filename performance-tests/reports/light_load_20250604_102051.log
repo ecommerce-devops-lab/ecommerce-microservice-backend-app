@@ -1,0 +1,2503 @@
+[2025-06-04 10:20:54,472] fedora/INFO/locust.main: Starting Locust 2.37.7
+[2025-06-04 10:20:54,473] fedora/INFO/locust.main: Run time limit set to 180 seconds
+[2025-06-04 10:20:54,475] fedora/INFO/locust.runners: Ramping to 25 users at a rate of 5.00 per second
+[2025-06-04 10:20:56,501] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:20:57,135] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:20:57,487] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:20:58,483] fedora/INFO/locust.runners: All users spawned: {"AddressServiceUser": 7, "CredentialServiceUser": 6, "MixedWorkloadUser": 6, "UserServiceUser": 6} (25 total users)
+[2025-06-04 10:20:59,128] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:00,689] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:01,116] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:02,091] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:02,223] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:04,323] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:04,553] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:04,915] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:05,590] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:06,070] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:07,140] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:07,296] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:10,068] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:10,299] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:11,104] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:11,336] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:11,343] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:11,603] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:12,069] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:12,941] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:13,478] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:13,627] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:13,988] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:14,965] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:15,362] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:15,542] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:16,506] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:17,192] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:17,609] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:17,698] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:20,081] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:21,348] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:22,123] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:23,119] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:23,922] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:25,016] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:27,522] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:29,443] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:29,937] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:30,063] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:30,506] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:32,120] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:32,733] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:34,009] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:37,556] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:40,708] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:40,967] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:41,291] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:41,341] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:42,056] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:42,295] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:44,611] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:45,054] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:46,366] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:50,382] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:52,208] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:56,842] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:21:57,433] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:00,070] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:02,296] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:03,904] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:07,499] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:08,220] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:11,355] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:11,904] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:12,769] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:12,806] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:13,469] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:14,399] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:14,720] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:15,850] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:17,578] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:18,160] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:18,704] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:20,117] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:22,254] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:22,331] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:22,906] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:24,266] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:29,094] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:32,491] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:32,843] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:34,006] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:35,469] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:37,397] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:39,021] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:40,782] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:40,962] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:41,045] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:44,313] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:44,624] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:44,639] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:45,457] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:46,231] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:46,494] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:47,055] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:49,336] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:50,488] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:51,343] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:52,731] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:54,443] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:55,700] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:22:57,329] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:00,776] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:00,873] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:01,477] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:02,038] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:04,431] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:04,440] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:05,760] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:06,898] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:07,016] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:07,409] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:08,179] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:09,223] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:09,273] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:10,234] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:12,260] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:14,990] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:15,655] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:15,891] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:16,671] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:20,113] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:20,517] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:21,048] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:24,018] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:24,332] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:24,823] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:28,947] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:29,968] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:30,165] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:32,451] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:34,422] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:34,998] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:35,630] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:36,853] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:37,802] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:38,869] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:39,809] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:40,962] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:41,638] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:42,242] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:42,696] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:43,508] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:43,733] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:48,284] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:48,909] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:50,318] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:51,776] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:52,753] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:52,815] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:53,908] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:54,048] fedora/ERROR/locust.user.task: 'MixedWorkloadUser' object has no attribute 'events'
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MixedWorkloadUser' object has no attribute 'events'
+
+[2025-06-04 10:23:54,048] fedora/INFO/locust.main: --run-time limit reached, shutting down
+[2025-06-04 10:23:54,242] fedora/INFO/locust.main: writing html report to file: reports/light_load_20250604_102051.html
+[2025-06-04 10:23:54,246] fedora/INFO/locust.main: Shutting down (exit code 1)

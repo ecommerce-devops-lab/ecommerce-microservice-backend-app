@@ -1,0 +1,14 @@
+Count,Message,Traceback,Nodes
+156,'MixedWorkloadUser' object has no attribute 'events',"  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/users.py"", line 268, in __init__
+    request_event=self.environment.events.request,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+",local

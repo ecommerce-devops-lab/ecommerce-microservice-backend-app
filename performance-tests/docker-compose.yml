@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  locust-master:
+    image: locustio/locust:2.15.1
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master --web-host=0.0.0.0
+    environment:
+      - LOCUST_HOST=http://user-service:8700
+    networks:
+      - performance-test
+
+  locust-worker:
+    image: locustio/locust:2.15.1
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host=locust-master
+    environment:
+      - LOCUST_HOST=http://user-service:8700
+    depends_on:
+      - locust-master
+    networks:
+      - performance-test
+    deploy:
+      replicas: 4
+
+  # Simulación del user-service para pruebas
+  user-service:
+    image: juanmadiaz45/user-service:latest
+    ports:
+      - "8700:8700"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - performance-test
+
+networks:
+  performance-test:
+    driver: bridge
