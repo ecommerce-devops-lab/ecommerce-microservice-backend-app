@@ -4,7 +4,6 @@
 **Servicio Evaluado:** User Service (ecommerce-microservice-backend-app)  
 **Tipo de Prueba:** Load Testing con Locust  
 
----
 
 ## Resumen Ejecutivo
 
@@ -17,7 +16,6 @@ El microservicio User Service presenta **fallas graves de performance** bajo car
 - **Severidad:** 🔴 **CRÍTICA** - Requiere acción inmediata
 - **Disponibilidad del Servicio:** ~76.2% (por debajo del 99.9% esperado)
 
----
 
 ## 🔢 Análisis Cuantitativo de Errores
 
@@ -41,7 +39,6 @@ El microservicio User Service presenta **fallas graves de performance** bajo car
 | 4 | `GET /api/users/{id}` | 122+ | 10.0% |
 | 5 | `GET /api/users/username/*` | 47+ | 3.9% |
 
----
 
 ## Análisis por Operación
 
@@ -75,7 +72,6 @@ El microservicio User Service presenta **fallas graves de performance** bajo car
 - 🟠 **ALTO** - Interfaces de administración fallan
 - Experiencia de usuario degradada
 
----
 
 ## Estimación del Volumen Total de Pruebas
 
@@ -100,7 +96,6 @@ Tasa de Error = 1,217 / ~5,100 = ~23.8%
 - **Requests fallidos por minuto:** ~120
 - **Total requests por minuto:** ~500
 
----
 
 ## Problemas Críticos Identificados
 
