@@ -6,9 +6,17 @@ import com.selimhorri.app.dto.CredentialDto;
 import com.selimhorri.app.dto.UserDto;
 
 public interface CredentialMappingHelper {
-	
 	public static CredentialDto map(final Credential credential) {
-		return CredentialDto.builder()
+		UserDto userDto = UserDto.builder()
+				.userId(credential.getUser().getUserId())
+				.firstName(credential.getUser().getFirstName())
+				.lastName(credential.getUser().getLastName())
+				.imageUrl(credential.getUser().getImageUrl())
+				.email(credential.getUser().getEmail())
+				.phone(credential.getUser().getPhone())
+				.build();
+		
+		CredentialDto credentialDto = CredentialDto.builder()
 				.credentialId(credential.getCredentialId())
 				.username(credential.getUsername())
 				.password(credential.getPassword())
@@ -17,20 +25,35 @@ public interface CredentialMappingHelper {
 				.isAccountNonExpired(credential.getIsAccountNonExpired())
 				.isAccountNonLocked(credential.getIsAccountNonLocked())
 				.isCredentialsNonExpired(credential.getIsCredentialsNonExpired())
-				.userDto(
-						UserDto.builder()
-							.userId(credential.getUser().getUserId())
-							.firstName(credential.getUser().getFirstName())
-							.lastName(credential.getUser().getLastName())
-							.imageUrl(credential.getUser().getImageUrl())
-							.email(credential.getUser().getEmail())
-							.phone(credential.getUser().getPhone())
-							.build())
+				.userDto(userDto)
 				.build();
+		
+		return credentialDto;
 	}
-	
-	public static Credential map(final CredentialDto credentialDto) {
-		return Credential.builder()
+		public static Credential map(final CredentialDto credentialDto) {
+		if (credentialDto.getUserDto() == null) {
+			return Credential.builder()
+					.credentialId(credentialDto.getCredentialId())
+					.username(credentialDto.getUsername())
+					.password(credentialDto.getPassword())
+					.roleBasedAuthority(credentialDto.getRoleBasedAuthority())
+					.isEnabled(credentialDto.getIsEnabled())
+					.isAccountNonExpired(credentialDto.getIsAccountNonExpired())
+					.isAccountNonLocked(credentialDto.getIsAccountNonLocked())
+					.isCredentialsNonExpired(credentialDto.getIsCredentialsNonExpired())
+					.build();
+		}
+		
+		User user = User.builder()
+				.userId(credentialDto.getUserDto().getUserId())
+				.firstName(credentialDto.getUserDto().getFirstName())
+				.lastName(credentialDto.getUserDto().getLastName())
+				.imageUrl(credentialDto.getUserDto().getImageUrl())
+				.email(credentialDto.getUserDto().getEmail())
+				.phone(credentialDto.getUserDto().getPhone())
+				.build();
+				
+		Credential credential = Credential.builder()
 				.credentialId(credentialDto.getCredentialId())
 				.username(credentialDto.getUsername())
 				.password(credentialDto.getPassword())
@@ -39,16 +62,11 @@ public interface CredentialMappingHelper {
 				.isAccountNonExpired(credentialDto.getIsAccountNonExpired())
 				.isAccountNonLocked(credentialDto.getIsAccountNonLocked())
 				.isCredentialsNonExpired(credentialDto.getIsCredentialsNonExpired())
-				.user(
-						User.builder()
-							.userId(credentialDto.getUserDto().getUserId())
-							.firstName(credentialDto.getUserDto().getFirstName())
-							.lastName(credentialDto.getUserDto().getLastName())
-							.imageUrl(credentialDto.getUserDto().getImageUrl())
-							.email(credentialDto.getUserDto().getEmail())
-							.phone(credentialDto.getUserDto().getPhone())
-							.build())
+				.user(user)
 				.build();
+		
+		user.setCredential(credential);
+		return credential;
 	}
 	
 	

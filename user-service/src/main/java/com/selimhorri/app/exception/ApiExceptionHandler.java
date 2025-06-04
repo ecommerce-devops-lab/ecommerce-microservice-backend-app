@@ -42,9 +42,7 @@ public class ApiExceptionHandler {
 							.now(ZoneId.systemDefault()))
 					.build(), badRequest);
 	}
-	
-	@ExceptionHandler(value = {
-		UserObjectNotFoundException.class,
+		@ExceptionHandler(value = {
 		CredentialNotFoundException.class,
 		VerificationTokenNotFoundException.class,
 		AddressNotFoundException.class
@@ -61,6 +59,23 @@ public class ApiExceptionHandler {
 					.timestamp(ZonedDateTime
 							.now(ZoneId.systemDefault()))
 					.build(), badRequest);
+	}
+	
+	@ExceptionHandler(value = {
+		UserObjectNotFoundException.class
+	})
+	public ResponseEntity<ExceptionMsg> handleUserNotFoundException(final UserObjectNotFoundException e) {
+		
+		log.info("**ApiExceptionHandler controller, handle User Not Found exception*\n");
+		final var notFound = HttpStatus.NOT_FOUND;
+		
+		return new ResponseEntity<>(
+				ExceptionMsg.builder()
+					.msg("#### " + e.getMessage() + "! ####")
+					.httpStatus(notFound)
+					.timestamp(ZonedDateTime
+							.now(ZoneId.systemDefault()))
+					.build(), notFound);
 	}
 	
 	

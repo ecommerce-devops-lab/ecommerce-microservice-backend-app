@@ -1,18 +1,17 @@
-
 server:
   servlet:
     context-path: /user-service
 
 spring:
   zipkin:
-    base-url: ${SPRING_ZIPKIN_BASE_URL:http://localhost:9411/}
+    base-url: ${SPRING_ZIPKIN_BASE_URL:http://zipkin:9411/}
   config:
-    import: ${SPRING_CONFIG_IMPORT:optional:configserver:http://localhost:9296}
+    import: ${SPRING_CONFIG_IMPORT:optional:configserver:http://cloud-config:9296}
   application:
     name: USER-SERVICE
   profiles:
     active:
-    - dev
+      - dev
 
 resilience4j:
   circuitbreaker:
@@ -34,12 +33,6 @@ management:
       enabled: true
   endpoint:
     health:
+      probes:
+        enabled: true
       show-details: always
-
-
-
-
-
-
-
-

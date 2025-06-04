@@ -1,0 +1,169 @@
+kubectl logs -f user-service-7686d899dd-x9v8s -n ecommerce
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v2.5.7)
+
+2025-05-27 21:59:05.854  INFO [USER-SERVICE,,] 1 --- [           main] c.selimhorri.app.UserServiceApplication  : Starting UserServiceApplication v0.1.0 using Java 11.0.27 on user-service-7686d899dd-x9v8s with PID 1 (/app/app.jar started by spring in /app)
+2025-05-27 21:59:05.860  INFO [USER-SERVICE,,] 1 --- [           main] c.selimhorri.app.UserServiceApplication  : The following profiles are active: dev
+2025-05-27 21:59:06.359  INFO [USER-SERVICE,,] 1 --- [           main] o.s.b.context.config.ConfigDataLoader    : Fetching config from server at : http://cloud-config:9296
+2025-05-27 21:59:06.359  INFO [USER-SERVICE,,] 1 --- [           main] o.s.b.context.config.ConfigDataLoader    : Located environment: name=USER-SERVICE, profiles=[dev], label=null, version=10de26f689cf0725c4c7b9d5776305dfb055066b, state=null
+2025-05-27 21:59:19.150  INFO [USER-SERVICE,,] 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-05-27 21:59:19.261 DEBUG [USER-SERVICE,,] 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Scanning for JPA repositories in packages com.selimhorri.app.
+2025-05-27 21:59:19.361 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.RepositoryComponentProvider    : Identified candidate component class: URL [jar:file:/app/app.jar!/BOOT-INF/classes!/com/selimhorri/app/repository/AddressRepository.class]
+2025-05-27 21:59:19.361 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.RepositoryComponentProvider    : Identified candidate component class: URL [jar:file:/app/app.jar!/BOOT-INF/classes!/com/selimhorri/app/repository/CredentialRepository.class]
+2025-05-27 21:59:19.362 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.RepositoryComponentProvider    : Identified candidate component class: URL [jar:file:/app/app.jar!/BOOT-INF/classes!/com/selimhorri/app/repository/UserRepository.class]
+2025-05-27 21:59:19.363 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.RepositoryComponentProvider    : Identified candidate component class: URL [jar:file:/app/app.jar!/BOOT-INF/classes!/com/selimhorri/app/repository/VerificationTokenRepository.class]
+2025-05-27 21:59:21.056  INFO [USER-SERVICE,,] 1 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 1792 ms. Found 4 JPA repository interfaces.
+2025-05-27 21:59:25.461  INFO [USER-SERVICE,,] 1 --- [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=287fa3f9-77df-3da4-bbfe-52ab6d1f0fcb
+2025-05-27 21:59:33.246  INFO [USER-SERVICE,,] 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8700 (http)
+2025-05-27 21:59:33.344  INFO [USER-SERVICE,,] 1 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-05-27 21:59:33.345  INFO [USER-SERVICE,,] 1 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.55]
+2025-05-27 21:59:33.861  INFO [USER-SERVICE,,] 1 --- [           main] o.a.c.c.C.[.[localhost].[/user-service]  : Initializing Spring embedded WebApplicationContext
+2025-05-27 21:59:33.861  INFO [USER-SERVICE,,] 1 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 27500 ms
+2025-05-27 21:59:36.357  INFO [USER-SERVICE,,] 1 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-05-27 21:59:38.854  INFO [USER-SERVICE,,] 1 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-05-27 21:59:38.868  INFO [USER-SERVICE,,] 1 --- [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:ecommerce_dev_db'
+2025-05-27 21:59:40.363 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.w.s.r.ResourceUrlEncodingFilter      : Filter 'resourceUrlEncodingFilter' configured for use
+2025-05-27 21:59:43.051 DEBUG [USER-SERVICE,,] 1 --- [/spans} check()] org.springframework.web.HttpLogging      : HTTP POST http://zipkin:9411/api/v2/spans
+2025-05-27 21:59:43.054 DEBUG [USER-SERVICE,,] 1 --- [/spans} check()] org.springframework.web.HttpLogging      : Accept=[text/plain, application/json, application/*+json, */*]
+2025-05-27 21:59:43.055 DEBUG [USER-SERVICE,,] 1 --- [/spans} check()] org.springframework.web.HttpLogging      : Writing [[B@4c9cb069] as "application/json"
+2025-05-27 21:59:43.067 DEBUG [USER-SERVICE,,] 1 --- [/spans} check()] org.springframework.web.HttpLogging      : Response 202 ACCEPTED
+2025-05-27 21:59:54.062  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.internal.license.VersionPrinter    : Flyway Community Edition 7.7.3 by Redgate
+2025-05-27 21:59:54.365  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.database.base.DatabaseType       : Database: jdbc:h2:mem:ecommerce_dev_db (H2 1.4)
+2025-05-27 21:59:55.166  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 11 migrations (execution time 00:00.284s)
+2025-05-27 21:59:55.368  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "PUBLIC"."flyway_schema_history" ...
+2025-05-27 21:59:55.671  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:55.682  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:55.965  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": << Empty Schema >>
+2025-05-27 21:59:56.063  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "1 - create users table"
+2025-05-27 21:59:56.160  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:56.367  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "2 - insert users table"
+2025-05-27 21:59:56.461  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 4 rows affected
+2025-05-27 21:59:56.662  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "3 - create address table"
+2025-05-27 21:59:56.665  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:56.871  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "4 - insert address table"
+2025-05-27 21:59:56.872  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 6 rows affected
+2025-05-27 21:59:57.071  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "5 - create credentials table"
+2025-05-27 21:59:57.073  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:57.261  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "6 - insert credentials table"
+2025-05-27 21:59:57.263  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 4 rows affected
+2025-05-27 21:59:57.372  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "7 - create verification tokens table"
+2025-05-27 21:59:57.374  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:57.472  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "8 - insert verification tokens table"
+2025-05-27 21:59:57.473  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 4 rows affected
+2025-05-27 21:59:57.562  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "9 - create address user id fk"
+2025-05-27 21:59:57.569  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:57.764  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "10 - create credentials user id fk"
+2025-05-27 21:59:57.767  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:57.876  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "11 - create verification tokens credential id fk"
+2025-05-27 21:59:57.961  INFO [USER-SERVICE,,] 1 --- [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : 0 rows affected
+2025-05-27 21:59:58.068  INFO [USER-SERVICE,,] 1 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 11 migrations to schema "PUBLIC", now at version v11 (execution time 00:02.203s)
+2025-05-27 21:59:59.476  INFO [USER-SERVICE,,] 1 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-27 21:59:59.974  INFO [USER-SERVICE,,] 1 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.4.32.Final
+2025-05-27 22:00:01.379  INFO [USER-SERVICE,,] 1 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2025-05-27 22:00:02.475  INFO [USER-SERVICE,,] 1 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2025-05-27 22:00:08.675  INFO [USER-SERVICE,,] 1 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2025-05-27 22:00:08.868  INFO [USER-SERVICE,,] 1 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-05-27 22:00:10.167 DEBUG [USER-SERVICE,,] 1 --- [           main] .c.JpaMetamodelMappingContextFactoryBean : Initializing JpaMetamodelMappingContext…
+2025-05-27 22:00:10.277 DEBUG [USER-SERVICE,,] 1 --- [           main] .c.JpaMetamodelMappingContextFactoryBean : Finished initializing JpaMetamodelMappingContext!
+2025-05-27 22:00:11.860 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Initializing repository instance for com.selimhorri.app.repository.AddressRepository…
+2025-05-27 22:00:12.473 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Finished creation of repository instance for {}.
+2025-05-27 22:00:13.078 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Initializing repository instance for com.selimhorri.app.repository.CredentialRepository…
+2025-05-27 22:00:13.378 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.jpa.repository.query.NamedQuery    : Looking up named query Credential.findByUsername
+2025-05-27 22:00:13.466 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.jpa.repository.query.NamedQuery    : Did not find named query Credential.findByUsername
+2025-05-27 22:00:13.777 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Finished creation of repository instance for {}.
+2025-05-27 22:00:14.182 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Initializing repository instance for com.selimhorri.app.repository.UserRepository…
+2025-05-27 22:00:14.265 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.jpa.repository.query.NamedQuery    : Looking up named query User.findByCredentialUsername
+2025-05-27 22:00:14.266 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.jpa.repository.query.NamedQuery    : Did not find named query User.findByCredentialUsername
+2025-05-27 22:00:14.371 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Finished creation of repository instance for {}.
+2025-05-27 22:00:14.869 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Initializing repository instance for com.selimhorri.app.repository.VerificationTokenRepository…
+2025-05-27 22:00:14.970 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.d.r.c.s.RepositoryFactorySupport     : Finished creation of repository instance for {}.
+2025-05-27 22:00:17.484  WARN [USER-SERVICE,,] 1 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-27 22:00:19.188 DEBUG [USER-SERVICE,,] 1 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-05-27 22:00:20.388 DEBUG [USER-SERVICE,,] 1 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 32 mappings in 'requestMappingHandlerMapping'
+2025-05-27 22:00:29.614 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-05-27 22:00:29.922 DEBUG [USER-SERVICE,,] 1 --- [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-05-27 22:00:30.523  WARN [USER-SERVICE,,] 1 --- [           main] ion$DefaultTemplateResolverConfiguration : Cannot find template location: classpath:/templates/ (please add some templates or check your Thymeleaf configuration)
+2025-05-27 22:00:36.314  INFO [USER-SERVICE,,] 1 --- [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2025-05-27 22:00:38.124  WARN [USER-SERVICE,,] 1 --- [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2025-05-27 22:00:38.941  INFO [USER-SERVICE,,] 1 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 26 endpoint(s) beneath base path '/actuator'
+2025-05-27 22:00:39.421  INFO [USER-SERVICE,,] 1 --- [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2025-05-27 22:00:40.217  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2025-05-27 22:00:40.315  INFO [USER-SERVICE,,] 1 --- [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2025-05-27 22:00:40.622  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2025-05-27 22:00:40.622  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2025-05-27 22:00:40.622  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2025-05-27 22:00:40.622  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2025-05-27 22:00:40.622  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2025-05-27 22:00:40.623  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2025-05-27 22:00:40.625  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2025-05-27 22:00:42.241 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.web.client.RestTemplate              : HTTP GET http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/
+2025-05-27 22:00:42.714 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:00:43.029 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:00:43.032 DEBUG [USER-SERVICE,,] 1 --- [           main] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-05-27 22:00:43.122  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2025-05-27 22:00:43.129  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2025-05-27 22:00:43.217  INFO [USER-SERVICE,,] 1 --- [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2025-05-27 22:00:43.229  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1748383243227 with initial instances count: 1
+2025-05-27 22:00:43.417  INFO [USER-SERVICE,,] 1 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application USER-SERVICE with eureka with status UP
+2025-05-27 22:00:43.419  INFO [USER-SERVICE,,] 1 --- [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1748383243419, current=UP, previous=STARTING]
+2025-05-27 22:00:43.428  INFO [USER-SERVICE,,] 1 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700: registering service...
+2025-05-27 22:00:43.532 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : HTTP POST http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE
+2025-05-27 22:00:43.621 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:00:43.750  INFO [USER-SERVICE,,] 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8700 (http) with context path '/user-service'
+2025-05-27 22:00:43.751  INFO [USER-SERVICE,,] 1 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8700
+2025-05-27 22:00:44.019 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Writing [InstanceInfo [instanceId = user-service-7686d899dd-x9v8s:USER-SERVICE:8700, appName = USER-SERVICE, hostName = service-discovery, status = UP, ipAddr = 10.244.0.6, port = 8700, securePort = 443, dataCenterInfo = com.netflix.appinfo.MyDataCenterInfo@6ec7bce0] as "application/json"
+2025-05-27 22:00:44.215  INFO [USER-SERVICE,,] 1 --- [           main] c.selimhorri.app.UserServiceApplication  : Started UserServiceApplication in 108.391 seconds (JVM running for 113.908)
+2025-05-27 22:00:44.231 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Response 204 NO_CONTENT
+2025-05-27 22:00:44.231  INFO [USER-SERVICE,,] 1 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700 - registration status: 204
+2025-05-27 22:01:13.253 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/delta
+2025-05-27 22:01:13.253 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:01:13.258 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700?status=UP&lastDirtyTimestamp=1748383243418
+2025-05-27 22:01:13.263 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:01:13.264 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-05-27 22:01:13.338 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:01:13.348 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:01:43.344 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/delta
+2025-05-27 22:01:43.345 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:01:43.351 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:01:43.352 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-05-27 22:01:43.427 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700?status=UP&lastDirtyTimestamp=1748383243418
+2025-05-27 22:01:43.428 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:01:43.436 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:02:13.512 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/delta
+2025-05-27 22:02:13.513 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:02:13.519 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:02:13.520 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-05-27 22:02:13.597 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700?status=UP&lastDirtyTimestamp=1748383243418
+2025-05-27 22:02:13.598 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:02:13.606 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:02:43.620 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : HTTP GET http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/delta
+2025-05-27 22:02:43.620 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:02:43.628 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:02:43.628 DEBUG [USER-SERVICE,,] 1 --- [freshExecutor-0] o.s.web.client.RestTemplate              : Reading to [org.springframework.cloud.netflix.eureka.http.EurekaApplications]
+2025-05-27 22:02:43.705 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : HTTP PUT http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700?status=UP&lastDirtyTimestamp=1748383243418
+2025-05-27 22:02:43.705 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:02:43.715 DEBUG [USER-SERVICE,,] 1 --- [tbeatExecutor-0] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:02:46.168  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] o.s.c.n.e.s.EurekaServiceRegistry        : Unregistering application USER-SERVICE with eureka with status DOWN
+2025-05-27 22:02:46.169  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1748383366169, current=DOWN, previous=UP]
+2025-05-27 22:02:46.169  INFO [USER-SERVICE,,] 1 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700: registering service...
+2025-05-27 22:02:46.170 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : HTTP POST http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE
+2025-05-27 22:02:46.171 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:02:46.171 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Writing [InstanceInfo [instanceId = user-service-7686d899dd-x9v8s:USER-SERVICE:8700, appName = USER-SERVICE, hostName = service-discovery, status = DOWN, ipAddr = 10.244.0.6, port = 8700, securePort = 443, dataCenterInfo = com.netflix.appinfo.MyDataCenterInfo@6ec7bce0] as "application/json"
+2025-05-27 22:02:46.188 DEBUG [USER-SERVICE,,] 1 --- [nfoReplicator-0] o.s.web.client.RestTemplate              : Response 204 NO_CONTENT
+2025-05-27 22:02:46.265  INFO [USER-SERVICE,,] 1 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700 - registration status: 204
+2025-05-27 22:02:46.293  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-05-27 22:02:47.375  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-05-27 22:02:47.385  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-05-27 22:02:47.387  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Shutting down DiscoveryClient ...
+2025-05-27 22:02:50.392  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Unregistering ...
+2025-05-27 22:02:50.394 DEBUG [USER-SERVICE,,] 1 --- [ionShutdownHook] o.s.web.client.RestTemplate              : HTTP DELETE http://service-discovery.ecommerce.svc.cluster.local:8761/eureka/apps/USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700
+2025-05-27 22:02:50.395 DEBUG [USER-SERVICE,,] 1 --- [ionShutdownHook] o.s.web.client.RestTemplate              : Accept=[application/json, application/*+json]
+2025-05-27 22:02:50.401 DEBUG [USER-SERVICE,,] 1 --- [ionShutdownHook] o.s.web.client.RestTemplate              : Response 200 OK
+2025-05-27 22:02:50.402  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_USER-SERVICE/user-service-7686d899dd-x9v8s:USER-SERVICE:8700 - deregister  status: 200
+2025-05-27 22:02:50.408  INFO [USER-SERVICE,,] 1 --- [ionShutdownHook] com.netflix.discovery.DiscoveryClient    : Completed shut down of DiscoveryClient

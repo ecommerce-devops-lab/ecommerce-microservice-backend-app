@@ -13,7 +13,8 @@ public class MapperConfig {
 	@Bean
 	public ObjectMapper objectMapperBean() {
 		return new JsonMapper()
-				.enable(SerializationFeature.INDENT_OUTPUT);
+				.enable(SerializationFeature.INDENT_OUTPUT)
+				.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 	}
 	
 	
