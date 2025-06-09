@@ -4,7 +4,7 @@ metadata:
   name: ecommerce-config
   namespace: ecommerce
 data:
-  SPRING_PROFILES_ACTIVE: "dev"
+  SPRING_PROFILES_ACTIVE: "native"
   JAVA_OPTS: "-Xms256m -Xmx512m"
 
   # Service Discovery

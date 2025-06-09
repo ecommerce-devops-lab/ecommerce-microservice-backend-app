@@ -6,16 +6,9 @@ spring:
     base-url: ${SPRING_ZIPKIN_BASE_URL:http://localhost:9411/}
   application:
     name: CLOUD-CONFIG
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:git}
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/SelimHorri/cloud-config-server
-          clone-on-start: true
-          timeout: 30
-          skip-ssl-validation: false
         native:
           search-locations: classpath:/config/,file:./config/
 

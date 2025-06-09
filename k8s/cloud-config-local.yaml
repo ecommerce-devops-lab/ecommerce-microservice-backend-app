@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-config-files
+  namespace: ecommerce
+data:
+  application.yml: |
+    server:
+      port: 9296
+    spring:
+      application:
+        name: CLOUD-CONFIG
+      cloud:
+        config:
+          server:
+            native:
+              search-locations: classpath:/config/
+    # Agregar configuración de Eureka
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://service-discovery:8761/eureka/
+        fetch-registry: true
+        register-with-eureka: true
+      instance:
+        prefer-ip-address: true
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+      health:
+        show-details: always
+
+  user-service-dev.yml: |
+    server:
+      port: 8700
+    spring:
+      datasource:
+        url: jdbc:postgresql://localhost:5432/userdb
+        username: admin
+        password: admin
+      jpa:
+        hibernate:
+          ddl-auto: update
+        show-sql: true
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://service-discovery:8761/eureka/
+  product-service-dev.yml: |
+    server:
+      port: 8500
+    spring:
+      datasource:
+        url: jdbc:postgresql://localhost:5432/productdb
+        username: admin
+        password: admin
+      jpa:
+        hibernate:
+          ddl-auto: update
+        show-sql: true
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://service-discovery:8761/eureka/
+  order-service-dev.yml: |
+    server:
+      port: 8300
+    spring:
+      datasource:
+        url: jdbc:postgresql://localhost:5432/orderdb
+        username: admin
+        password: admin
+      jpa:
+        hibernate:
+          ddl-auto: update
+        show-sql: true
+    eureka:
+      client:
+        service-url:
+          defaultZone: http://service-discovery:8761/eureka/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-config
+  namespace: ecommerce
+spec:
+  selector:
+    app: cloud-config
+  ports:
+    - port: 9296
+      targetPort: 9296
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-config
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-config
+  template:
+    metadata:
+      labels:
+        app: cloud-config
+    spec:
+      containers:
+        - name: cloud-config
+          image: selimhorri/cloud-config-ecommerce-boot:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9296
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "native"
+          envFrom:
+            - configMapRef:
+                name: ecommerce-config
+          volumeMounts:
+            - name: config-volume
+              mountPath: /home/app/config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "768Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9296
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9296
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cloud-config-files
