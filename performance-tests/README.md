@@ -1,89 +1,173 @@
-# Guía de Pruebas de Performance y Estrés
+# Performance and Stress Testing Guide
 
-## Cómo Usar
+## Overview
 
-### Instalación de dependencias
+This performance testing suite provides comprehensive load testing for the e-commerce microservices architecture using Locust. It includes tests for all microservices with realistic user flows and scenarios.
+
+## Prerequisites
+
+- Python 3.7+
+- E-commerce application running and accessible
+- Network connectivity to the target deployment
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### Configuración inicial
-Dar permisos de ejecución al script:
+### 2. Initial Configuration
+
+Grant execution permissions to the test script:
+
 ```bash
 chmod +x run-performance-tests.sh
 ```
 
-### Ejecución de pruebas
-Asegúrate de que tu aplicación esté corriendo en el puerto 8765 antes de ejecutar las pruebas.
+### 3. Environment Configuration
 
-#### Opciones de ejecución:
-```bash
-# Todas las pruebas
-./run-performance-tests.sh
-
-# Solo pruebas de rendimiento
-./run-performance-tests.sh performance
-
-# Solo pruebas de estrés
-./run-performance-tests.sh stress
-
-# Prueba rápida
-./run-performance-tests.sh quick
-
-# Prueba de resistencia (larga duración)
-./run-performance-tests.sh endurance
+**For Local Testing:**
+Update `locust.conf` with your local API Gateway URL:
+```ini
+host = http://localhost:8765
 ```
 
-## Microservicios Incluidos en las Pruebas
+**For Cloud Testing:**
+Update `locust.conf` with your cloud deployment URL:
+```ini
+host = http://your-api-gateway-url:port
+```
 
-1. **User Service**
-   - Gestión de usuarios (`/app/api/users`)
-   - Gestión de direcciones (`/app/api/address`)
-   - Gestión de credenciales (`/app/api/credentials`)
-   - Tokens de verificación (`/app/api/verificationTokens`)
+## Test Execution
 
-2. **Product Service**
-   - Catálogo de productos (`/app/api/products`)
-   - Gestión de categorías (`/app/api/categories`)
-   - Operaciones CRUD completas
+### Quick Start
 
-3. **Order Service**
-   - Gestión de órdenes (`/app/api/orders`)
-   - Gestión de carritos (`/app/api/carts`)
-   - Flujo completo de checkout
+Ensure your application is running and accessible before executing tests.
 
-4. **Payment Service**
-   - Procesamiento de pagos (`/app/api/payments`)
-   - Estados de pago (PENDING, COMPLETED, etc.)
+### Available Test Types
 
-5. **Favourite Service**
-   - Gestión de favoritos (`/app/api/favourites`)
-   - Operaciones por usuario
+```bash
+# Connectivity verification (recommended first run)
+./run-performance-tests.sh debug
 
-6. **Shipping Service**
-   - Order Items (`/app/api/shippings`)
-   - Gestión de envíos
+# Quick validation test
+./run-performance-tests.sh quick
 
-## Tipos de Pruebas Implementadas
+# Standard performance test
+./run-performance-tests.sh performance
 
-### Pruebas de Rendimiento
-- **Debug Test**: 5 usuarios, 1 min (para verificar funcionamiento)
-- **Performance Test**: 75 usuarios, 10 min (carga normal)
-- **Load Test**: 100 usuarios, 15 min (carga sostenida)
+# Sustained load test
+./run-performance-tests.sh load
 
-### Pruebas de Estrés
-- **Stress Test**: 300 usuarios, 7.5 min (alta carga)
-- **High Stress**: 500 usuarios, 5 min (estrés extremo)
-- **Spike Test**: 800 usuarios, 3 min (picos de tráfico)
-- **Mega Spike**: 1200 usuarios, 2 min (pico extremo)
+# High stress test
+./run-performance-tests.sh stress
 
-### Pruebas Especializadas
-- **Checkout Flow**: Flujo completo de compra
-- **Catalog Browsing**: Navegación intensiva del catálogo
-- **Endurance Test**: 200 usuarios, 30 min (resistencia)
+# Traffic spike test
+./run-performance-tests.sh spike
 
-## Ejecución Recomendada
-1. **Primero**: Ejecuta debug-test para verificar conectividad
-2. **Desarrollo**: Usa performance y load-test
-3. **Pre-producción**: Ejecuta stress-test y spike-test
-4. **Producción**: Considera endurance-test para validar estabilidad
+# Complete performance test suite
+./run-performance-tests.sh suite
+
+# Stress testing suite
+./run-performance-tests.sh stress-suite
+```
+
+## Microservices Coverage
+
+The testing suite covers all microservices through their correct API Gateway routes:
+
+### 1. **Product Service**
+- Product catalog (`/product-service/api/products`)
+- Category management (`/product-service/api/categories`)
+- Full CRUD operations
+
+### 2. **User Service**
+- User management (`/user-service/api/users`)
+- Address management (`/user-service/api/address`)
+- Credential management (`/user-service/api/credentials`)
+- Verification tokens (`/user-service/api/verificationTokens`)
+
+### 3. **Order Service**
+- Order management (`/order-service/api/orders`)
+- Cart management (`/order-service/api/carts`)
+- Complete checkout flow
+
+### 4. **Payment Service**
+- Payment processing (`/payment-service/api/payments`)
+- Payment status tracking (PENDING, COMPLETED, etc.)
+
+### 5. **Favourite Service**
+- Favorites management (`/favourite-service/api/favourites`)
+- User-specific operations
+
+### 6. **Shipping Service**
+- Order items management (`/shipping-service/api/shippings`)
+- Shipping coordination
+
+### 7. **Proxy Client Service** (if available)
+- Aggregated endpoints (`/app/api/*`)
+- Authentication (`/app/api/authenticate`)
+
+## Test Scenarios
+
+### Performance Tests
+- **Debug Test**: 5 users, 1 minute (connectivity verification)
+- **Quick Test**: 20 users, 2 minutes (rapid validation)
+- **Performance Test**: 50 users, 5 minutes (baseline performance)
+- **Load Test**: 75 users, 10 minutes (sustained load)
+
+### Stress Tests
+- **Stress Test**: 150 users, 5 minutes (high load)
+- **Spike Test**: 300 users, 3 minutes (traffic spikes)
+
+### User Behavior Patterns
+
+The tests simulate realistic e-commerce user behavior:
+
+- **Catalog Browsing** (40% of activity): Product and category navigation
+- **Order Management** (25% of activity): Cart and order operations
+- **User Operations** (20% of activity): User profile and address management
+- **Payment Processing** (10% of activity): Payment workflow
+- **Checkout Flow** (5% of activity): Complete purchase process
+
+### Recommended Test Sequence
+
+1. **Start with Debug**: Verify system connectivity and basic functionality
+   ```bash
+   ./run-simple-tests.sh debug
+   ```
+
+2. **Development Phase**: Use performance and load tests
+   ```bash
+   ./run-simple-tests.sh performance
+   ./run-simple-tests.sh load
+   ```
+
+3. **Pre-Production**: Execute stress tests to find limits
+   ```bash
+   ./run-simple-tests.sh stress
+   ./run-simple-tests.sh spike
+   ```
+
+4. **Production Readiness**: Run complete test suite
+   ```bash
+   ./run-simple-tests.sh suite
+   ```
+
+### Configuration Files
+
+- **`locustfile.py`**: Main test scenarios and user behaviors
+- **`locust.conf`**: Basic Locust configuration
+- **`run-performance-tests.sh`**: Test execution script
+- **`requirements.txt`**: Python dependencies
+
+### Environment-Specific Testing
+
+The test suite supports multiple deployment environments:
+- Local development
+- Staging/testing environments  
+- Production cloud deployments
+
+Update the host URL in `locust.conf` according to your target environment.

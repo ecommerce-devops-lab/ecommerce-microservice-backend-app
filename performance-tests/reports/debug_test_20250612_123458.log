@@ -1,0 +1,175 @@
+[2025-06-12 12:35:01,913] fedora/INFO/locust.main: Starting Locust 2.37.7
+[2025-06-12 12:35:01,914] fedora/INFO/locust.main: Run time limit set to 60 seconds
+[2025-06-12 12:35:01,915] fedora/INFO/locust.runners: Ramping to 5 users at a rate of 1.00 per second
+[2025-06-12 12:35:01,915] fedora/DEBUG/locust.runners: Ramping to {"AdminUser": 1, "EcommerceUser": 0, "HighLoadUser": 0} (1 total users)
+[2025-06-12 12:35:01,915] fedora/DEBUG/locust.runners: Spawning additional {"AdminUser": 1} ({"EcommerceUser": 0, "HighLoadUser": 0, "AdminUser": 0} already running)...
+[2025-06-12 12:35:01,916] fedora/DEBUG/locust.runners: 1 users spawned
+[2025-06-12 12:35:01,916] fedora/DEBUG/locust.runners: All users of class AdminUser spawned
+[2025-06-12 12:35:01,916] fedora/DEBUG/locust.runners: 0 users have been stopped, 1 still running
+[2025-06-12 12:35:01,917] fedora/DEBUG/urllib3.connectionpool: Starting new HTTP connection (1): 34.44.242.122:8080
+[2025-06-12 12:35:02,105] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "POST /app/api/authenticate HTTP/1.1" 503 144
+[2025-06-12 12:35:02,202] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /favourite-service/actuator/health HTTP/1.1" 200 None
+[2025-06-12 12:35:02,207] fedora/ERROR/locust.user.task: Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/Desktop/Universidad/Semestre_7/ecommerce-microservice-backend-app/performance-tests/locustfile.py", line 276, in health_checks
+    response.success()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/clients.py", line 405, in success
+    raise LocustError(
+        "Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:\n\nwith self.client.request(..., catch_response=True) as response:\n    response.success()"
+    )
+locust.exception.LocustError: Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()
+
+[2025-06-12 12:35:02,917] fedora/DEBUG/locust.runners: Ramping to {"AdminUser": 1, "EcommerceUser": 1, "HighLoadUser": 0} (2 total users)
+[2025-06-12 12:35:02,917] fedora/DEBUG/locust.runners: Spawning additional {"EcommerceUser": 1} ({"EcommerceUser": 0, "HighLoadUser": 0, "AdminUser": 1} already running)...
+[2025-06-12 12:35:02,918] fedora/DEBUG/locust.runners: 2 users spawned
+[2025-06-12 12:35:02,918] fedora/DEBUG/locust.runners: All users of class EcommerceUser spawned
+[2025-06-12 12:35:02,918] fedora/DEBUG/locust.runners: 0 users have been stopped, 2 still running
+[2025-06-12 12:35:02,919] fedora/DEBUG/urllib3.connectionpool: Starting new HTTP connection (1): 34.44.242.122:8080
+[2025-06-12 12:35:03,102] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "POST /app/api/authenticate HTTP/1.1" 503 144
+[2025-06-12 12:35:03,918] fedora/DEBUG/locust.runners: Ramping to {"AdminUser": 1, "EcommerceUser": 1, "HighLoadUser": 1} (3 total users)
+[2025-06-12 12:35:03,918] fedora/DEBUG/locust.runners: Spawning additional {"HighLoadUser": 1} ({"EcommerceUser": 1, "HighLoadUser": 0, "AdminUser": 1} already running)...
+[2025-06-12 12:35:03,918] fedora/DEBUG/locust.runners: 3 users spawned
+[2025-06-12 12:35:03,918] fedora/DEBUG/locust.runners: All users of class HighLoadUser spawned
+[2025-06-12 12:35:03,919] fedora/DEBUG/locust.runners: 0 users have been stopped, 3 still running
+[2025-06-12 12:35:03,920] fedora/DEBUG/urllib3.connectionpool: Starting new HTTP connection (1): 34.44.242.122:8080
+[2025-06-12 12:35:04,100] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "POST /app/api/authenticate HTTP/1.1" 503 144
+[2025-06-12 12:35:04,193] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:04,292] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/3 HTTP/1.1" 400 None
+[2025-06-12 12:35:04,919] fedora/DEBUG/locust.runners: Ramping to {"AdminUser": 2, "EcommerceUser": 1, "HighLoadUser": 1} (4 total users)
+[2025-06-12 12:35:04,920] fedora/DEBUG/locust.runners: Spawning additional {"AdminUser": 1} ({"EcommerceUser": 1, "HighLoadUser": 1, "AdminUser": 1} already running)...
+[2025-06-12 12:35:04,920] fedora/DEBUG/locust.runners: 4 users spawned
+[2025-06-12 12:35:04,920] fedora/DEBUG/locust.runners: All users of class AdminUser spawned
+[2025-06-12 12:35:04,920] fedora/DEBUG/locust.runners: 0 users have been stopped, 4 still running
+[2025-06-12 12:35:04,922] fedora/DEBUG/urllib3.connectionpool: Starting new HTTP connection (1): 34.44.242.122:8080
+[2025-06-12 12:35:05,122] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "POST /app/api/authenticate HTTP/1.1" 503 144
+[2025-06-12 12:35:05,427] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/orders HTTP/1.1" 200 None
+[2025-06-12 12:35:05,526] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/carts HTTP/1.1" 200 None
+[2025-06-12 12:35:05,597] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:05,697] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/2 HTTP/1.1" 400 None
+[2025-06-12 12:35:05,921] fedora/DEBUG/locust.runners: Ramping to {"AdminUser": 2, "EcommerceUser": 2, "HighLoadUser": 1} (5 total users)
+[2025-06-12 12:35:05,921] fedora/DEBUG/locust.runners: Spawning additional {"EcommerceUser": 1} ({"EcommerceUser": 1, "HighLoadUser": 1, "AdminUser": 2} already running)...
+[2025-06-12 12:35:05,922] fedora/DEBUG/locust.runners: 5 users spawned
+[2025-06-12 12:35:05,922] fedora/DEBUG/locust.runners: All users of class EcommerceUser spawned
+[2025-06-12 12:35:05,922] fedora/DEBUG/locust.runners: 0 users have been stopped, 5 still running
+[2025-06-12 12:35:05,922] fedora/INFO/locust.runners: All users spawned: {"AdminUser": 2, "EcommerceUser": 2, "HighLoadUser": 1} (5 total users)
+[2025-06-12 12:35:05,923] fedora/DEBUG/urllib3.connectionpool: Starting new HTTP connection (1): 34.44.242.122:8080
+[2025-06-12 12:35:06,105] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "POST /app/api/authenticate HTTP/1.1" 503 144
+[2025-06-12 12:35:06,208] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:06,304] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/2 HTTP/1.1" 400 None
+[2025-06-12 12:35:07,104] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /favourite-service/actuator/health HTTP/1.1" 200 None
+[2025-06-12 12:35:07,107] fedora/ERROR/locust.user.task: Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/Desktop/Universidad/Semestre_7/ecommerce-microservice-backend-app/performance-tests/locustfile.py", line 276, in health_checks
+    response.success()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/clients.py", line 405, in success
+    raise LocustError(
+        "Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:\n\nwith self.client.request(..., catch_response=True) as response:\n    response.success()"
+    )
+locust.exception.LocustError: Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()
+
+[2025-06-12 12:35:08,445] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/orders HTTP/1.1" 200 None
+[2025-06-12 12:35:08,537] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/carts HTTP/1.1" 200 None
+[2025-06-12 12:35:09,203] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:09,302] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/1 HTTP/1.1" 400 None
+[2025-06-12 12:35:09,455] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:09,549] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/1 HTTP/1.1" 400 None
+[2025-06-12 12:35:10,938] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:11,036] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/1 HTTP/1.1" 400 None
+[2025-06-12 12:35:12,245] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:12,271] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:12,337] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/4 HTTP/1.1" 400 None
+[2025-06-12 12:35:12,373] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/2 HTTP/1.1" 400 None
+[2025-06-12 12:35:12,934] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:13,030] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/5 HTTP/1.1" 400 None
+[2025-06-12 12:35:14,721] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/orders HTTP/1.1" 200 None
+[2025-06-12 12:35:14,817] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/carts HTTP/1.1" 200 None
+[2025-06-12 12:35:16,579] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:16,674] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/5 HTTP/1.1" 400 None
+[2025-06-12 12:35:17,678] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/actuator/health HTTP/1.1" 200 None
+[2025-06-12 12:35:17,681] fedora/ERROR/locust.user.task: Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()
+Traceback (most recent call last):
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File "/home/juanmad/Desktop/Universidad/Semestre_7/ecommerce-microservice-backend-app/performance-tests/locustfile.py", line 276, in health_checks
+    response.success()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/juanmad/.local/lib/python3.13/site-packages/locust/clients.py", line 405, in success
+    raise LocustError(
+        "Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:\n\nwith self.client.request(..., catch_response=True) as response:\n    response.success()"
+    )
+locust.exception.LocustError: Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()
+
+[2025-06-12 12:35:17,710] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:17,809] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/3 HTTP/1.1" 400 None
+[2025-06-12 12:35:19,119] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:19,214] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/4 HTTP/1.1" 400 None
+[2025-06-12 12:35:21,544] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/orders HTTP/1.1" 200 None
+[2025-06-12 12:35:21,636] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /order-service/api/carts HTTP/1.1" 200 None
+[2025-06-12 12:35:22,639] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:22,740] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/2 HTTP/1.1" 400 None
+[2025-06-12 12:35:22,840] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:22,935] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/3 HTTP/1.1" 400 None
+[2025-06-12 12:35:24,559] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:24,680] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/4 HTTP/1.1" 400 None
+[2025-06-12 12:35:24,683] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:24,775] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/2 HTTP/1.1" 400 None
+[2025-06-12 12:35:25,292] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products HTTP/1.1" 200 None
+[2025-06-12 12:35:25,387] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/products/2 HTTP/1.1" 400 None
+[2025-06-12 12:35:25,914] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories HTTP/1.1" 200 None
+[2025-06-12 12:35:26,016] fedora/DEBUG/urllib3.connectionpool: http://34.44.242.122:8080 "GET /product-service/api/categories/3 HTTP/1.1" 400 None
+[2025-06-12 12:35:26,967] fedora/INFO/locust.main: writing html report to file: reports/debug_test_20250612_123458.html
+[2025-06-12 12:35:26,971] fedora/DEBUG/locust.main: Running teardowns...
+[2025-06-12 12:35:26,971] fedora/INFO/locust.main: Shutting down (exit code 1)
+[2025-06-12 12:35:26,971] fedora/DEBUG/locust.main: Cleaning up runner...
+[2025-06-12 12:35:27,015] fedora/DEBUG/locust.runners: Stopping all users (called from /home/juanmad/.local/lib/python3.13/site-packages/locust/runners.py:551)
+[2025-06-12 12:35:27,016] fedora/DEBUG/locust.runners: Stopping Greenlet-0
+[2025-06-12 12:35:27,016] fedora/DEBUG/locust.runners: Stopping Greenlet-1
+[2025-06-12 12:35:27,016] fedora/DEBUG/locust.runners: Stopping Greenlet-2
+[2025-06-12 12:35:27,016] fedora/DEBUG/locust.runners: Stopping Greenlet-3
+[2025-06-12 12:35:27,016] fedora/DEBUG/locust.runners: Stopping Greenlet-4
+[2025-06-12 12:35:27,018] fedora/DEBUG/locust.runners: 5 users have been stopped, 0 still running
