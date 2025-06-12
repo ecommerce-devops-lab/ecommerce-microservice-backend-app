@@ -1,415 +1,241 @@
 #!/bin/bash
-# performance-tests/run-performance-tests.sh
-# Script corregido compatible con todas las versiones de Locust
 
 set -e
 
-# Colores para output
-RED='\033[0;31m'
+# Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
 NC='\033[0m'
 
-# Configuración
-USER_SERVICE_URL="http://localhost:8700"
+# Configuration
+HOST_URL="http://localhost:8765"
 REPORTS_DIR="reports"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+LOCUST_FILE="locustfile.py"
+CONFIG_FILE="locust.conf"
 
-# Crear directorio de reportes si no existe
+# Create reports directory
 mkdir -p ${REPORTS_DIR}
 
-echo -e "${BLUE}🚀 Iniciando Pruebas de Performance para User Service${NC}"
+echo -e "${BLUE}🚀 E-commerce Microservices Performance Testing Suite${NC}"
+echo -e "${BLUE}=================================================${NC}"
 
-# Verificar versión de Locust
-check_locust_version() {
-    if command -v locust &> /dev/null; then
-        LOCUST_VERSION=$(locust --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
-        echo -e "${BLUE}📦 Versión de Locust detectada: ${LOCUST_VERSION}${NC}"
-    else
-        echo -e "${RED}❌ Locust no está instalado${NC}"
-        echo "Instalar con: pip3 install locust"
+# Function to check system health
+check_system_health() {
+    echo -e "${YELLOW}🔍 Checking system availability...${NC}"
+    
+    # Check API Gateway
+    if ! curl -f -s "${HOST_URL}/product-service/api/products" > /dev/null 2>&1; then
+        echo -e "${RED}❌ API Gateway not accessible at ${HOST_URL}${NC}"
+        echo "Make sure your e-commerce application is running"
         exit 1
     fi
-}
-
-# Función para verificar si el servicio está disponible
-check_service_health() {
-    echo -e "${YELLOW}🔍 Verificando disponibilidad del servicio...${NC}"
     
-    max_attempts=30
-    attempt=1
-    
-    while [ $attempt -le $max_attempts ]; do
-        if curl -f -s "${USER_SERVICE_URL}/user-service/actuator/health" > /dev/null 2>&1; then
-            echo -e "${GREEN}✅ Servicio disponible${NC}"
-            return 0
+    # Check individual microservices through proxy
+    services=("users" "products" "categories" "orders" "carts" "payments" "favourites" "credentials")
+    for service in "${services[@]}"; do
+        if curl -f -s "${HOST_URL}/app/api/${service}" > /dev/null 2>&1; then
+            echo -e "${GREEN}✅ ${service} service accessible${NC}"
+        else
+            echo -e "${YELLOW}⚠️  ${service} service check failed (may require auth)${NC}"
         fi
-        
-        echo "Intento $attempt/$max_attempts - Esperando que el servicio esté disponible..."
-        sleep 2
-        ((attempt++))
     done
     
-    echo -e "${RED}❌ El servicio no está disponible después de $max_attempts intentos${NC}"
-    echo "Verifica que user-service esté corriendo en ${USER_SERVICE_URL}"
-    exit 1
+    echo -e "${GREEN}✅ System health check completed${NC}"
 }
 
-# Función para ejecutar prueba de carga (versión compatible)
-run_load_test() {
+# Function to run a specific test configuration
+run_test() {
     local test_name=$1
-    local users=$2
-    local spawn_rate=$3
-    local duration=$4
-    local locust_file=${5:-"locustfile.py"}
+    local config_section=$2
     
-    echo -e "${BLUE}📊 Ejecutando $test_name...${NC}"
-    echo "Usuarios: $users, Spawn Rate: $spawn_rate, Duración: $duration"
-    echo "Archivo: $locust_file"
+    echo -e "${BLUE}📊 Running ${test_name}...${NC}"
     
-    # Verificar que el archivo de Locust existe
-    if [ ! -f "$locust_file" ]; then
-        echo -e "${RED}❌ Archivo $locust_file no encontrado${NC}"
-        return 1
-    fi
-    
-    # Comando básico compatible con todas las versiones
     locust \
-        --host="$USER_SERVICE_URL" \
-        --users=$users \
-        --spawn-rate=$spawn_rate \
-        --run-time=$duration \
+        --config=${CONFIG_FILE} \
+        --config-section=${config_section} \
         --headless \
         --html="${REPORTS_DIR}/${test_name}_${TIMESTAMP}.html" \
         --csv="${REPORTS_DIR}/${test_name}_${TIMESTAMP}" \
         --logfile="${REPORTS_DIR}/${test_name}_${TIMESTAMP}.log" \
-        --loglevel=INFO \
-        -f "$locust_file"
+        -f ${LOCUST_FILE}
     
-    local exit_code=$?
-    
-    if [ $exit_code -eq 0 ]; then
-        echo -e "${GREEN}✅ $test_name completado${NC}"
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ ${test_name} completed successfully${NC}"
     else
-        echo -e "${RED}❌ $test_name falló con código $exit_code${NC}"
-        return $exit_code
+        echo -e "${RED}❌ ${test_name} failed${NC}"
+        return 1
     fi
 }
 
-# Función para crear archivo de Locust específico para cada test
-create_specific_locustfile() {
-    local test_type=$1
-    local output_file="locustfile_${test_type}.py"
+# Function to run performance tests
+run_performance_tests() {
+    echo -e "${YELLOW}🧪 Starting Performance Tests...${NC}"
     
-    case "$test_type" in
-        "users")
-            cat > "$output_file" << 'EOF'
-from locust import HttpUser, task, between
-import json
-import random
-from faker import Faker
-
-fake = Faker()
-
-class UserServiceUser(HttpUser):
-    wait_time = between(1, 3)
-    host = "http://localhost:8700"
+    # 1. Debug test (small scale)
+    run_test "01_debug_test" "debug-test"
+    sleep 5
     
-    def on_start(self):
-        self.user_ids = []
-        self.test_users = []
-        self.create_test_data()
+    # 2. Performance test (normal load)
+    run_test "02_performance_test" "performance-test"
+    sleep 10
     
-    def create_test_data(self):
-        for i in range(5):
-            user_data = {
-                "firstName": fake.first_name(),
-                "lastName": fake.last_name(),
-                "email": fake.email(),
-                "phone": fake.phone_number()[:15],
-                "credentialDto": {
-                    "username": f"test_user_{random.randint(1000, 9999)}_{i}",
-                    "password": "test123",
-                    "roleBasedAuthority": "ROLE_USER",
-                    "isEnabled": True,
-                    "isAccountNonExpired": True,
-                    "isAccountNonLocked": True,
-                    "isCredentialsNonExpired": True
-                }
-            }
-            self.test_users.append(user_data)
+    # 3. Load test (sustained load)
+    run_test "03_load_test" "load-test"
+    sleep 15
     
-    @task(3)
-    def get_all_users(self):
-        with self.client.get("/user-service/api/users", catch_response=True) as response:
-            if response.status_code == 200:
-                response.success()
-            else:
-                response.failure(f"Got status code {response.status_code}")
-    
-    @task(2)
-    def create_user(self):
-        user_data = random.choice(self.test_users)
-        user_data["credentialDto"]["username"] = f"user_{random.randint(10000, 99999)}"
-        
-        with self.client.post("/user-service/api/users", json=user_data, catch_response=True) as response:
-            if response.status_code == 201:
-                try:
-                    data = response.json()
-                    if "data" in data and "userId" in data["data"]:
-                        self.user_ids.append(data["data"]["userId"])
-                        response.success()
-                except:
-                    response.failure("Invalid response format")
-            else:
-                response.failure(f"Got status code {response.status_code}")
-    
-    @task(2)
-    def get_user_by_id(self):
-        if not self.user_ids:
-            return
-        
-        user_id = random.choice(self.user_ids)
-        with self.client.get(f"/user-service/api/users/{user_id}", catch_response=True) as response:
-            if response.status_code == 200:
-                response.success()
-            elif response.status_code == 404:
-                if user_id in self.user_ids:
-                    self.user_ids.remove(user_id)
-                response.failure("User not found")
-            else:
-                response.failure(f"Got status code {response.status_code}")
-EOF
-            ;;
-        "credentials")
-            cat > "$output_file" << 'EOF'
-from locust import HttpUser, task, between
-import random
-
-class CredentialServiceUser(HttpUser):
-    wait_time = between(1, 2)
-    host = "http://localhost:8700"
-    
-    @task(2)
-    def get_all_credentials(self):
-        with self.client.get("/user-service/api/credentials", catch_response=True) as response:
-            if response.status_code == 200:
-                response.success()
-            else:
-                response.failure(f"Got status code {response.status_code}")
-    
-    @task(1)
-    def get_credential_by_username(self):
-        username = f"test_user_{random.randint(1, 100)}"
-        with self.client.get(f"/user-service/api/credentials/username/{username}", catch_response=True) as response:
-            if response.status_code in [200, 404]:
-                response.success()
-            else:
-                response.failure(f"Got status code {response.status_code}")
-EOF
-            ;;
-        "addresses")
-            cat > "$output_file" << 'EOF'
-from locust import HttpUser, task, between
-
-class AddressServiceUser(HttpUser):
-    wait_time = between(1, 2)
-    host = "http://localhost:8700"
-    
-    @task(3)
-    def get_all_addresses(self):
-        with self.client.get("/user-service/api/address", catch_response=True) as response:
-            if response.status_code == 200:
-                response.success()
-            else:
-                response.failure(f"Got status code {response.status_code}")
-EOF
-            ;;
-    esac
-    
-    echo "$output_file"
+    echo -e "${GREEN}✅ Performance tests completed${NC}"
 }
 
-# Función para ejecutar todas las pruebas
-run_all_tests() {
-    echo -e "${YELLOW}🧪 Ejecutando suite completa de pruebas de performance${NC}"
+# Function to run stress tests
+run_stress_tests() {
+    echo -e "${YELLOW}💪 Starting Stress Tests...${NC}"
     
-    # Verificar que locustfile.py existe
-    if [ ! -f "locustfile.py" ]; then
-        echo -e "${YELLOW}⚠️  locustfile.py no encontrado, usando el archivo por defecto${NC}"
-        # Usar el archivo de usuarios como default
-        DEFAULT_FILE=$(create_specific_locustfile "users")
-        cp "$DEFAULT_FILE" "locustfile.py"
-    fi
+    # 1. Stress test
+    run_test "04_stress_test" "stress-test"
+    sleep 20
     
-    # Prueba de carga ligera
-    run_load_test "light_load" 25 5 "180s" "locustfile.py"
-    sleep 10
+    # 2. High stress test
+    run_test "05_high_stress_test" "high-stress-test"
+    sleep 20
     
-    # Prueba de carga normal
-    run_load_test "normal_load" 50 10 "300s" "locustfile.py"
-    sleep 10
+    # 3. Spike test
+    run_test "06_spike_test" "spike-test"
+    sleep 15
     
-    # Prueba de carga pesada
-    run_load_test "heavy_load" 100 20 "300s" "locustfile.py"
-    sleep 10
-    
-    # Prueba de stress
-    run_load_test "stress_test" 200 50 "180s" "locustfile.py"
+    echo -e "${GREEN}✅ Stress tests completed${NC}"
 }
 
-# Función para ejecutar pruebas específicas de endpoints
-run_endpoint_tests() {
-    echo -e "${YELLOW}🎯 Ejecutando pruebas específicas por endpoint${NC}"
+# Function to run specialized tests
+run_specialized_tests() {
+    echo -e "${YELLOW}🎯 Starting Specialized Tests...${NC}"
     
-    # Test específico para usuarios
-    USER_FILE=$(create_specific_locustfile "users")
-    run_load_test "users_endpoint" 50 10 "240s" "$USER_FILE"
+    # 1. Checkout flow test
+    run_test "07_checkout_flow_test" "checkout-flow-test"
     sleep 10
     
-    # Test específico para credenciales
-    CRED_FILE=$(create_specific_locustfile "credentials")
-    run_load_test "credentials_endpoint" 30 8 "180s" "$CRED_FILE"
+    # 2. Catalog browsing test
+    run_test "08_catalog_test" "catalog-browsing-test"
     sleep 10
     
-    # Test específico para direcciones
-    ADDR_FILE=$(create_specific_locustfile "addresses")
-    run_load_test "addresses_endpoint" 25 5 "180s" "$ADDR_FILE"
-    
-    # Limpiar archivos temporales
-    rm -f locustfile_*.py
+    echo -e "${GREEN}✅ Specialized tests completed${NC}"
 }
 
-# Función para generar reporte consolidado
-generate_consolidated_report() {
-    echo -e "${BLUE}📈 Generando reporte consolidado...${NC}"
+# Function to run scalability tests
+run_scalability_tests() {
+    echo -e "${YELLOW}📈 Starting Scalability Tests...${NC}"
     
-    cat > "${REPORTS_DIR}/performance_summary_${TIMESTAMP}.md" << EOF
-# Reporte de Pruebas de Performance - User Service
-
-**Fecha:** $(date)
-**Servicio:** User Service  
-**URL:** $USER_SERVICE_URL
-
-## Archivos Generados
-
-### Reportes HTML:
-EOF
-    
-    ls ${REPORTS_DIR}/*${TIMESTAMP}.html 2>/dev/null | while read file; do
-        echo "- $(basename $file)" >> "${REPORTS_DIR}/performance_summary_${TIMESTAMP}.md"
+    for i in {1..4}; do
+        run_test "09_scalability_step_${i}" "scalability-step-${i}"
+        sleep 10
     done
     
-    echo "" >> "${REPORTS_DIR}/performance_summary_${TIMESTAMP}.md"
-    echo "### Datos CSV:" >> "${REPORTS_DIR}/performance_summary_${TIMESTAMP}.md"
-    ls ${REPORTS_DIR}/*${TIMESTAMP}_stats.csv 2>/dev/null | while read file; do
-        echo "- $(basename $file)" >> "${REPORTS_DIR}/performance_summary_${TIMESTAMP}.md"
-    done
-    
-    echo -e "${GREEN}✅ Reporte consolidado generado: ${REPORTS_DIR}/performance_summary_${TIMESTAMP}.md${NC}"
+    echo -e "${GREEN}✅ Scalability tests completed${NC}"
 }
 
-# Función para analizar resultados
-analyze_results() {
-    echo -e "${BLUE}🔍 Analizando resultados...${NC}"
+# Function to generate summary report
+generate_summary() {
+    echo -e "${BLUE}📋 Generating Summary Report...${NC}"
     
-    if command -v python3 &> /dev/null; then
-        python3 << EOF
-import pandas as pd
-import glob
-import os
-
-csv_files = glob.glob("${REPORTS_DIR}/*${TIMESTAMP}_stats.csv")
-
-if csv_files:
-    print("📊 Análisis de Resultados:")
-    print("=" * 50)
+    summary_file="${REPORTS_DIR}/test_summary_${TIMESTAMP}.txt"
     
-    for csv_file in csv_files:
-        test_name = os.path.basename(csv_file).replace("_${TIMESTAMP}_stats.csv", "")
-        print(f"\\n🔸 {test_name.upper()}:")
-        
-        try:
-            df = pd.read_csv(csv_file)
-            if not df.empty:
-                total_requests = df['Request Count'].sum()
-                avg_response_time = df['Average Response Time'].mean()
-                max_response_time = df['Max Response Time'].max()
-                failure_rate = (df['Failure Count'].sum() / total_requests * 100) if total_requests > 0 else 0
-                
-                print(f"  Total Requests: {total_requests:,}")
-                print(f"  Avg Response Time: {avg_response_time:.2f}ms")
-                print(f"  Max Response Time: {max_response_time:.2f}ms")
-                print(f"  Failure Rate: {failure_rate:.2f}%")
-                
-                if 'Requests/s' in df.columns:
-                    avg_rps = df['Requests/s'].mean()
-                    print(f"  Average RPS: {avg_rps:.2f}")
-        except Exception as e:
-            print(f"  Error leyendo {csv_file}: {e}")
-else:
-    print("No se encontraron archivos CSV para analizar")
+    cat > ${summary_file} << EOF
+E-commerce Microservices Performance Test Summary
+=================================================
+Test Date: $(date)
+Host: ${HOST_URL}
+
+Test Files Generated:
 EOF
-    else
-        echo "Python3 no disponible para análisis automático"
-        echo "Revisa manualmente los archivos en ${REPORTS_DIR}/"
-    fi
+    
+    find ${REPORTS_DIR} -name "*${TIMESTAMP}*" -type f | sort >> ${summary_file}
+    
+    echo -e "${GREEN}✅ Summary report generated: ${summary_file}${NC}"
 }
 
-# Función principal
+# Main execution function
 main() {
-    check_locust_version
+    echo -e "${BLUE}Starting comprehensive performance testing suite...${NC}"
     
+    # Check if required files exist
+    if [ ! -f ${LOCUST_FILE} ]; then
+        echo -e "${RED}❌ ${LOCUST_FILE} not found${NC}"
+        exit 1
+    fi
+    
+    if [ ! -f ${CONFIG_FILE} ]; then
+        echo -e "${RED}❌ ${CONFIG_FILE} not found${NC}"
+        exit 1
+    fi
+    
+    # System health check
+    check_system_health
+    
+    # Parse command line arguments
     case "${1:-all}" in
-        "health")
-            check_service_health
-            ;;
-        "light")
-            check_service_health
-            run_load_test "light_load" 25 5 "180s"
-            ;;
-        "normal")
-            check_service_health
-            run_load_test "normal_load" 50 10 "300s"
-            ;;
-        "heavy")
-            check_service_health
-            run_load_test "heavy_load" 100 20 "300s"
+        "performance")
+            run_performance_tests
             ;;
         "stress")
-            check_service_health
-            run_load_test "stress_test" 200 50 "180s"
+            run_stress_tests
             ;;
-        "endpoints")
-            check_service_health
-            run_endpoint_tests
+        "specialized")
+            run_specialized_tests
             ;;
-        "all")
-            check_service_health
-            run_all_tests
-            generate_consolidated_report
-            analyze_results
+        "scalability")
+            run_scalability_tests
             ;;
-        "analyze")
-            analyze_results
+        "quick")
+            echo -e "${YELLOW}🚀 Running quick test suite...${NC}"
+            run_test "quick_performance" "performance-test"
+            run_test "quick_stress" "stress-test"
             ;;
-        *)
-            echo "Uso: $0 [health|light|normal|heavy|stress|endpoints|all|analyze]"
-            echo ""
-            echo "Comandos disponibles:"
-            echo "  health    - Verificar salud del servicio"
-            echo "  light     - Prueba de carga ligera (25 usuarios)"
-            echo "  normal    - Prueba de carga normal (50 usuarios)"
-            echo "  heavy     - Prueba de carga pesada (100 usuarios)"
-            echo "  stress    - Prueba de stress (200 usuarios)"
-            echo "  endpoints - Pruebas específicas por endpoint"
-            echo "  all       - Ejecutar todas las pruebas"
-            echo "  analyze   - Analizar resultados existentes"
-            exit 1
+        "endurance")
+            echo -e "${YELLOW}⏱️  Running endurance test...${NC}"
+            run_test "endurance_test" "microservices-endurance"
+            ;;
+        "all"|*)
+            run_performance_tests
+            run_stress_tests
+            run_specialized_tests
             ;;
     esac
+    
+    # Generate summary
+    generate_summary
+    
+    echo -e "${GREEN}🎉 All tests completed! Check the reports directory for results.${NC}"
+    echo -e "${BLUE}Reports location: ${REPORTS_DIR}${NC}"
+    
+    # Show quick stats if available
+    if command -v ls > /dev/null 2>&1; then
+        echo -e "${YELLOW}Generated files:${NC}"
+        ls -la ${REPORTS_DIR}/*${TIMESTAMP}* 2>/dev/null || echo "No files found with timestamp ${TIMESTAMP}"
+    fi
 }
 
-# Ejecutar función principal con argumentos
+# Show usage information
+show_usage() {
+    echo "Usage: $0 [performance|stress|specialized|scalability|quick|endurance|all]"
+    echo ""
+    echo "Test Types:"
+    echo "  performance  - Run only performance tests (normal load)"
+    echo "  stress       - Run only stress tests (high load)"
+    echo "  specialized  - Run checkout and catalog specific tests"
+    echo "  scalability  - Run progressive load tests"
+    echo "  quick        - Run a quick subset of tests"
+    echo "  endurance    - Run long-duration endurance test"
+    echo "  all          - Run comprehensive test suite (default)"
+    echo ""
+}
+
+# Handle help flag
+if [[ "${1}" == "-h" || "${1}" == "--help" ]]; then
+    show_usage
+    exit 0
+fi
+
+# Execute main function
 main "$@"
