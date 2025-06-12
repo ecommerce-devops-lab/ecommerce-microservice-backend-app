@@ -1,0 +1,141 @@
+# OWASP ZAP Automation Framework Configuration
+
+env:
+  contexts:
+    - name: "E-commerce-Context"
+      urls:
+        - "http://34.44.242.122:8080"
+      includePaths:
+        - "http://34.44.242.122:8080/product-service/.*"
+        - "http://34.44.242.122:8080/user-service/.*"
+        - "http://34.44.242.122:8080/order-service/.*"
+        - "http://34.44.242.122:8080/payment-service/.*"
+        - "http://34.44.242.122:8080/favourite-service/.*"
+        - "http://34.44.242.122:8080/shipping-service/.*"
+        - "http://34.44.242.122:8080/app/.*"
+      excludePaths:
+        - ".*\\.js$"
+        - ".*\\.css$"
+        - ".*\\.png$"
+        - ".*\\.jpg$"
+        - ".*\\.gif$"
+        - ".*\\.ico$"
+      authentication:
+        method: "form"
+        loginUrl: "http://34.44.242.122:8080/app/api/authenticate"
+        usernameParameter: "username"
+        passwordParameter: "password"
+        extraPostData: ""
+      sessionManagement:
+        method: "cookie"
+      users:
+        - name: "test-user"
+          username: "selimhorri"
+          password: "password"
+
+jobs:
+  # Job 1: Environment Setup
+  - type: "env"
+    parameters:
+      failOnError: true
+      failOnWarning: false
+      progressToStdout: true
+
+  # Job 2: Spider all microservices
+  - type: "spider"
+    parameters:
+      context: "E-commerce-Context"
+      url: "http://34.44.242.122:8080"
+      maxDuration: 10
+      maxDepth: 5
+      numberOfThreads: 5
+      acceptCookies: true
+      handleODataParametersVisited: false
+      requestWaitTime: 200
+      processForm: true
+      postForm: true
+      parseComments: true
+      parseRobotsTxt: true
+      parseSVGImages: false
+      parseSitemapXml: false
+      sendRefererHeader: true
+
+  # Job 3: Passive Scan
+  - type: "passiveScan-wait"
+    parameters:
+      maxDuration: 10
+
+  # Job 4: Active Scan - Product Service
+  - type: "activeScan"
+    parameters:
+      context: "E-commerce-Context"
+      policy: "Default Policy"
+      maxRuleDurationInMins: 5
+      maxScanDurationInMins: 15
+      addQueryParam: false
+      defaultAscanPolicyName: "Default Policy"
+      delayInMs: 0
+      handleAntiCSRFTokens: true
+      inScopeOnly: true
+      scanHeadersAllRequests: true
+      threadPerHost: 2
+      hostPerScan: 2
+
+  # Job 5: Active Scan - User Service  
+  - type: "activeScan"
+    parameters:
+      context: "E-commerce-Context"
+      url: "http://34.44.242.122:8080/user-service/"
+      policy: "Default Policy"
+      maxRuleDurationInMins: 5
+      maxScanDurationInMins: 15
+
+  # Job 6: Active Scan - Order Service
+  - type: "activeScan"
+    parameters:
+      context: "E-commerce-Context"
+      url: "http://34.44.242.122:8080/order-service/"
+      policy: "Default Policy"
+      maxRuleDurationInMins: 5
+      maxScanDurationInMins: 15
+
+  # Job 7: Active Scan - Payment Service
+  - type: "activeScan"
+    parameters:
+      context: "E-commerce-Context"
+      url: "http://34.44.242.122:8080/payment-service/"
+      policy: "Default Policy"
+      maxRuleDurationInMins: 5
+      maxScanDurationInMins: 15
+
+  # Job 8: Authentication Testing
+  - type: "activeScan"
+    parameters:
+      context: "E-commerce-Context"
+      url: "http://34.44.242.122:8080/app/api/authenticate"
+      policy: "Default Policy"
+      maxRuleDurationInMins: 3
+      maxScanDurationInMins: 10
+
+  # Job 9: Report Generation
+  - type: "report"
+    parameters:
+      template: "risk-confidence-html"
+      reportDir: "/zap/reports"
+      reportFile: "ecommerce-security-report"
+      reportTitle: "E-commerce Microservices Security Report"
+      reportDescription: "Security assessment of e-commerce microservices architecture"
+
+  # Job 10: JSON Report
+  - type: "report"
+    parameters:
+      template: "jsonplus"
+      reportDir: "/zap/reports"
+      reportFile: "ecommerce-security-report.json"
+
+  # Job 11: XML Report
+  - type: "report"
+    parameters:
+      template: "xml"
+      reportDir: "/zap/reports"
+      reportFile: "ecommerce-security-report.xml"

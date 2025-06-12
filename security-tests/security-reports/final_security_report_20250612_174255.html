@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-commerce Security Assessment</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; margin: 0 auto; 
+            background: white; border-radius: 15px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #2c3e50, #3498db); 
+            color: white; padding: 40px; text-align: center; 
+        }
+        .header h1 { margin: 0; font-size: 2.5em; font-weight: 300; }
+        .header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1.1em; }
+        
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 0; 
+        }
+        .stat { 
+            padding: 30px; text-align: center; 
+            color: white; font-weight: bold;
+            position: relative;
+        }
+        .stat-high { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .stat-medium { background: linear-gradient(135deg, #f39c12, #d68910); }
+        .stat-low { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .stat-info { background: linear-gradient(135deg, #27ae60, #229954); }
+        .stat h2 { margin: 0; font-size: 3em; font-weight: 300; }
+        .stat p { margin: 10px 0 0 0; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .content { padding: 40px; }
+        .section { margin: 30px 0; }
+        .section h2 { 
+            color: #2c3e50; margin-bottom: 20px; 
+            padding-bottom: 10px; border-bottom: 3px solid #3498db;
+            font-weight: 300; font-size: 1.8em;
+        }
+        
+        .alert-summary { 
+            background: #f8f9fa; padding: 25px; 
+            border-radius: 10px; border-left: 5px solid #3498db; 
+            margin: 20px 0;
+        }
+        .recommendations { 
+            background: #fff3cd; padding: 25px; 
+            border-radius: 10px; border-left: 5px solid #ffc107; 
+        }
+        .next-steps { 
+            background: #d4edda; padding: 25px; 
+            border-radius: 10px; border-left: 5px solid #28a745; 
+        }
+        
+        .code-block { 
+            background: #2c3e50; color: #ecf0f1; 
+            padding: 20px; border-radius: 8px; 
+            overflow-x: auto; font-family: 'Courier New', monospace;
+            white-space: pre-wrap; line-height: 1.4;
+        }
+        
+        .highlight { background: #fff2cc; padding: 2px 6px; border-radius: 3px; }
+        .risk-high { color: #e74c3c; font-weight: bold; }
+        .risk-medium { color: #f39c12; font-weight: bold; }
+        .risk-low { color: #3498db; font-weight: bold; }
+        
+        ul, ol { line-height: 1.6; }
+        li { margin: 8px 0; }
+        
+        .footer { 
+            background: #34495e; color: white; 
+            padding: 20px; text-align: center; 
+            font-size: 0.9em; opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Security Assessment Report</h1>
+            <p><strong>Target:</strong> http://34.44.242.122:8080</p>
+            <p><strong>Date:</strong> 2025-06-12 17:43:41</p>
+            <p><strong>Scanner:</strong> OWASP ZAP 2.16.1 + Manual Testing</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat stat-high">
+                <h2>0</h2>
+                <p>High Risk</p>
+            </div>
+            <div class="stat stat-medium">
+                <h2>0</h2>
+                <p>Medium Risk</p>
+            </div>
+            <div class="stat stat-low">
+                <h2>5</h2>
+                <p>Low Risk</p>
+            </div>
+            <div class="stat stat-info">
+                <h2>0</h2>
+                <p>Informational</p>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="section alert-summary">
+                <h2>📊 Executive Summary</h2>
+                <p>Comprehensive security assessment completed for the e-commerce microservices platform. 
+                   <span class="highlight">Total 5 security findings</span> were identified across 
+                   multiple service endpoints.</p>
+                
+                <h3>🎯 Scope Covered</h3>
+                <ul>
+                    <li>🕷️ <strong>Automated Web Crawling</strong> - Discovered and mapped application endpoints</li>
+                    <li>🔐 <strong>Authentication Testing</strong> - Tested for weak credentials and auth bypass</li>
+                    <li>🌐 <strong>API Security Assessment</strong> - Evaluated REST API security posture</li>
+                    <li>🔒 <strong>Security Headers Analysis</strong> - Verified implementation of security controls</li>
+                    <li>🚨 <strong>OWASP Top 10 Testing</strong> - Comprehensive vulnerability scanning</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>🚨 Detailed Security Findings</h2>
+                <div class="code-block">{"alerts":[{"sourceid":"3","other":"This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses.","method":"GET","evidence":"","pluginId":"10021","cweid":"693","confidence":"Medium","sourceMessageId":7,"wascid":"15","description":"The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.","messageId":"7","inputVector":"","url":"http://34.44.242.122:8080/product-service/api/products","tags":{"OWASP_2021_A05":"https://owasp.org/Top10/A05_2021-Security_Misconfiguration/","CWE-693":"https://cwe.mitre.org/data/definitions/693.html","OWASP_2017_A06":"https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"},"reference":"https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)\nhttps://owasp.org/www-community/Security_Headers","solution":"Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.\nIf possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.","alert":"X-Content-Type-Options Header Missing","param":"x-content-type-options","attack":"","name":"X-Content-Type-Options Header Missing","risk":"Low","id":"0","alertRef":"10021"},{"sourceid":"3","other":"This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses.","method":"GET","evidence":"","pluginId":"10021","cweid":"693","confidence":"Medium","sourceMessageId":13,"wascid":"15","description":"The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.","messageId":"13","inputVector":"","url":"http://34.44.242.122:8080/product-service/api/categories","tags":{"OWASP_2021_A05":"https://owasp.org/Top10/A05_2021-Security_Misconfiguration/","CWE-693":"https://cwe.mitre.org/data/definitions/693.html","OWASP_2017_A06":"https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"},"reference":"https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)\nhttps://owasp.org/www-community/Security_Headers","solution":"Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.\nIf possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.","alert":"X-Content-Type-Options Header Missing","param":"x-content-type-options","attack":"","name":"X-Content-Type-Options Header Missing","risk":"Low","id":"1","alertRef":"10021"},{"sourceid":"3","other":"This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses.","method":"GET","evidence":"","pluginId":"10021","cweid":"693","confidence":"Medium","sourceMessageId":20,"wascid":"15","description":"The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.","messageId":"20","inputVector":"","url":"http://34.44.242.122:8080/user-service/api/users","tags":{"OWASP_2021_A05":"https://owasp.org/Top10/A05_2021-Security_Misconfiguration/","CWE-693":"https://cwe.mitre.org/data/definitions/693.html","OWASP_2017_A06":"https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"},"reference":"https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)\nhttps://owasp.org/www-community/Security_Headers","solution":"Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.\nIf possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.","alert":"X-Content-Type-Options Header Missing","param":"x-content-type-options","attack":"","name":"X-Content-Type-Options Header Missing","risk":"Low","id":"2","alertRef":"10021"},{"sourceid":"3","other":"This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses.","method":"GET","evidence":"","pluginId":"10021","cweid":"693","confidence":"Medium","sourceMessageId":28,"wascid":"15","description":"The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.","messageId":"28","inputVector":"","url":"http://34.44.242.122:8080/order-service/api/orders","tags":{"OWASP_2021_A05":"https://owasp.org/Top10/A05_2021-Security_Misconfiguration/","CWE-693":"https://cwe.mitre.org/data/definitions/693.html","OWASP_2017_A06":"https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"},"reference":"https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)\nhttps://owasp.org/www-community/Security_Headers","solution":"Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.\nIf possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.","alert":"X-Content-Type-Options Header Missing","param":"x-content-type-options","attack":"","name":"X-Content-Type-Options Header Missing","risk":"Low","id":"3","alertRef":"10021"},{"sourceid":"3","other":"This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses.","method":"GET","evidence":"","pluginId":"10021","cweid":"693","confidence":"Medium","sourceMessageId":35,"wascid":"15","description":"The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.","messageId":"35","inputVector":"","url":"http://34.44.242.122:8080/payment-service/api/payments","tags":{"OWASP_2021_A05":"https://owasp.org/Top10/A05_2021-Security_Misconfiguration/","CWE-693":"https://cwe.mitre.org/data/definitions/693.html","OWASP_2017_A06":"https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"},"reference":"https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)\nhttps://owasp.org/www-community/Security_Headers","solution":"Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.\nIf possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.","alert":"X-Content-Type-Options Header Missing","param":"x-content-type-options","attack":"","name":"X-Content-Type-Options Header Missing","risk":"Low","id":"4","alertRef":"10021"}]}</div>
+            </div>
+            
+            <div class="section recommendations">
+                <h2>💡 Priority Recommendations</h2>
+                <ol>
+                    <li><span class="risk-high">CRITICAL:</span> Address all HIGH risk vulnerabilities immediately - these can lead to system compromise</li>
+                    <li><span class="risk-medium">IMPORTANT:</span> Review and fix MEDIUM risk issues within 30 days</li>
+                    <li><span class="risk-low">MODERATE:</span> Plan remediation for LOW risk findings in next maintenance cycle</li>
+                    <li><strong>Authentication Hardening:</strong> Implement strong password policies and multi-factor authentication</li>
+                    <li><strong>Security Headers:</strong> Deploy missing security headers (CSP, HSTS, X-Frame-Options)</li>
+                    <li><strong>Input Validation:</strong> Implement comprehensive input sanitization and validation</li>
+                    <li><strong>Access Controls:</strong> Review and strengthen authorization mechanisms</li>
+                    <li><strong>Monitoring:</strong> Implement security logging and monitoring</li>
+                </ol>
+            </div>
+            
+            <div class="section next-steps">
+                <h2>🔧 Next Steps</h2>
+                <ol>
+                    <li><strong>Immediate Actions (0-7 days):</strong>
+                        <ul>
+                            <li>Fix all HIGH risk vulnerabilities</li>
+                            <li>Review authentication mechanisms</li>
+                            <li>Implement critical security headers</li>
+                        </ul>
+                    </li>
+                    <li><strong>Short Term (1-4 weeks):</strong>
+                        <ul>
+                            <li>Address MEDIUM risk findings</li>
+                            <li>Conduct code review for input validation</li>
+                            <li>Implement additional monitoring</li>
+                        </ul>
+                    </li>
+                    <li><strong>Long Term (1-3 months):</strong>
+                        <ul>
+                            <li>Integrate automated security testing in CI/CD</li>
+                            <li>Regular penetration testing</li>
+                            <li>Security awareness training</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+            
+            <div class="section">
+                <h2>📈 Security Maturity Recommendations</h2>
+                <ul>
+                    <li><strong>DevSecOps Integration:</strong> Embed this security scan in your deployment pipeline</li>
+                    <li><strong>Regular Assessment:</strong> Schedule monthly automated security scans</li>
+                    <li><strong>Threat Modeling:</strong> Conduct architectural security reviews</li>
+                    <li><strong>Incident Response:</strong> Develop and test security incident procedures</li>
+                    <li><strong>Compliance:</strong> Align security controls with industry standards (OWASP, NIST)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Generated by OWASP ZAP Security Scanner | Report ID: 20250612_174255
+        </div>
+    </div>
+</body>
+</html>

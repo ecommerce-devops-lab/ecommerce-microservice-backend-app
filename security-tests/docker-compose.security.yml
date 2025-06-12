@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # OWASP ZAP for security testing
+  zap:
+    image: zaproxy/zap-stable:latest
+    container_name: ecommerce-zap
+    ports:
+      - "8090:8080"
+      - "8091:8090"
+    volumes:
+      - ./zap-sessions:/zap/sessions
+      - ./security-reports:/zap/reports
+      - ./zap-config:/zap/config
+    environment:
+      - ZAP_PORT=8080
+    command: >
+      zap.sh -daemon 
+      -host 0.0.0.0 
+      -port 8080 
+      -config api.addrs.addr.name=.* 
+      -config api.addrs.addr.regex=true 
+      -config api.disablekey=true
+    networks:
+      - security-network
+
+  # OWASP Dependency Check
+  dependency-check:
+    image: owasp/dependency-check:latest
+    container_name: ecommerce-dependency-check
+    volumes:
+      - ../:/src:ro
+      - ./dependency-reports:/reports
+      - ./dependency-data:/usr/share/dependency-check/data
+    command: >
+      --scan /src 
+      --format ALL 
+      --project "E-commerce-Security-Scan" 
+      --out /reports
+    networks:
+      - security-network
+
+  # Nikto Web Vulnerability Scanner
+  nikto:
+    image: sullo/nikto:latest
+    container_name: ecommerce-nikto
+    volumes:
+      - ./nikto-reports:/reports
+    command: >
+      -h http://host.docker.internal:8080 
+      -Format htm 
+      -output /reports/nikto-report.html
+    networks:
+      - security-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Nuclei Vulnerability Scanner
+  nuclei:
+    image: projectdiscovery/nuclei:latest
+    container_name: ecommerce-nuclei
+    volumes:
+      - ./nuclei-reports:/reports
+    command: >
+      -u http://host.docker.internal:8080 
+      -t cves,vulnerabilities,misconfigurations 
+      -o /reports/nuclei-report.txt
+    networks:
+      - security-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # SSL/TLS Testing with testssl.sh
+  testssl:
+    image: drwetter/testssl.sh:latest
+    container_name: ecommerce-testssl
+    volumes:
+      - ./ssl-reports:/reports
+    command: >
+      --htmlfile /reports/ssl-report.html 
+      host.docker.internal:8080
+    networks:
+      - security-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  security-network:
+    driver: bridge

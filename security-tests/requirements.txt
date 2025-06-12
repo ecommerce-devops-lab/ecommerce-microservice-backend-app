@@ -1,0 +1,47 @@
+# Security Testing Dependencies
+
+# HTTP Client
+requests==2.31.0
+urllib3==2.1.0
+
+# OWASP ZAP Python API
+python-owasp-zap-v2.4==0.0.21
+
+# Security Testing Tools
+bandit==1.7.5                    # Static security analysis
+safety==2.3.4                    # Dependency vulnerability scanner
+semgrep==1.45.0                  # Static analysis security scanner
+
+# Report Generation
+jinja2==3.1.2
+pyyaml==6.0.1
+
+# Additional utilities
+colorama==0.4.6
+click==8.1.7
+tabulate==0.9.0
+
+# JSON/XML processing
+lxml==4.9.3
+beautifulsoup4==4.12.2
+
+# Network testing
+scapy==2.5.0
+python-nmap==0.7.1
+
+# SSL/TLS testing
+pyopenssl==23.3.0
+cryptography==41.0.7
+
+# JWT testing
+pyjwt==2.8.0
+
+# Performance monitoring
+psutil==5.9.6
+
+# Async support
+aiohttp==3.9.1
+asyncio==3.4.3
+
+# Database testing
+sqlparse==0.4.4
