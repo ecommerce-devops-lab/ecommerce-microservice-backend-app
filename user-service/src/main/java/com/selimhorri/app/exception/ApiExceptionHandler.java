@@ -24,70 +24,61 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class ApiExceptionHandler {
-	
+
 	@ExceptionHandler(value = {
-		MethodArgumentNotValidException.class,
-		HttpMessageNotReadableException.class
+			MethodArgumentNotValidException.class,
+			HttpMessageNotReadableException.class
 	})
 	public <T extends BindException> ResponseEntity<ExceptionMsg> handleValidationException(final T e) {
-		
+
 		log.info("**ApiExceptionHandler controller, handle validation exception*\n");
 		final var badRequest = HttpStatus.BAD_REQUEST;
-		
+
 		return new ResponseEntity<>(
 				ExceptionMsg.builder()
-					.msg("*" + e.getBindingResult().getFieldError().getDefaultMessage() + "!**")
-					.httpStatus(badRequest)
-					.timestamp(ZonedDateTime
-							.now(ZoneId.systemDefault()))
-					.build(), badRequest);
+						.msg("*" + e.getBindingResult().getFieldError().getDefaultMessage() + "!**")
+						.httpStatus(badRequest)
+						.timestamp(ZonedDateTime
+								.now(ZoneId.systemDefault()))
+						.build(),
+				badRequest);
 	}
-		@ExceptionHandler(value = {
-		CredentialNotFoundException.class,
-		VerificationTokenNotFoundException.class,
-		AddressNotFoundException.class
+
+	@ExceptionHandler(value = {
+			UserObjectNotFoundException.class,
+			CredentialNotFoundException.class,
+			VerificationTokenNotFoundException.class,
+			AddressNotFoundException.class
 	})
 	public <T extends RuntimeException> ResponseEntity<ExceptionMsg> handleApiRequestException(final T e) {
-		
+
 		log.info("**ApiExceptionHandler controller, handle API request*\n");
 		final var badRequest = HttpStatus.BAD_REQUEST;
-		
+
 		return new ResponseEntity<>(
 				ExceptionMsg.builder()
-					.msg("#### " + e.getMessage() + "! ####")
-					.httpStatus(badRequest)
-					.timestamp(ZonedDateTime
-							.now(ZoneId.systemDefault()))
-					.build(), badRequest);
+						.msg("#### " + e.getMessage() + "! ####")
+						.httpStatus(badRequest)
+						.timestamp(ZonedDateTime
+								.now(ZoneId.systemDefault()))
+						.build(),
+				badRequest);
 	}
-	
-	@ExceptionHandler(value = {
-		UserObjectNotFoundException.class
-	})
-	public ResponseEntity<ExceptionMsg> handleUserNotFoundException(final UserObjectNotFoundException e) {
-		
-		log.info("**ApiExceptionHandler controller, handle User Not Found exception*\n");
-		final var notFound = HttpStatus.NOT_FOUND;
-		
+
+	@ExceptionHandler(value = { Exception.class })
+	public ResponseEntity<ExceptionMsg> handleGenericException(final Exception e) {
+
+		log.error("**CRITICAL ERROR - ApiExceptionHandler controller, handle generic exception: {} - {}",
+				e.getClass().getSimpleName(), e.getMessage(), e);
+		final var internalServerError = HttpStatus.INTERNAL_SERVER_ERROR;
+
 		return new ResponseEntity<>(
 				ExceptionMsg.builder()
-					.msg("#### " + e.getMessage() + "! ####")
-					.httpStatus(notFound)
-					.timestamp(ZonedDateTime
-							.now(ZoneId.systemDefault()))
-					.build(), notFound);
+						.msg("INTERNAL SERVER ERROR: " + e.getClass().getSimpleName() + " - " + e.getMessage())
+						.httpStatus(internalServerError)
+						.timestamp(ZonedDateTime.now(ZoneId.systemDefault()))
+						.build(),
+				internalServerError);
 	}
-	
-	
-	
+
 }
-
-
-
-
-
-
-
-
-
-

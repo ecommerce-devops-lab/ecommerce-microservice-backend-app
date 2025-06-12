@@ -5,77 +5,50 @@ import com.selimhorri.app.domain.User;
 import com.selimhorri.app.dto.CredentialDto;
 import com.selimhorri.app.dto.UserDto;
 
-public interface UserMappingHelper {	public static UserDto map(final User user) {
-		if (user.getCredential() == null) {
-			return UserDto.builder()
-					.userId(user.getUserId())
-					.firstName(user.getFirstName())
-					.lastName(user.getLastName())
-					.imageUrl(user.getImageUrl())
-					.email(user.getEmail())
-					.phone(user.getPhone())
-					.build();
-		}
-		
-		CredentialDto credentialDto = CredentialDto.builder()
-				.credentialId(user.getCredential().getCredentialId())
-				.username(user.getCredential().getUsername())
-				.password(user.getCredential().getPassword())
-				.roleBasedAuthority(user.getCredential().getRoleBasedAuthority())
-				.isEnabled(user.getCredential().getIsEnabled())
-				.isAccountNonExpired(user.getCredential().getIsAccountNonExpired())
-				.isAccountNonLocked(user.getCredential().getIsAccountNonLocked())
-				.isCredentialsNonExpired(user.getCredential().getIsCredentialsNonExpired())
-				.build();
-				
-		UserDto userDto = UserDto.builder()
+public interface UserMappingHelper {
+
+	public static UserDto map(final User user) {
+		return UserDto.builder()
 				.userId(user.getUserId())
 				.firstName(user.getFirstName())
 				.lastName(user.getLastName())
 				.imageUrl(user.getImageUrl())
 				.email(user.getEmail())
 				.phone(user.getPhone())
-				.credentialDto(credentialDto)
+				.credentialDto(user.getCredential() != null ?
+						CredentialDto.builder()
+								.credentialId(user.getCredential().getCredentialId())
+								.username(user.getCredential().getUsername())
+								.password(user.getCredential().getPassword())
+								.roleBasedAuthority(user.getCredential().getRoleBasedAuthority())
+								.isEnabled(user.getCredential().getIsEnabled())
+								.isAccountNonExpired(user.getCredential().getIsAccountNonExpired())
+								.isAccountNonLocked(user.getCredential().getIsAccountNonLocked())
+								.isCredentialsNonExpired(user.getCredential().getIsCredentialsNonExpired())
+								.build() : null)
 				.build();
-		
-		// Evitar la recursión infinita no configurando userDto en credentialDto
-		// credentialDto.setUserDto(userDto);
-		return userDto;
 	}
-		public static User map(final UserDto userDto) {
-		User user = User.builder()
+
+	public static User map(final UserDto userDto) {
+		return User.builder()
 				.userId(userDto.getUserId())
 				.firstName(userDto.getFirstName())
 				.lastName(userDto.getLastName())
 				.imageUrl(userDto.getImageUrl())
 				.email(userDto.getEmail())
 				.phone(userDto.getPhone())
+				.credential(userDto.getCredentialDto() != null ?
+						Credential.builder()
+								.credentialId(userDto.getCredentialDto().getCredentialId())
+								.username(userDto.getCredentialDto().getUsername())
+								.password(userDto.getCredentialDto().getPassword())
+								.roleBasedAuthority(userDto.getCredentialDto().getRoleBasedAuthority())
+								.isEnabled(userDto.getCredentialDto().getIsEnabled())
+								.isAccountNonExpired(userDto.getCredentialDto().getIsAccountNonExpired())
+								.isAccountNonLocked(userDto.getCredentialDto().getIsAccountNonLocked())
+								.isCredentialsNonExpired(userDto.getCredentialDto().getIsCredentialsNonExpired())
+								.build() : null)
 				.build();
-				
-		if (userDto.getCredentialDto() != null) {
-			Credential credential = Credential.builder()
-					.credentialId(userDto.getCredentialDto().getCredentialId())
-					.username(userDto.getCredentialDto().getUsername())
-					.password(userDto.getCredentialDto().getPassword())
-					.roleBasedAuthority(userDto.getCredentialDto().getRoleBasedAuthority())
-					.isEnabled(userDto.getCredentialDto().getIsEnabled())
-					.isAccountNonExpired(userDto.getCredentialDto().getIsAccountNonExpired())
-					.isAccountNonLocked(userDto.getCredentialDto().getIsAccountNonLocked())
-					.isCredentialsNonExpired(userDto.getCredentialDto().getIsCredentialsNonExpired())
-					.user(user)
-					.build();
-			user.setCredential(credential);
-		}
-		
-		return user;
 	}
-	
-	
-	
+
 }
-
-
-
-
-
-

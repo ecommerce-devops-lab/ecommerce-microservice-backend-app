@@ -6,23 +6,23 @@ import com.selimhorri.app.dto.OrderItemDto;
 import com.selimhorri.app.dto.ProductDto;
 
 public interface OrderItemMappingHelper {
-	
+
 	public static OrderItemDto map(final OrderItem orderItem) {
 		return OrderItemDto.builder()
 				.productId(orderItem.getProductId())
 				.orderId(orderItem.getOrderId())
 				.orderedQuantity(orderItem.getOrderedQuantity())
-				.productDto(
+				.productDto(orderItem.getProductId() != null ?
 						ProductDto.builder()
-							.productId(orderItem.getProductId())
-							.build())
-				.orderDto(
+								.productId(orderItem.getProductId())
+								.build() : null)
+				.orderDto(orderItem.getOrderId() != null ?
 						OrderDto.builder()
-							.orderId(orderItem.getOrderId())
-							.build())
+								.orderId(orderItem.getOrderId())
+								.build() : null)
 				.build();
 	}
-	
+
 	public static OrderItem map(final OrderItemDto orderItemDto) {
 		return OrderItem.builder()
 				.productId(orderItemDto.getProductId())
@@ -30,17 +30,5 @@ public interface OrderItemMappingHelper {
 				.orderedQuantity(orderItemDto.getOrderedQuantity())
 				.build();
 	}
-	
-	
-	
+
 }
-
-
-
-
-
-
-
-
-
-
