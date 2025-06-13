@@ -314,7 +314,19 @@ pipeline {
             steps {
                 dir("${env.SERVICE_NAME}") {
                     sh '''
-                        export PATH=${DOCKER_PATH}:$PATH
+                        # Configurar Docker CLI local
+                        export DOCKER_CLI="${WORKSPACE}/.tools/bin/docker"
+                        export DOCKER_HOST="unix:///var/run/docker.sock"
+                        
+                        echo "Verificando Docker CLI..."
+                        $DOCKER_CLI --version || echo "Docker CLI no disponible"
+                        
+                        # Verificar que tenemos el JAR construido
+                        if [ ! -f "target/*.jar" ]; then
+                            echo "ERROR: No se encontró el archivo JAR en target/"
+                            ls -la target/ || echo "Directorio target/ no existe"
+                            exit 1
+                        fi
                         
                         echo "Building Docker image..."
                         
@@ -344,20 +356,45 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 EOF
                         fi
                         
-                        # Build the image
-                        echo "Building image ${BUILT_IMAGE}..."
-                        docker build \
+                        # Intentar construir la imagen con diferentes métodos
+                        echo "Intentando construir imagen con Docker CLI local..."
+                        if ! $DOCKER_CLI build \
                             -t ${BUILT_IMAGE} \
                             -t ${BUILT_LATEST_IMAGE} \
                             --build-arg SERVICE_NAME=${SERVICE_NAME} \
                             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
                             --build-arg VERSION=${IMAGE_TAG} \
                             --build-arg VCS_REF=$(git rev-parse HEAD) \
-                            .
+                            . ; then
+                            
+                            echo "ERROR: Falló la construcción de la imagen con Docker CLI local"
+                            echo "Verificando permisos de Docker..."
+                            ls -l /var/run/docker.sock || echo "No se puede acceder al socket Docker"
+                            echo "Intentando con sudo..."
+                            
+                            # Intentar con sudo si está disponible
+                            if command -v sudo >/dev/null 2>&1; then
+                                sudo $DOCKER_CLI build \
+                                    -t ${BUILT_IMAGE} \
+                                    -t ${BUILT_LATEST_IMAGE} \
+                                    --build-arg SERVICE_NAME=${SERVICE_NAME} \
+                                    --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                                    --build-arg VERSION=${IMAGE_TAG} \
+                                    --build-arg VCS_REF=$(git rev-parse HEAD) \
+                                    .
+                            else
+                                echo "sudo no está disponible"
+                                exit 1
+                            fi
+                        fi
                         
-                        # Verify the image was built
-                        echo "Verifying built images:"
-                        docker images | grep ${SERVICE_NAME} || echo "No images found with ${SERVICE_NAME}"
+                        # Verificar que la imagen se construyó
+                        echo "Verificando imágenes construidas:"
+                        $DOCKER_CLI images | grep ${SERVICE_NAME} || echo "No se encontraron imágenes de ${SERVICE_NAME}"
+                        
+                        # Listar todas las imágenes para debug
+                        echo "Listando todas las imágenes disponibles:"
+                        $DOCKER_CLI images
                     '''
                 }
             }
