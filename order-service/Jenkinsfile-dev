@@ -320,57 +320,7 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
-            steps {
-                dir("${env.SERVICE_NAME}") {
-                    sh '''
-                        export PATH=${DOCKER_PATH}:$PATH
-                        
-                        echo "Building Docker image..."
-                        
-                        # Check if Dockerfile exists
-                        if [ ! -f "Dockerfile" ]; then
-                            echo "Creating basic Dockerfile..."
-                            cat > Dockerfile << 'EOF'
-FROM openjdk:17-jre-slim
-
-ARG SERVICE_NAME
-ARG VERSION
-ARG BUILD_DATE
-ARG VCS_REF
-
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name=$SERVICE_NAME \
-      org.label-schema.version=$VERSION \
-      org.label-schema.vcs-ref=$VCS_REF
-
-WORKDIR /app
-
-COPY target/*.jar app.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-EOF
-                        fi
-                        
-                        docker build \
-                            -t ${BUILT_IMAGE} \
-                            -t ${BUILT_LATEST_IMAGE} \
-                            --build-arg SERVICE_NAME=${SERVICE_NAME} \
-                            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-                            --build-arg VERSION=${IMAGE_TAG} \
-                            --build-arg VCS_REF=$(git rev-parse HEAD) \
-                            .
-                        
-                        echo "Images built:"
-                        docker images | grep ${SERVICE_NAME} || echo "No images found with ${SERVICE_NAME}"
-                    '''
-                }
-            }
-        }
-        
-        stage('🔒 Security Scan with Trivy') {
+        stage('Security Scan with Trivy') {
             when {
                 expression { !params.SKIP_SECURITY_SCAN }
             }
