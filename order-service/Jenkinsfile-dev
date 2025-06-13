@@ -389,7 +389,7 @@ pipeline {
                 def message = """✅ *Build Successful* - ${env.SERVICE_NAME}
                 
 🏷️ **Version:** ${env.IMAGE_TAG}
-🐳 **Image:** \`${env.BUILT_IMAGE}\`
+🐳 **Image:** ${env.BUILT_IMAGE}
 🚀 **Deployed to:** Development Environment
 📊 **Build:** #${env.BUILD_NUMBER}
 🔗 **Pipeline:** ${env.BUILD_URL}
