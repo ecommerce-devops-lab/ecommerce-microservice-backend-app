@@ -393,77 +393,138 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
+        stage('🐳 Build Docker Image') {
             steps {
                 dir("${env.SERVICE_NAME}") {
-                    sh '''
-                        # Configurar Docker CLI local
-                        export DOCKER_CLI="${WORKSPACE}/.tools/bin/docker"
-                        export DOCKER_HOST="unix:///var/run/docker.sock"
+                    script {
+                        // Verificar permisos de Docker primero
+                        sh '''
+                            echo "=== Docker Permissions Check ==="
+                            echo "Current user: $(whoami)"
+                            echo "User ID: $(id)"
+                            echo "Docker socket permissions:"
+                            ls -l /var/run/docker.sock
+                            echo "Docker socket group:"
+                            stat -c "%G %g" /var/run/docker.sock
+                            echo "Current user groups:"
+                            groups
+                        '''
                         
-                        echo "Verificando Docker CLI..."
-                        $DOCKER_CLI --version || echo "Docker CLI no disponible"
+                        // Verificar JAR file
+                        sh '''
+                            echo "=== JAR File Check ==="
+                            JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
+                            if [ -z "$JAR_FILE" ]; then
+                                echo "ERROR: No se encontró el archivo JAR en target/"
+                                ls -la target/
+                                exit 1
+                            fi
+                            echo "JAR encontrado: $JAR_FILE"
+                        '''
                         
-                        # Verificar permisos de Docker
-                        echo "Verificando permisos de Docker..."
-                        ls -l /var/run/docker.sock
-                        groups jenkins
-                        
-                        # Verificar que tenemos el JAR construido
-                        JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
-                        if [ -z "$JAR_FILE" ]; then
-                            echo "ERROR: No se encontró el archivo JAR en target/"
-                            ls -la target/
-                            exit 1
-                        fi
-                        
-                        echo "Building Docker image..."
-                        
-                        # Check if Dockerfile exists
-                        if [ ! -f "Dockerfile" ]; then
-                            echo "Creating basic Dockerfile..."
-                            cat > Dockerfile << 'EOF'
-FROM openjdk:17-jre-slim
+                        // Crear Dockerfile si no existe
+                        sh '''
+                            if [ ! -f "Dockerfile" ]; then
+                                echo "Creating Dockerfile..."
+                                cat > Dockerfile << 'EOF'
+        FROM openjdk:17-jre-slim
 
-ARG SERVICE_NAME
-ARG VERSION
-ARG BUILD_DATE
-ARG VCS_REF
+        ARG SERVICE_NAME
+        ARG VERSION  
+        ARG BUILD_DATE
+        ARG VCS_REF
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name=$SERVICE_NAME \
-      org.label-schema.version=$VERSION \
-      org.label-schema.vcs-ref=$VCS_REF
+        LABEL org.label-schema.build-date=$BUILD_DATE \\
+            org.label-schema.name=$SERVICE_NAME \\
+            org.label-schema.version=$VERSION \\
+            org.label-schema.vcs-ref=$VCS_REF
 
-WORKDIR /app
+        WORKDIR /app
 
-COPY target/*.jar app.jar
+        # Copiar el JAR específico
+        COPY target/*.jar app.jar
 
-EXPOSE 8080
+        # Exponer el puerto específico del servicio
+        EXPOSE ${SERVICE_PORT}
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
-EOF
-                        fi
+        # Variables de entorno para Spring Boot
+        ENV SPRING_PROFILES_ACTIVE=dev
+        ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
+        ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+        EOF
+                                echo "✅ Dockerfile creado"
+                            fi
+                            
+                            echo "Dockerfile content:"
+                            cat Dockerfile
+                        '''
                         
-                        # Intentar construir la imagen
-                        echo "Intentando construir imagen con Docker CLI local..."
-                        $DOCKER_CLI build \
-                            -t ${BUILT_IMAGE} \
-                            -t ${BUILT_LATEST_IMAGE} \
-                            --build-arg SERVICE_NAME=${SERVICE_NAME} \
-                            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-                            --build-arg VERSION=${IMAGE_TAG} \
-                            --build-arg VCS_REF=$(git rev-parse HEAD) \
-                            .
-                        
-                        # Verificar que la imagen se construyó
-                        echo "Verificando imágenes construidas:"
-                        $DOCKER_CLI images | grep ${SERVICE_NAME} || echo "No se encontraron imágenes de ${SERVICE_NAME}"
-                        
-                        # Listar todas las imágenes para debug
-                        echo "Listando todas las imágenes disponibles:"
-                        $DOCKER_CLI images
-                    '''
+                        // Intentar construir la imagen con diferentes estrategias
+                        sh '''
+                            export DOCKER_CLI="${WORKSPACE}/.tools/bin/docker"
+                            
+                            echo "=== Docker Build Attempt ==="
+                            echo "Docker CLI: $DOCKER_CLI"
+                            echo "Built Image: ${BUILT_IMAGE}"
+                            echo "Built Latest: ${BUILT_LATEST_IMAGE}"
+                            
+                            # Estrategia 1: Docker directo
+                            if $DOCKER_CLI build \\
+                                -t ${BUILT_IMAGE} \\
+                                -t ${BUILT_LATEST_IMAGE} \\
+                                --build-arg SERVICE_NAME=${SERVICE_NAME} \\
+                                --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
+                                --build-arg VERSION=${IMAGE_TAG} \\
+                                --build-arg VCS_REF=$(git rev-parse HEAD) \\
+                                . ; then
+                                
+                                echo "✅ Docker build successful"
+                                
+                            else
+                                echo "❌ Docker build failed"
+                                echo "Checking Docker daemon status..."
+                                
+                                # Verificar si Docker daemon está corriendo
+                                if ! $DOCKER_CLI version >/dev/null 2>&1; then
+                                    echo "❌ Docker daemon not accessible"
+                                    echo "Available options:"
+                                    echo "1. Run Jenkins with proper Docker permissions"
+                                    echo "2. Use Docker-in-Docker (DinD)"
+                                    echo "3. Use Kaniko for building without Docker daemon"
+                                    exit 1
+                                fi
+                                
+                                # Estrategia 2: Intentar con diferentes permisos
+                                echo "Attempting to fix socket permissions temporarily..."
+                                
+                                # Cambiar permisos temporalmente (si tenemos acceso)
+                                if [ -w /var/run/docker.sock ]; then
+                                    chmod 666 /var/run/docker.sock
+                                    $DOCKER_CLI build \\
+                                        -t ${BUILT_IMAGE} \\
+                                        -t ${BUILT_LATEST_IMAGE} \\
+                                        --build-arg SERVICE_NAME=${SERVICE_NAME} \\
+                                        --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
+                                        --build-arg VERSION=${IMAGE_TAG} \\
+                                        --build-arg VCS_REF=$(git rev-parse HEAD) \\
+                                        .
+                                else
+                                    echo "❌ Cannot modify socket permissions"
+                                    echo "Please configure Jenkins with proper Docker access"
+                                    exit 1
+                                fi
+                            fi
+                            
+                            # Verificar imágenes construidas
+                            echo "=== Verification ==="
+                            echo "Images built:"
+                            $DOCKER_CLI images | grep ${SERVICE_NAME} || echo "No images found"
+                            
+                            echo "All available images:"
+                            $DOCKER_CLI images | head -10
+                        '''
+                    }
                 }
             }
         }
