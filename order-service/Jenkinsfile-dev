@@ -246,6 +246,30 @@ pipeline {
                 dir("${env.SERVICE_NAME}") {
                     withSonarQubeEnv('sonarqube-server') {
                         sh '''
+                        echo "Configurando entorno Java..."
+                            
+                            # Crear directorio para Java si no existe
+                            mkdir -p ${WORKSPACE}/.tools/java
+                            
+                            # Descargar e instalar OpenJDK si no está instalado
+                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
+                                echo "Instalando OpenJDK 17..."
+                                cd ${WORKSPACE}/.tools
+                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
+                                tar xzf openjdk.tar.gz
+                                mv jdk-17* java/openjdk-17
+                                rm openjdk.tar.gz
+                            fi
+                            
+                            # Configurar Java
+                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
+                            export PATH="$JAVA_HOME/bin:$PATH"
+                            
+                            # Verificar la instalación
+                            echo "JAVA_HOME: $JAVA_HOME"
+                            echo "Java version:"
+                            $JAVA_HOME/bin/java -version
+                            
                             echo "Running SonarQube analysis for Community Edition..."
                             echo "Current directory: $(pwd)"
                             echo "Service: ${SERVICE_NAME}"
