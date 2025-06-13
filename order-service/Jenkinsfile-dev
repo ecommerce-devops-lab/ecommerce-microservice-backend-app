@@ -212,10 +212,7 @@ pipeline {
                     script {
                         try {
                             // Use junit instead of publishTestResults
-                            junit(
-                                testResultsPattern: "${env.SERVICE_NAME}/target/surefire-reports/*.xml",
-                                allowEmptyResults: true
-                            )
+                            junit testResultsPattern: "${env.SERVICE_NAME}/target/surefire-reports/*.xml", allowEmptyResults: true
                             echo "Test results published successfully"
                         } catch (Exception e) {
                             echo "Test results not found or could not be published: ${e.getMessage()}"
