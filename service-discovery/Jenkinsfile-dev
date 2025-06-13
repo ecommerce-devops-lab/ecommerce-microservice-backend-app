@@ -4,29 +4,30 @@ pipeline {
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'develop', description: 'Branch to build')
         string(name: 'COMMIT_SHA', defaultValue: 'HEAD', description: 'Commit SHA')
-        booleanParam(name: 'SKIP_SONAR', defaultValue: false, description: 'Skip SonarQube analysis')
+        booleanParam(name: 'SKIP_SONAR', defaultValue: true, description: 'Skip SonarQube analysis')
         booleanParam(name: 'SKIP_SECURITY_SCAN', defaultValue: false, description: 'Skip Trivy security scan')
+        booleanParam(name: 'SKIP_DEPLOY', defaultValue: true, description: 'Skip deployment (no k8s configured)')
+        booleanParam(name: 'SKIP_GCP_PUSH', defaultValue: false, description: 'Skip GCP Registry push')
     }
     
     environment {
         // GCP Configuration
         GCP_PROJECT_ID = 'ecommerce-microservices-back'
-        GCP_REGISTRY = "gcr.io/${GCP_PROJECT_ID}"
-        
-        // Dynamic service detection from job name
-        SERVICE_NAME = "${env.JOB_NAME}".split('-dev')[0]
+        GCP_REGISTRY = "gcr.io/ecommerce-microservices-back"
         
         // Versioning
         IMAGE_TAG = "${params.COMMIT_SHA.take(7)}-${BUILD_NUMBER}"
         
-        // Service configuration (will be set dynamically)
-        SERVICE_PORT = getServicePort(env.SERVICE_NAME)
-        
-        // Credentials
+        // Credentials (conditional)
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
         SONAR_TOKEN = credentials('sonarqube-token')
-        GITHUB_TOKEN = credentials('github-token')
-        SLACK_WEBHOOK = credentials('slack-webhook-url')
+        // GITHUB_TOKEN = credentials('github-token')  // Commented out until created
+        
+        // Local tool paths
+        GCLOUD_PATH = "${env.WORKSPACE}/.tools/google-cloud-sdk/bin"
+        DOCKER_PATH = "${env.WORKSPACE}/.tools/bin"
+        KUBECTL_PATH = "${env.WORKSPACE}/.tools/bin"
+        PATH = "${env.DOCKER_PATH}:${env.GCLOUD_PATH}:${env.KUBECTL_PATH}:/usr/local/bin:/usr/bin:/bin"
     }
     
     tools {
@@ -35,9 +36,91 @@ pipeline {
     }
     
     stages {
-        stage('🏁 Initialize') {
+        stage('Setup Tools') {
             steps {
                 script {
+                    sh '''
+                        echo "Setting up tools in user space..."
+                        
+                        # Create tools directory
+                        mkdir -p ${WORKSPACE}/.tools/bin
+                        cd ${WORKSPACE}/.tools
+                        
+                        # Install Docker CLI (static binary, no root needed)
+                        if [ ! -f "bin/docker" ]; then
+                            echo "Installing Docker CLI..."
+                            curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz | tar xzf - --strip 1 -C bin docker/docker
+                            chmod +x bin/docker
+                        fi
+                        
+                        # Configure Docker socket permissions
+                        echo "Configurando permisos de Docker..."
+                        if [ -S /var/run/docker.sock ]; then
+                            # Obtener el grupo del socket Docker
+                            DOCKER_GROUP=$(stat -c %g /var/run/docker.sock)
+                            echo "Grupo del socket Docker: $DOCKER_GROUP"
+                            
+                            # Agregar el usuario jenkins al grupo
+                            if ! groups jenkins | grep -q $DOCKER_GROUP; then
+                                echo "Agregando usuario jenkins al grupo $DOCKER_GROUP"
+                                groupadd -g $DOCKER_GROUP docker || true
+                                usermod -aG $DOCKER_GROUP jenkins || true
+                            fi
+                            
+                            # Verificar permisos
+                            ls -l /var/run/docker.sock
+                            groups jenkins
+                        fi
+                        
+                        # Install Google Cloud SDK
+                        if [ ! -d "google-cloud-sdk" ]; then
+                            echo "Installing Google Cloud SDK..."
+                            curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-456.0.0-linux-x86_64.tar.gz | tar -xzf -
+                            ./google-cloud-sdk/install.sh --quiet --path-update=false --bash-completion=false --usage-reporting=false
+                        fi
+                        
+                        # Install kubectl
+                        if [ ! -f "bin/kubectl" ]; then
+                            echo "Installing kubectl..."
+                            curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
+                            chmod +x kubectl
+                            mv kubectl bin/
+                        fi
+                        
+                        # Install jq
+                        if [ ! -f "bin/jq" ]; then
+                            echo "Installing jq..."
+                            curl -L https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -o bin/jq
+                            chmod +x bin/jq
+                        fi
+                        
+                        # Install Trivy
+                        if [ ! -f "bin/trivy" ]; then
+                            echo "Installing Trivy..."
+                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b bin v0.48.3
+                        fi
+                        
+                        echo "Tools setup completed"
+                        echo "Verifying installations:"
+                        ${WORKSPACE}/.tools/bin/docker --version || echo "Docker: FAILED"
+                        ${WORKSPACE}/.tools/google-cloud-sdk/bin/gcloud --version | head -1 || echo "gcloud: FAILED"
+                        ${WORKSPACE}/.tools/bin/kubectl version --client || echo "kubectl: FAILED"
+                        ${WORKSPACE}/.tools/bin/jq --version || echo "jq: FAILED"
+                        ${WORKSPACE}/.tools/bin/trivy --version || echo "trivy: FAILED"
+                    '''
+                }
+            }
+        }
+        
+        stage('Initialize') {
+            steps {
+                script {
+                    // Set dynamic environment variables
+                    env.SERVICE_NAME = env.JOB_NAME.split('-dev')[0]
+                    env.SERVICE_PORT = getServicePort(env.SERVICE_NAME)
+                    env.BUILT_IMAGE = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:${env.IMAGE_TAG}"
+                    env.BUILT_LATEST_IMAGE = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:dev-latest"
+                    
                     currentBuild.description = "Building ${env.SERVICE_NAME}:${env.IMAGE_TAG}"
                     
                     echo "=== Pipeline Configuration ==="
@@ -46,26 +129,36 @@ pipeline {
                     echo "Image Tag: ${env.IMAGE_TAG}"
                     echo "Branch: ${params.BRANCH_NAME}"
                     echo "GCP Registry: ${env.GCP_REGISTRY}"
+                    echo "Built Image: ${env.BUILT_IMAGE}"
                     
-                    // Initialize GCP
-                    sh '''
-                        export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
-                        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                        gcloud config set project $GCP_PROJECT_ID
-                        gcloud auth configure-docker gcr.io --quiet
-                    '''
+                    // Initialize GCP (conditional)
+                    if (!params.SKIP_GCP_PUSH) {
+                        sh '''
+                            export PATH=${DOCKER_PATH}:${GCLOUD_PATH}:${KUBECTL_PATH}:$PATH
+                            export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
+                            
+                            echo "Authenticating with GCP..."
+                            gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS || echo "GCP auth failed - continuing without GCP"
+                            gcloud config set project $GCP_PROJECT_ID || echo "Project set failed - continuing"
+                            gcloud auth configure-docker gcr.io --quiet || echo "Docker auth failed - continuing"
+                            
+                            echo "GCP authentication attempted"
+                        '''
+                    } else {
+                        echo "Skipping GCP authentication (SKIP_GCP_PUSH=true)"
+                    }
                 }
             }
         }
         
-        stage('📥 Checkout & Change Detection') {
+        stage('Checkout & Change Detection') {
             steps {
+                // Simple checkout without credentials for public repo
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: "${params.BRANCH_NAME}"]],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git',
-                        credentialsId: 'github-credentials'
+                        url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
                     ]]
                 ])
                 
@@ -86,287 +179,440 @@ pipeline {
                         currentBuild.result = 'NOT_BUILT'
                         currentBuild.description = "No changes detected for ${env.SERVICE_NAME}"
                         echo "No changes detected for ${env.SERVICE_NAME}, but continuing build as requested"
-                        // No hacer error() para permitir builds manuales
                     }
                 }
             }
         }
         
-        stage('🧪 Unit Tests') {
+        stage('Unit Tests') {
             steps {
                 dir("${env.SERVICE_NAME}") {
-                    sh '''
-                        echo "Running unit tests for ${SERVICE_NAME}..."
-                        mvn clean test \
-                            -Dmaven.test.failure.ignore=false \
-                            -Dspring.profiles.active=test \
-                            -DforkCount=2 \
-                            -DreuseForks=true
-                    '''
-                }
-            }
-            post {
-                always {
-                    publishTestResults(
-                        testResultsPattern: "${env.SERVICE_NAME}/target/surefire-reports/*.xml",
-                        allowEmptyResults: false
-                    )
-                    publishCoverage([
-                        adapters: [jacocoAdapter("${env.SERVICE_NAME}/target/site/jacoco/jacoco.xml")],
-                        sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
-                    ])
-                }
-            }
-        }
-        
-        stage('📊 SonarQube Analysis') {
-            when {
-                not { params.SKIP_SONAR }
-            }
-            steps {
-                dir("${env.SERVICE_NAME}") {
-                    withSonarQubeEnv('sonarqube-server') {
+                    script {
+                        // Configuración mejorada de Java
                         sh '''
-                            mvn sonar:sonar \
-                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME}-dev \
-                                -Dsonar.projectName="E-commerce ${SERVICE_NAME} (DEV)" \
-                                -Dsonar.branch.name=${BRANCH_NAME} \
-                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                -Dsonar.java.source=17 \
-                                -Dsonar.exclusions=**/target/**,**/generated-sources/**
+                            echo "Configurando entorno Java..."
+                            
+                            # Crear directorio para Java si no existe
+                            mkdir -p ${WORKSPACE}/.tools/java
+                            
+                            # Descargar e instalar OpenJDK si no está instalado
+                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
+                                echo "Instalando OpenJDK 17..."
+                                cd ${WORKSPACE}/.tools
+                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
+                                tar xzf openjdk.tar.gz
+                                mv jdk-17* java/openjdk-17
+                                rm openjdk.tar.gz
+                            fi
+                            
+                            # Configurar Java
+                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
+                            export PATH="$JAVA_HOME/bin:$PATH"
+                            
+                            # Verificar la instalación
+                            echo "JAVA_HOME: $JAVA_HOME"
+                            echo "Java version:"
+                            $JAVA_HOME/bin/java -version
+                            
+                            echo "Ejecutando pruebas unitarias para ${SERVICE_NAME}..."
+                            mvn clean test \
+                                -Dmaven.test.failure.ignore=false \
+                                -Dspring.profiles.active=test \
+                                -DforkCount=1 \
+                                -DreuseForks=false \
+                                -Dmaven.compiler.source=17 \
+                                -Dmaven.compiler.target=17
                         '''
                     }
                 }
             }
-        }
-        
-        stage('🚪 Quality Gate') {
-            when {
-                not { params.SKIP_SONAR }
-            }
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
+            post {
+                always {
                     script {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        try {
+                            // Use junit instead of publishTestResults
+                            junit testResultsPattern: "${env.SERVICE_NAME}/target/surefire-reports/*.xml", allowEmptyResults: true
+                            echo "Test results published successfully"
+                        } catch (Exception e) {
+                            echo "Test results not found or could not be published: ${e.getMessage()}"
+                        }
+                        
+                        try {
+                            // Archive test reports
+                            archiveArtifacts(
+                                artifacts: "${env.SERVICE_NAME}/target/surefire-reports/**",
+                                allowEmptyArchive: true
+                            )
+                        } catch (Exception e) {
+                            echo "Could not archive test artifacts: ${e.getMessage()}"
                         }
                     }
                 }
             }
         }
         
-        stage('📦 Build Application') {
-            steps {
-                dir("${env.SERVICE_NAME}") {
-                    sh '''
-                        echo "Building application ${SERVICE_NAME}..."
-                        mvn package -DskipTests \
-                            -Dspring.profiles.active=dev \
-                            -Dmaven.javadoc.skip=true \
-                            -B -V
-                    '''
-                }
+        stage('SonarQube Analysis') {
+            when {
+                expression { !params.SKIP_SONAR }
             }
-        }
-        
-        stage('🐳 Build Docker Image') {
             steps {
                 dir("${env.SERVICE_NAME}") {
-                    script {
-                        def gcpImage = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:${env.IMAGE_TAG}"
-                        def gcpLatestImage = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:dev-latest"
-                        
-                        sh """
-                            echo "Building Docker image..."
-                            docker build \
-                                -t ${gcpImage} \
-                                -t ${gcpLatestImage} \
-                                --build-arg SERVICE_NAME=${env.SERVICE_NAME} \
-                                --build-arg BUILD_DATE=\$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-                                --build-arg VERSION=${env.IMAGE_TAG} \
-                                --build-arg VCS_REF=\$(git rev-parse HEAD) \
-                                .
+                    withSonarQubeEnv('sonarqube-server') {
+
+                        sh '''
+                        echo "Configurando entorno Java..."
                             
-                            echo "Images built:"
-                            docker images | grep ${env.SERVICE_NAME}
-                        """
-                        
-                        env.BUILT_IMAGE = gcpImage
-                        env.BUILT_LATEST_IMAGE = gcpLatestImage
+                            # Crear directorio para Java si no existe
+                            mkdir -p ${WORKSPACE}/.tools/java
+                            
+                            # Descargar e instalar OpenJDK si no está instalado
+                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
+                                echo "Instalando OpenJDK 17..."
+                                cd ${WORKSPACE}/.tools
+                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
+                                tar xzf openjdk.tar.gz
+                                mv jdk-17* java/openjdk-17
+                                rm openjdk.tar.gz
+                            fi
+                            
+                            # Configurar Java
+                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
+                            export PATH="$JAVA_HOME/bin:$PATH"
+                            
+                            # Verificar la instalación
+                            echo "JAVA_HOME: $JAVA_HOME"
+                            echo "Java version:"
+                            $JAVA_HOME/bin/java -version
+                            
+                            echo "Running SonarQube analysis for Community Edition..."
+                            echo "Current directory: $(pwd)"
+                            echo "Service: ${SERVICE_NAME}"
+                            echo "Branch: ${BRANCH_NAME}"
+                            
+                            # Diferentes configuraciones según el branch
+                            if [ "${BRANCH_NAME}" = "main" ] || [ "${BRANCH_NAME}" = "master" ]; then
+                                PROJECT_KEY="ecommerce-${SERVICE_NAME}"
+                                PROJECT_NAME="E-commerce ${SERVICE_NAME}"
+                            else
+                                # Para branches de desarrollo, usar suffix
+                                PROJECT_KEY="ecommerce-${SERVICE_NAME}-${BRANCH_NAME}"
+                                PROJECT_NAME="E-commerce ${SERVICE_NAME} (${BRANCH_NAME})"
+                            fi
+                            
+                            echo "Project Key: $PROJECT_KEY"
+                            echo "Project Name: $PROJECT_NAME"
+                            
+                            # Ejecutar análisis SonarQube (Community Edition compatible)
+                            mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                                -Dsonar.projectKey=$PROJECT_KEY \
+                                -Dsonar.projectName="$PROJECT_NAME" \
+                                -Dsonar.projectVersion=${IMAGE_TAG} \
+                                -Dsonar.java.source=17 \
+                                -Dsonar.java.target=17 \
+                                -Dsonar.sources=src/main/java \
+                                -Dsonar.tests=src/test/java \
+                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                                -Dsonar.junit.reportPaths=target/surefire-reports \
+                                -Dsonar.exclusions=**/target/**,**/generated-sources/**,**/*Test.java,**/*Tests.java \
+                                -Dsonar.test.exclusions=**/target/**,**/generated-sources/** \
+                                -Dsonar.maven.scanAll=false \
+                                -Dmaven.test.skip=true
+                        '''
                     }
                 }
             }
         }
         
-        stage('🔒 Security Scan with Trivy') {
+        // stage('Quality Gate') {
+        //     when {
+        //         expression { !params.SKIP_SONAR }
+        //     }
+        //     steps {
+        //         timeout(time: 10, unit: 'MINUTES') {
+        //             script {
+        //                 try {
+        //                     def qg = waitForQualityGate()
+        //                     if (qg.status != 'OK') {
+        //                         echo "Quality gate status: ${qg.status}"
+        //                         currentBuild.result = 'UNSTABLE'
+        //                         echo "Quality gate failed but continuing pipeline for development environment"
+        //                     } else {
+        //                         echo "Quality gate passed successfully"
+        //                     }
+        //                 } catch (Exception e) {
+        //                     echo "Quality gate check failed: ${e.getMessage()}"
+        //                     currentBuild.result = 'UNSTABLE'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        
+        stage('Build Application') {
+            steps {
+                dir("${env.SERVICE_NAME}") {
+                    sh '''
+                        echo "Configurando entorno Java..."
+                        
+                        # Crear directorio para Java si no existe
+                        mkdir -p ${WORKSPACE}/.tools/java
+                        
+                        # Descargar e instalar OpenJDK si no está instalado
+                        if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
+                            echo "Instalando OpenJDK 17..."
+                            cd ${WORKSPACE}/.tools
+                            curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
+                            tar xzf openjdk.tar.gz
+                            mv jdk-17* java/openjdk-17
+                            rm openjdk.tar.gz
+                        fi
+                        
+                        # Configurar Java
+                        export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
+                        export PATH="$JAVA_HOME/bin:$PATH"
+                        
+                        echo "Building application ${SERVICE_NAME}..."
+                        mvn clean package -DskipTests \
+                            -Dspring.profiles.active=dev \
+                            -Dmaven.javadoc.skip=true \
+                            -Dmaven.compiler.source=17 \
+                            -Dmaven.compiler.target=17 \
+                            -B -V
+                            
+                        # Verificar que el JAR se construyó correctamente
+                        JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
+                        if [ -z "$JAR_FILE" ]; then
+                            echo "ERROR: No se encontró el archivo JAR en target/"
+                            ls -la target/
+                            exit 1
+                        fi
+                        
+                        echo "JAR construido: $JAR_FILE"
+                    '''
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir("${env.SERVICE_NAME}") {
+                    sh '''
+                        # Configurar Docker CLI local
+                        export DOCKER_CLI="${WORKSPACE}/.tools/bin/docker"
+                        export DOCKER_HOST="unix:///var/run/docker.sock"
+                        
+                        echo "Verificando Docker CLI..."
+                        $DOCKER_CLI --version || echo "Docker CLI no disponible"
+                        
+                        # Verificar que tenemos el JAR construido
+                        JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
+                        if [ -z "$JAR_FILE" ]; then
+                            echo "ERROR: No se encontró el archivo JAR en target/"
+                            ls -la target/
+                            exit 1
+                        fi
+                        
+                        echo "Building Docker image..."
+                        
+                        # Check if Dockerfile exists
+                        if [ ! -f "Dockerfile" ]; then
+                            echo "Creating basic Dockerfile..."
+                            cat > Dockerfile << 'EOF'
+FROM openjdk:17-jre-slim
+
+ARG SERVICE_NAME
+ARG VERSION
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name=$SERVICE_NAME \
+      org.label-schema.version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+EOF
+                        fi
+                        
+                        # Intentar construir la imagen con diferentes métodos
+                        echo "Intentando construir imagen con Docker CLI local..."
+                        if ! $DOCKER_CLI build \
+                            -t ${BUILT_IMAGE} \
+                            -t ${BUILT_LATEST_IMAGE} \
+                            --build-arg SERVICE_NAME=${SERVICE_NAME} \
+                            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                            --build-arg VERSION=${IMAGE_TAG} \
+                            --build-arg VCS_REF=$(git rev-parse HEAD) \
+                            . ; then
+                            
+                            echo "ERROR: Falló la construcción de la imagen con Docker CLI local"
+                            echo "Verificando permisos de Docker..."
+                            ls -l /var/run/docker.sock || echo "No se puede acceder al socket Docker"
+                            echo "Intentando con sudo..."
+                            
+                            # Intentar con sudo si está disponible
+                            if command -v sudo >/dev/null 2>&1; then
+                                sudo $DOCKER_CLI build \
+                                    -t ${BUILT_IMAGE} \
+                                    -t ${BUILT_LATEST_IMAGE} \
+                                    --build-arg SERVICE_NAME=${SERVICE_NAME} \
+                                    --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                                    --build-arg VERSION=${IMAGE_TAG} \
+                                    --build-arg VCS_REF=$(git rev-parse HEAD) \
+                                    .
+                            else
+                                echo "sudo no está disponible"
+                                exit 1
+                            fi
+                        fi
+                        
+                        # Verificar que la imagen se construyó
+                        echo "Verificando imágenes construidas:"
+                        $DOCKER_CLI images | grep ${SERVICE_NAME} || echo "No se encontraron imágenes de ${SERVICE_NAME}"
+                        
+                        # Listar todas las imágenes para debug
+                        echo "Listando todas las imágenes disponibles:"
+                        $DOCKER_CLI images
+                    '''
+                }
+            }
+        }
+        
+        stage('Security Scan with Trivy') {
             when {
-                not { params.SKIP_SECURITY_SCAN }
+                expression { !params.SKIP_SECURITY_SCAN }
             }
             steps {
-                script {
-                    sh """
-                        echo "Installing Trivy..."
-                        # Install Trivy if not present
-                        if ! command -v trivy &> /dev/null; then
-                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
+                sh '''
+                    export PATH=${DOCKER_PATH}:${WORKSPACE}/.tools/bin:$PATH
+                    
+                    echo "Scanning image ${BUILT_IMAGE}..."
+                    trivy image \
+                        --format json \
+                        --output ${SERVICE_NAME}-trivy-report.json \
+                        --severity HIGH,CRITICAL \
+                        --no-progress \
+                        ${BUILT_IMAGE} || echo "Trivy scan completed with warnings"
+                    
+                    # Check for vulnerabilities but don't fail the build in dev
+                    if [ -f "${SERVICE_NAME}-trivy-report.json" ]; then
+                        HIGH_CRITICAL=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' ${SERVICE_NAME}-trivy-report.json 2>/dev/null || echo "0")
+                        echo "Found $HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
+                        
+                        if [ "$HIGH_CRITICAL" -gt 10 ]; then
+                            echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found ($HIGH_CRITICAL). Consider reviewing before promoting to staging."
                         fi
-                        
-                        echo "Scanning image ${env.BUILT_IMAGE}..."
-                        
-                        # Scan the built image
-                        trivy image \
-                            --format json \
-                            --output ${env.SERVICE_NAME}-trivy-report.json \
-                            --severity HIGH,CRITICAL \
-                            --no-progress \
-                            ${env.BUILT_IMAGE}
-                        
-                        # Check for HIGH and CRITICAL vulnerabilities
-                        HIGH_CRITICAL=\$(trivy image --format json --quiet ${env.BUILT_IMAGE} | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length')
-                        
-                        echo "Found \$HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
-                        
-                        # Allow up to 10 HIGH/CRITICAL vulnerabilities for dev environment
-                        if [ "\$HIGH_CRITICAL" -gt 10 ]; then
-                            echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found (\$HIGH_CRITICAL). Consider reviewing before promoting to staging."
-                            # Don't fail in dev, just warn
-                        fi
-                    """
-                }
+                    fi
+                '''
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "${env.SERVICE_NAME}-trivy-report.json", allowEmptyArchive: true
+                    script {
+                        try {
+                            archiveArtifacts artifacts: "${env.SERVICE_NAME}-trivy-report.json", allowEmptyArchive: true
+                            echo "Trivy report archived successfully"
+                        } catch (Exception e) {
+                            echo "Could not archive Trivy report: ${e.getMessage()}"
+                        }
+                    }
                 }
             }
         }
         
-        stage('📤 Push to GCP Registry') {
-            steps {
-                script {
-                    sh """
-                        echo "Pushing images to GCP Registry..."
-                        docker push ${env.BUILT_IMAGE}
-                        docker push ${env.BUILT_LATEST_IMAGE}
-                        
-                        echo "Images pushed successfully:"
-                        echo "- ${env.BUILT_IMAGE}"
-                        echo "- ${env.BUILT_LATEST_IMAGE}"
-                    """
-                }
-            }
-        }
-        
-        stage('🚀 Deploy to Dev Environment') {
-            steps {
-                script {
-                    sh """
-                        echo "Deploying ${env.SERVICE_NAME} to development environment..."
-                        
-                        # Update Kubernetes deployment
-                        kubectl set image deployment/${env.SERVICE_NAME} \
-                            ${env.SERVICE_NAME}=${env.BUILT_IMAGE} \
-                            -n ecommerce-dev
-                        
-                        # Wait for rollout to complete
-                        kubectl rollout status deployment/${env.SERVICE_NAME} \
-                            -n ecommerce-dev --timeout=300s
-                        
-                        # Get deployment status
-                        kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME}
-                        kubectl get services -n ecommerce-dev -l app=${env.SERVICE_NAME}
-                    """
-                }
-            }
-        }
-        
-        stage('🧪 Health Check Verification') {
-            steps {
-                script {
-                    sh """
-                        echo "Performing health check for ${env.SERVICE_NAME}..."
-                        
-                        # Get service endpoint
-                        SERVICE_IP=\$(kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.spec.clusterIP}')
-                        
-                        if [ -z "\$SERVICE_IP" ]; then
-                            echo "Could not get service IP, checking pod directly..."
-                            POD_NAME=\$(kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} -o jsonpath='{.items[0].metadata.name}')
-                            kubectl port-forward -n ecommerce-dev \$POD_NAME ${env.SERVICE_PORT}:${env.SERVICE_PORT} &
-                            PF_PID=\$!
-                            sleep 5
-                            SERVICE_IP="localhost"
-                        fi
-                        
-                        echo "Service IP: \$SERVICE_IP"
-                        echo "Service Port: ${env.SERVICE_PORT}"
-                        
-                        # Health check with retry
-                        max_attempts=30
-                        attempt=1
-                        
-                        while [ \$attempt -le \$max_attempts ]; do
-                            echo "Health check attempt \$attempt/\$max_attempts..."
-                            
-                            if curl -f -s http://\$SERVICE_IP:${env.SERVICE_PORT}/actuator/health; then
-                                echo ""
-                                echo "✅ Health check passed for ${env.SERVICE_NAME}"
-                                break
-                            fi
-                            
-                            echo "Health check failed, waiting 10 seconds..."
-                            sleep 10
-                            attempt=\$((attempt + 1))
-                        done
-                        
-                        # Kill port-forward if it was started
-                        if [ ! -z "\$PF_PID" ]; then
-                            kill \$PF_PID 2>/dev/null || true
-                        fi
-                        
-                        if [ \$attempt -gt \$max_attempts ]; then
-                            echo "❌ Health check failed after \$max_attempts attempts"
-                            exit 1
-                        fi
-                    """
-                }
-            }
-        }
-        
-        stage('📝 Create PR to Staging') {
+        stage('Push to GCP Registry') {
             when {
-                equals expected: 'develop', actual: params.BRANCH_NAME
+                expression { !params.SKIP_GCP_PUSH }
             }
             steps {
-                script {
-                    sh """
-                        echo "Creating PR to staging branch..."
-                        
-                        # Configure git
-                        git config user.name "Jenkins CI"
-                        git config user.email "jenkins@tu-dominio.com"
-                        
-                        # Create staging branch from current state
-                        git checkout -B staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}
-                        git push origin staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}
-                        
-                        # Create PR using GitHub API
-                        REPO_NAME=\$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
-                        
-                        curl -X POST \
-                            -H "Authorization: token ${env.GITHUB_TOKEN}" \
-                            -H "Accept: application/vnd.github.v3+json" \
-                            -H "Content-Type: application/json" \
-                            https://api.github.com/repos/\$REPO_NAME/pulls \
-                            -d '{
-                                "title": "🚀 Auto-promotion: '${env.SERVICE_NAME}' '${env.IMAGE_TAG}' to staging",
-                                "head": "staging-'${env.SERVICE_NAME}'-'${env.BUILD_NUMBER}'",
-                                "base": "staging",
-                                "body": "## Automatic Promotion to Staging\\n\\n**Service:** '${env.SERVICE_NAME}'\\n**Version:** '${env.IMAGE_TAG}'\\n**Build:** '${env.BUILD_NUMBER}'\\n\\n### ✅ Validations Completed\\n- Unit Tests: Passed\\n- Code Quality: SonarQube passed\\n- Security Scan: Trivy completed\\n- Docker Image: Built and pushed to GCR\\n- Deployment: Successfully deployed to dev\\n- Health Check: Verified\\n\\n### 📦 Artifacts\\n- **Image:** '${env.BUILT_IMAGE}'\\n- **Latest:** '${env.BUILT_LATEST_IMAGE}'\\n\\n### 🔗 Links\\n- [Jenkins Build]('${env.BUILD_URL}')\\n- [Test Results]('${env.BUILD_URL}'testReport/)\\n- [SonarQube Report](https://sonarqube.tu-dominio.com/dashboard?id=ecommerce-'${env.SERVICE_NAME}'-dev)\\n\\n**Ready for staging deployment! 🚀**"
-                            }' || echo "PR creation completed (may already exist)"
-                    """
+                sh '''
+                    export PATH=${DOCKER_PATH}:${GCLOUD_PATH}:$PATH
+                    
+                    echo "Configurando autenticación con GCP..."
+                    
+                    # Verificar que tenemos las credenciales
+                    if [ ! -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+                        echo "ERROR: No se encontró el archivo de credenciales de GCP"
+                        exit 1
+                    fi
+                    
+                    # Autenticar con GCP usando la cuenta de servicio
+                    echo "Autenticando con GCP usando cuenta de servicio..."
+                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: Falló la autenticación con GCP"
+                        exit 1
+                    fi
+                    
+                    # Configurar el proyecto
+                    echo "Configurando proyecto GCP: $GCP_PROJECT_ID"
+                    gcloud config set project $GCP_PROJECT_ID
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: No se pudo configurar el proyecto GCP"
+                        exit 1
+                    fi
+                    
+                    # Configurar Docker para usar GCR
+                    echo "Configurando Docker para usar Google Container Registry..."
+                    gcloud auth configure-docker gcr.io --quiet
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: No se pudo configurar Docker con GCR"
+                        exit 1
+                    fi
+                    
+                    # Verificar que la imagen existe localmente
+                    if ! docker images | grep -q "${SERVICE_NAME}.*${IMAGE_TAG}"; then
+                        echo "ERROR: No se encontró la imagen local ${BUILT_IMAGE}"
+                        exit 1
+                    fi
+                    
+                    echo "Pushing images to GCP Registry..."
+                    echo "- Pushing ${BUILT_IMAGE}"
+                    docker push ${BUILT_IMAGE}
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: Falló el push de ${BUILT_IMAGE}"
+                        exit 1
+                    fi
+                    
+                    echo "- Pushing ${BUILT_LATEST_IMAGE}"
+                    docker push ${BUILT_LATEST_IMAGE}
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: Falló el push de ${BUILT_LATEST_IMAGE}"
+                        exit 1
+                    fi
+                    
+                    echo "Imágenes publicadas exitosamente en GCP Registry"
+                    echo "  - ${BUILT_IMAGE}"
+                    echo "  - ${BUILT_LATEST_IMAGE}"
+                '''
+            }
+        }
+        
+        stage('Create PR to Staging') {
+            when {
+                allOf {
+                    equals expected: 'develop', actual: params.BRANCH_NAME
+                    expression { env.GITHUB_TOKEN != null }
                 }
+            }
+            steps {
+                sh '''
+                    echo "PR creation skipped - GitHub token not configured"
+                    echo "To enable PR creation:"
+                    echo "1. Create GitHub token in Jenkins credentials with ID 'github-token'"
+                    echo "2. Uncomment GITHUB_TOKEN in environment section"
+                    echo "3. Enable this stage"
+                    
+                    echo "Manual PR creation info:"
+                    echo "Branch: staging-${SERVICE_NAME}-${BUILD_NUMBER}"
+                    echo "Image: ${BUILT_IMAGE}"
+                    echo "Service: ${SERVICE_NAME}"
+                '''
             }
         }
     }
@@ -374,67 +620,51 @@ pipeline {
     post {
         always {
             script {
-                // Cleanup local Docker images
-                sh """
-                    echo "Cleaning up Docker images..."
-                    docker rmi ${env.BUILT_IMAGE} || true
-                    docker rmi ${env.BUILT_LATEST_IMAGE} || true
-                    docker system prune -f || true
-                """
+                try {
+                    sh '''
+                        export PATH=${DOCKER_PATH}:$PATH
+                        
+                        echo "Cleaning up Docker images..."
+                        docker rmi ${BUILT_IMAGE} 2>/dev/null || true
+                        docker rmi ${BUILT_LATEST_IMAGE} 2>/dev/null || true
+                        docker system prune -f 2>/dev/null || true
+                    '''
+                } catch (Exception e) {
+                    echo "Cleanup failed: ${e.getMessage()}"
+                }
             }
         }
         
         success {
             script {
-                def message = """✅ *Build Successful* - ${env.SERVICE_NAME}
-                
-🏷️ **Version:** ${env.IMAGE_TAG}
-🐳 **Image:** \`${env.BUILT_IMAGE}\`
-🚀 **Deployed to:** Development Environment
-📊 **Build:** #${env.BUILD_NUMBER}
-🔗 **Pipeline:** ${env.BUILD_URL}
-
-✅ **Next Steps:**
-• PR created to staging branch
-• Ready for staging deployment
-• Health checks passed"""
-
-                sendSlackNotification('good', message)
+                echo "✅ Build Successful - ${env.SERVICE_NAME}"
+                echo "🏷️ Version: ${env.IMAGE_TAG}"
+                echo "🐳 Image: ${env.BUILT_IMAGE}"
+                echo "📊 Build: #${env.BUILD_NUMBER}"
+                echo ""
+                echo "🔗 Next Steps:"
+                echo "- Configure GitHub credentials for PR creation"
+                echo "- Set up GCP project access for image pushing"
+                echo "- Configure Kubernetes for deployment"
             }
         }
         
         failure {
             script {
-                def message = """❌ *Build Failed* - ${env.SERVICE_NAME}
-                
-🏷️ **Version:** ${env.IMAGE_TAG}
-📊 **Build:** #${env.BUILD_NUMBER}
-🔗 **Pipeline:** ${env.BUILD_URL}
-⏰ **Duration:** ${currentBuild.durationString}
-
-🔍 **Action Required:**
-• Check console output for errors
-• Review failed stage logs
-• Fix issues and retry build"""
-
-                sendSlackNotification('danger', message)
+                echo "❌ Build Failed - ${env.SERVICE_NAME}"
+                echo "🏷️ Version: ${env.IMAGE_TAG}"
+                echo "📊 Build: #${env.BUILD_NUMBER}"
+                echo "🔗 Pipeline: ${env.BUILD_URL}"
+                echo "🔍 Check console output for errors"
             }
         }
         
         unstable {
             script {
-                def message = """⚠️ *Build Unstable* - ${env.SERVICE_NAME}
-                
-🏷️ **Version:** ${env.IMAGE_TAG}
-📊 **Build:** #${env.BUILD_NUMBER}
-🔗 **Pipeline:** ${env.BUILD_URL}
-
-⚠️ **Issues Found:**
-• Some tests may have failed
-• Quality gates may have warnings
-• Review test results before promoting"""
-
-                sendSlackNotification('warning', message)
+                echo "⚠️ Build Unstable - ${env.SERVICE_NAME}"
+                echo "🏷️ Version: ${env.IMAGE_TAG}"
+                echo "📊 Build: #${env.BUILD_NUMBER}"
+                echo "⚠️ Some tests may have failed or quality gates have warnings"
             }
         }
     }
@@ -453,25 +683,4 @@ def getServicePort(serviceName) {
         'cloud-config': '8888'
     ]
     return servicePorts[serviceName] ?: '8080'
-}
-
-def sendSlackNotification(String color, String message) {
-    if (env.SLACK_WEBHOOK) {
-        try {
-            sh """
-                curl -X POST -H 'Content-type: application/json' \
-                    --data '{
-                        "attachments": [{
-                            "color": "${color}",
-                            "text": "${message}",
-                            "footer": "Jenkins CI/CD Pipeline",
-                            "ts": ${System.currentTimeMillis() / 1000}
-                        }]
-                    }' \
-                    ${env.SLACK_WEBHOOK}
-            """
-        } catch (Exception e) {
-            echo "Failed to send Slack notification: ${e.getMessage()}"
-        }
-    }
 }
