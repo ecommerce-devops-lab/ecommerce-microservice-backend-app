@@ -453,40 +453,6 @@ pipeline {
             }
         }
         
-        stage('Deploy to Dev Environment') {
-            when {
-                expression { !params.SKIP_DEPLOY }
-            }
-            steps {
-                sh '''
-                    export PATH=${KUBECTL_PATH}:$PATH
-                    
-                    echo "Checking Kubernetes deployment..."
-                    
-                    # Check if kubectl is working
-                    kubectl version --client || echo "kubectl not properly configured"
-                    
-                    # Check if deployment exists
-                    if kubectl get deployment ${SERVICE_NAME} -n ecommerce-dev >/dev/null 2>&1; then
-                        echo "Updating existing deployment..."
-                        kubectl set image deployment/${SERVICE_NAME} \
-                            ${SERVICE_NAME}=${BUILT_IMAGE} \
-                            -n ecommerce-dev
-                        
-                        kubectl rollout status deployment/${SERVICE_NAME} \
-                            -n ecommerce-dev --timeout=300s
-                    else
-                        echo "Deployment ${SERVICE_NAME} not found in ecommerce-dev namespace"
-                        echo "Skipping deployment step - ensure Kubernetes cluster is configured"
-                    fi
-                    
-                    # Show current status if possible
-                    kubectl get pods -n ecommerce-dev -l app=${SERVICE_NAME} 2>/dev/null || echo "Could not check pods"
-                    kubectl get services -n ecommerce-dev -l app=${SERVICE_NAME} 2>/dev/null || echo "Could not check services"
-                '''
-            }
-        }
-        
         stage('Create PR to Staging') {
             when {
                 allOf {
