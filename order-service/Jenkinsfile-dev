@@ -246,30 +246,6 @@ pipeline {
                 dir("${env.SERVICE_NAME}") {
                     withSonarQubeEnv('sonarqube-server') {
                         sh '''
-                        echo "Configurando entorno Java..."
-                            
-                            # Crear directorio para Java si no existe
-                            mkdir -p ${WORKSPACE}/.tools/java
-                            
-                            # Descargar e instalar OpenJDK si no está instalado
-                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
-                                echo "Instalando OpenJDK 17..."
-                                cd ${WORKSPACE}/.tools
-                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
-                                tar xzf openjdk.tar.gz
-                                mv jdk-17* java/openjdk-17
-                                rm openjdk.tar.gz
-                            fi
-                            
-                            # Configurar Java
-                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
-                            export PATH="$JAVA_HOME/bin:$PATH"
-                            
-                            # Verificar la instalación
-                            echo "JAVA_HOME: $JAVA_HOME"
-                            echo "Java version:"
-                            $JAVA_HOME/bin/java -version
-                            
                             echo "Running SonarQube analysis for Community Edition..."
                             echo "Current directory: $(pwd)"
                             echo "Service: ${SERVICE_NAME}"
@@ -334,6 +310,51 @@ pipeline {
             }
         }
         
+        stage('Build Application') {
+            steps {
+                dir("${env.SERVICE_NAME}") {
+                    sh '''
+                        echo "Configurando entorno Java..."
+                        
+                        # Crear directorio para Java si no existe
+                        mkdir -p ${WORKSPACE}/.tools/java
+                        
+                        # Descargar e instalar OpenJDK si no está instalado
+                        if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
+                            echo "Instalando OpenJDK 17..."
+                            cd ${WORKSPACE}/.tools
+                            curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
+                            tar xzf openjdk.tar.gz
+                            mv jdk-17* java/openjdk-17
+                            rm openjdk.tar.gz
+                        fi
+                        
+                        # Configurar Java
+                        export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
+                        export PATH="$JAVA_HOME/bin:$PATH"
+                        
+                        echo "Building application ${SERVICE_NAME}..."
+                        mvn clean package -DskipTests \
+                            -Dspring.profiles.active=dev \
+                            -Dmaven.javadoc.skip=true \
+                            -Dmaven.compiler.source=17 \
+                            -Dmaven.compiler.target=17 \
+                            -B -V
+                            
+                        # Verificar que el JAR se construyó correctamente
+                        JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
+                        if [ -z "$JAR_FILE" ]; then
+                            echo "ERROR: No se encontró el archivo JAR en target/"
+                            ls -la target/
+                            exit 1
+                        fi
+                        
+                        echo "JAR construido: $JAR_FILE"
+                    '''
+                }
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
                 dir("${env.SERVICE_NAME}") {
@@ -346,9 +367,10 @@ pipeline {
                         $DOCKER_CLI --version || echo "Docker CLI no disponible"
                         
                         # Verificar que tenemos el JAR construido
-                        if [ ! -f "target/*.jar" ]; then
+                        JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
+                        if [ -z "$JAR_FILE" ]; then
                             echo "ERROR: No se encontró el archivo JAR en target/"
-                            ls -la target/ || echo "Directorio target/ no existe"
+                            ls -la target/
                             exit 1
                         fi
                         
@@ -529,6 +551,40 @@ EOF
                     echo "Imágenes publicadas exitosamente en GCP Registry"
                     echo "  - ${BUILT_IMAGE}"
                     echo "  - ${BUILT_LATEST_IMAGE}"
+                '''
+            }
+        }
+        
+        stage('Deploy to Dev Environment') {
+            when {
+                expression { !params.SKIP_DEPLOY }
+            }
+            steps {
+                sh '''
+                    export PATH=${KUBECTL_PATH}:$PATH
+                    
+                    echo "Checking Kubernetes deployment..."
+                    
+                    # Check if kubectl is working
+                    kubectl version --client || echo "kubectl not properly configured"
+                    
+                    # Check if deployment exists
+                    if kubectl get deployment ${SERVICE_NAME} -n ecommerce-dev >/dev/null 2>&1; then
+                        echo "Updating existing deployment..."
+                        kubectl set image deployment/${SERVICE_NAME} \
+                            ${SERVICE_NAME}=${BUILT_IMAGE} \
+                            -n ecommerce-dev
+                        
+                        kubectl rollout status deployment/${SERVICE_NAME} \
+                            -n ecommerce-dev --timeout=300s
+                    else
+                        echo "Deployment ${SERVICE_NAME} not found in ecommerce-dev namespace"
+                        echo "Skipping deployment step - ensure Kubernetes cluster is configured"
+                    fi
+                    
+                    # Show current status if possible
+                    kubectl get pods -n ecommerce-dev -l app=${SERVICE_NAME} 2>/dev/null || echo "Could not check pods"
+                    kubectl get services -n ecommerce-dev -l app=${SERVICE_NAME} 2>/dev/null || echo "Could not check services"
                 '''
             }
         }
