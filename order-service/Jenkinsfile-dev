@@ -53,6 +53,12 @@ pipeline {
                             chmod +x bin/docker
                         fi
                         
+                        # Configure Docker socket permissions
+                        echo "Configurando permisos de Docker..."
+                        if [ -S /var/run/docker.sock ]; then
+                            sudo chmod 666 /var/run/docker.sock || echo "No se pudo cambiar permisos del socket Docker"
+                        fi
+                        
                         # Install Google Cloud SDK
                         if [ ! -d "google-cloud-sdk" ]; then
                             echo "Installing Google Cloud SDK..."
@@ -302,41 +308,54 @@ pipeline {
             }
         }
         
-        stage('Build Application') {
+        stage('Build Docker Image') {
             steps {
                 dir("${env.SERVICE_NAME}") {
                     sh '''
-                        echo "Configurando entorno Java..."
-                            
-                            # Crear directorio para Java si no existe
-                            mkdir -p ${WORKSPACE}/.tools/java
-                            
-                            # Descargar e instalar OpenJDK si no está instalado
-                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
-                                echo "Instalando OpenJDK 17..."
-                                cd ${WORKSPACE}/.tools
-                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
-                                tar xzf openjdk.tar.gz
-                                mv jdk-17* java/openjdk-17
-                                rm openjdk.tar.gz
-                            fi
-                            
-                            # Configurar Java
-                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
-                            export PATH="$JAVA_HOME/bin:$PATH"
-                            
-                            # Verificar la instalación
-                            echo "JAVA_HOME: $JAVA_HOME"
-                            echo "Java version:"
-                            $JAVA_HOME/bin/java -version
+                        export PATH=${DOCKER_PATH}:$PATH
                         
-                        echo "Building application ${SERVICE_NAME}..."
-                        mvn package -DskipTests \
-                            -Dspring.profiles.active=dev \
-                            -Dmaven.javadoc.skip=true \
-                            -Dmaven.compiler.source=17 \
-                            -Dmaven.compiler.target=17 \
-                            -B -V
+                        echo "Building Docker image..."
+                        
+                        # Check if Dockerfile exists
+                        if [ ! -f "Dockerfile" ]; then
+                            echo "Creating basic Dockerfile..."
+                            cat > Dockerfile << 'EOF'
+FROM openjdk:17-jre-slim
+
+ARG SERVICE_NAME
+ARG VERSION
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name=$SERVICE_NAME \
+      org.label-schema.version=$VERSION \
+      org.label-schema.vcs-ref=$VCS_REF
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+EOF
+                        fi
+                        
+                        # Build the image
+                        echo "Building image ${BUILT_IMAGE}..."
+                        docker build \
+                            -t ${BUILT_IMAGE} \
+                            -t ${BUILT_LATEST_IMAGE} \
+                            --build-arg SERVICE_NAME=${SERVICE_NAME} \
+                            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                            --build-arg VERSION=${IMAGE_TAG} \
+                            --build-arg VCS_REF=$(git rev-parse HEAD) \
+                            .
+                        
+                        # Verify the image was built
+                        echo "Verifying built images:"
+                        docker images | grep ${SERVICE_NAME} || echo "No images found with ${SERVICE_NAME}"
                     '''
                 }
             }
