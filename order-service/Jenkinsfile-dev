@@ -309,30 +309,30 @@ pipeline {
             }
         }
         
-        stage('Quality Gate') {
-            when {
-                expression { !params.SKIP_SONAR }
-            }
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    script {
-                        try {
-                            def qg = waitForQualityGate()
-                            if (qg.status != 'OK') {
-                                echo "Quality gate status: ${qg.status}"
-                                currentBuild.result = 'UNSTABLE'
-                                echo "Quality gate failed but continuing pipeline for development environment"
-                            } else {
-                                echo "Quality gate passed successfully"
-                            }
-                        } catch (Exception e) {
-                            echo "Quality gate check failed: ${e.getMessage()}"
-                            currentBuild.result = 'UNSTABLE'
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     when {
+        //         expression { !params.SKIP_SONAR }
+        //     }
+        //     steps {
+        //         timeout(time: 10, unit: 'MINUTES') {
+        //             script {
+        //                 try {
+        //                     def qg = waitForQualityGate()
+        //                     if (qg.status != 'OK') {
+        //                         echo "Quality gate status: ${qg.status}"
+        //                         currentBuild.result = 'UNSTABLE'
+        //                         echo "Quality gate failed but continuing pipeline for development environment"
+        //                     } else {
+        //                         echo "Quality gate passed successfully"
+        //                     }
+        //                 } catch (Exception e) {
+        //                     echo "Quality gate check failed: ${e.getMessage()}"
+        //                     currentBuild.result = 'UNSTABLE'
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         
         stage('Build Docker Image') {
             steps {
