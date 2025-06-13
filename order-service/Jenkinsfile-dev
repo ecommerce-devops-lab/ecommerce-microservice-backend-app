@@ -11,16 +11,10 @@ pipeline {
     environment {
         // GCP Configuration
         GCP_PROJECT_ID = 'ecommerce-microservices-back'
-        GCP_REGISTRY = "gcr.io/${GCP_PROJECT_ID}"
-        
-        // Dynamic service detection from job name
-        SERVICE_NAME = "${env.JOB_NAME}".split('-dev')[0]
+        GCP_REGISTRY = "gcr.io/ecommerce-microservices-back"
         
         // Versioning
         IMAGE_TAG = "${params.COMMIT_SHA.take(7)}-${BUILD_NUMBER}"
-        
-        // Service configuration (will be set dynamically)
-        SERVICE_PORT = getServicePort("${env.JOB_NAME}".split('-dev')[0])
         
         // Credentials
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
@@ -37,6 +31,12 @@ pipeline {
         stage('🏁 Initialize') {
             steps {
                 script {
+                    // Set dynamic environment variables
+                    env.SERVICE_NAME = env.JOB_NAME.split('-dev')[0]
+                    env.SERVICE_PORT = getServicePort(env.SERVICE_NAME)
+                    env.BUILT_IMAGE = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:${env.IMAGE_TAG}"
+                    env.BUILT_LATEST_IMAGE = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:dev-latest"
+                    
                     currentBuild.description = "Building ${env.SERVICE_NAME}:${env.IMAGE_TAG}"
                     
                     echo "=== Pipeline Configuration ==="
@@ -45,6 +45,7 @@ pipeline {
                     echo "Image Tag: ${env.IMAGE_TAG}"
                     echo "Branch: ${params.BRANCH_NAME}"
                     echo "GCP Registry: ${env.GCP_REGISTRY}"
+                    echo "Built Image: ${env.BUILT_IMAGE}"
                     
                     // Initialize GCP
                     sh '''
@@ -64,7 +65,7 @@ pipeline {
                     branches: [[name: "${params.BRANCH_NAME}"]],
                     userRemoteConfigs: [[
                         url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git',
-                        credentialsId: 'github-credentials'
+                        credentialsId: 'github-token'
                     ]]
                 ])
                 
@@ -111,6 +112,7 @@ pipeline {
                                 testResultsPattern: "${env.SERVICE_NAME}/target/surefire-reports/*.xml",
                                 allowEmptyResults: true
                             )
+                            echo "Test results published successfully"
                         } catch (Exception e) {
                             echo "Test results not found or could not be published: ${e.getMessage()}"
                         }
@@ -120,6 +122,7 @@ pipeline {
                                 adapters: [jacocoAdapter("${env.SERVICE_NAME}/target/site/jacoco/jacoco.xml")],
                                 sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
                             ])
+                            echo "Coverage report published successfully"
                         } catch (Exception e) {
                             echo "Coverage report not found or could not be published: ${e.getMessage()}"
                         }
@@ -162,6 +165,8 @@ pipeline {
                                 echo "Quality gate status: ${qg.status}"
                                 currentBuild.result = 'UNSTABLE'
                                 echo "Quality gate failed but continuing pipeline for development environment"
+                            } else {
+                                echo "Quality gate passed successfully"
                             }
                         } catch (Exception e) {
                             echo "Quality gate check failed: ${e.getMessage()}"
@@ -189,28 +194,20 @@ pipeline {
         stage('🐳 Build Docker Image') {
             steps {
                 dir("${env.SERVICE_NAME}") {
-                    script {
-                        def gcpImage = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:${env.IMAGE_TAG}"
-                        def gcpLatestImage = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:dev-latest"
+                    sh """
+                        echo "Building Docker image..."
+                        docker build \
+                            -t ${env.BUILT_IMAGE} \
+                            -t ${env.BUILT_LATEST_IMAGE} \
+                            --build-arg SERVICE_NAME=${env.SERVICE_NAME} \
+                            --build-arg BUILD_DATE=\$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                            --build-arg VERSION=${env.IMAGE_TAG} \
+                            --build-arg VCS_REF=\$(git rev-parse HEAD) \
+                            .
                         
-                        sh """
-                            echo "Building Docker image..."
-                            docker build \
-                                -t ${gcpImage} \
-                                -t ${gcpLatestImage} \
-                                --build-arg SERVICE_NAME=${env.SERVICE_NAME} \
-                                --build-arg BUILD_DATE=\$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-                                --build-arg VERSION=${env.IMAGE_TAG} \
-                                --build-arg VCS_REF=\$(git rev-parse HEAD) \
-                                .
-                            
-                            echo "Images built:"
-                            docker images | grep ${env.SERVICE_NAME} || echo "No images found with ${env.SERVICE_NAME}"
-                        """
-                        
-                        env.BUILT_IMAGE = gcpImage
-                        env.BUILT_LATEST_IMAGE = gcpLatestImage
-                    }
+                        echo "Images built:"
+                        docker images | grep ${env.SERVICE_NAME} || echo "No images found with ${env.SERVICE_NAME}"
+                    """
                 }
             }
         }
@@ -220,38 +217,37 @@ pipeline {
                 expression { !params.SKIP_SECURITY_SCAN }
             }
             steps {
-                script {
-                    sh """
-                        echo "Installing Trivy..."
-                        if ! command -v trivy &> /dev/null; then
-                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
-                        fi
+                sh """
+                    echo "Installing Trivy..."
+                    if ! command -v trivy &> /dev/null; then
+                        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
+                    fi
+                    
+                    echo "Scanning image ${env.BUILT_IMAGE}..."
+                    trivy image \
+                        --format json \
+                        --output ${env.SERVICE_NAME}-trivy-report.json \
+                        --severity HIGH,CRITICAL \
+                        --no-progress \
+                        ${env.BUILT_IMAGE} || echo "Trivy scan completed with warnings"
+                    
+                    # Check for vulnerabilities but don't fail the build in dev
+                    if [ -f "${env.SERVICE_NAME}-trivy-report.json" ]; then
+                        HIGH_CRITICAL=\$(cat ${env.SERVICE_NAME}-trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' 2>/dev/null || echo "0")
+                        echo "Found \$HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
                         
-                        echo "Scanning image ${env.BUILT_IMAGE}..."
-                        trivy image \
-                            --format json \
-                            --output ${env.SERVICE_NAME}-trivy-report.json \
-                            --severity HIGH,CRITICAL \
-                            --no-progress \
-                            ${env.BUILT_IMAGE} || echo "Trivy scan completed with warnings"
-                        
-                        # Check for vulnerabilities but don't fail the build in dev
-                        if [ -f "${env.SERVICE_NAME}-trivy-report.json" ]; then
-                            HIGH_CRITICAL=\$(cat ${env.SERVICE_NAME}-trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' 2>/dev/null || echo "0")
-                            echo "Found \$HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
-                            
-                            if [ "\$HIGH_CRITICAL" -gt 10 ]; then
-                                echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found (\$HIGH_CRITICAL). Consider reviewing before promoting to staging."
-                            fi
+                        if [ "\$HIGH_CRITICAL" -gt 10 ]; then
+                            echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found (\$HIGH_CRITICAL). Consider reviewing before promoting to staging."
                         fi
-                    """
-                }
+                    fi
+                """
             }
             post {
                 always {
                     script {
                         try {
                             archiveArtifacts artifacts: "${env.SERVICE_NAME}-trivy-report.json", allowEmptyArchive: true
+                            echo "Trivy report archived successfully"
                         } catch (Exception e) {
                             echo "Could not archive Trivy report: ${e.getMessage()}"
                         }
@@ -262,92 +258,86 @@ pipeline {
         
         stage('📤 Push to GCP Registry') {
             steps {
-                script {
-                    sh """
-                        echo "Pushing images to GCP Registry..."
-                        docker push ${env.BUILT_IMAGE}
-                        docker push ${env.BUILT_LATEST_IMAGE}
-                        
-                        echo "Images pushed successfully:"
-                        echo "- ${env.BUILT_IMAGE}"
-                        echo "- ${env.BUILT_LATEST_IMAGE}"
-                    """
-                }
+                sh """
+                    echo "Pushing images to GCP Registry..."
+                    docker push ${env.BUILT_IMAGE}
+                    docker push ${env.BUILT_LATEST_IMAGE}
+                    
+                    echo "Images pushed successfully:"
+                    echo "- ${env.BUILT_IMAGE}"
+                    echo "- ${env.BUILT_LATEST_IMAGE}"
+                """
             }
         }
         
         stage('🚀 Deploy to Dev Environment') {
             steps {
-                script {
-                    sh """
-                        echo "Deploying ${env.SERVICE_NAME} to development environment..."
+                sh """
+                    echo "Deploying ${env.SERVICE_NAME} to development environment..."
+                    
+                    # Check if deployment exists
+                    if kubectl get deployment ${env.SERVICE_NAME} -n ecommerce-dev >/dev/null 2>&1; then
+                        echo "Updating existing deployment..."
+                        kubectl set image deployment/${env.SERVICE_NAME} \
+                            ${env.SERVICE_NAME}=${env.BUILT_IMAGE} \
+                            -n ecommerce-dev
                         
-                        # Check if deployment exists
-                        if kubectl get deployment ${env.SERVICE_NAME} -n ecommerce-dev >/dev/null 2>&1; then
-                            echo "Updating existing deployment..."
-                            kubectl set image deployment/${env.SERVICE_NAME} \
-                                ${env.SERVICE_NAME}=${env.BUILT_IMAGE} \
-                                -n ecommerce-dev
-                            
-                            kubectl rollout status deployment/${env.SERVICE_NAME} \
-                                -n ecommerce-dev --timeout=300s
-                        else
-                            echo "Deployment ${env.SERVICE_NAME} not found in ecommerce-dev namespace"
-                            echo "Please ensure the deployment exists or create it first"
-                        fi
-                        
-                        # Show current status
-                        kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} || echo "No pods found"
-                        kubectl get services -n ecommerce-dev -l app=${env.SERVICE_NAME} || echo "No services found"
-                    """
-                }
+                        kubectl rollout status deployment/${env.SERVICE_NAME} \
+                            -n ecommerce-dev --timeout=300s
+                    else
+                        echo "Deployment ${env.SERVICE_NAME} not found in ecommerce-dev namespace"
+                        echo "Please ensure the deployment exists or create it first"
+                    fi
+                    
+                    # Show current status
+                    kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} || echo "No pods found"
+                    kubectl get services -n ecommerce-dev -l app=${env.SERVICE_NAME} || echo "No services found"
+                """
             }
         }
         
         stage('🧪 Health Check Verification') {
             steps {
-                script {
-                    sh """
-                        echo "Performing health check for ${env.SERVICE_NAME}..."
+                sh """
+                    echo "Performing health check for ${env.SERVICE_NAME}..."
+                    
+                    # Try to get service IP
+                    SERVICE_IP=\$(kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
+                    
+                    if [ -z "\$SERVICE_IP" ]; then
+                        echo "Could not get service IP, checking pod directly..."
+                        POD_NAME=\$(kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
                         
-                        # Try to get service IP
-                        SERVICE_IP=\$(kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
-                        
-                        if [ -z "\$SERVICE_IP" ]; then
-                            echo "Could not get service IP, checking pod directly..."
-                            POD_NAME=\$(kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
-                            
-                            if [ -n "\$POD_NAME" ]; then
-                                echo "Found pod: \$POD_NAME"
-                                # Try to check if actuator/health endpoint exists
-                                kubectl exec \$POD_NAME -n ecommerce-dev -- curl -f -s http://localhost:${env.SERVICE_PORT}/actuator/health || echo "Health check endpoint not accessible"
-                            else
-                                echo "No pods found for ${env.SERVICE_NAME}"
-                            fi
+                        if [ -n "\$POD_NAME" ]; then
+                            echo "Found pod: \$POD_NAME"
+                            # Try to check if actuator/health endpoint exists
+                            kubectl exec \$POD_NAME -n ecommerce-dev -- curl -f -s http://localhost:${env.SERVICE_PORT}/actuator/health || echo "Health check endpoint not accessible"
                         else
-                            echo "Service IP: \$SERVICE_IP"
-                            echo "Trying health check..."
-                            
-                            max_attempts=10
-                            attempt=1
-                            
-                            while [ \$attempt -le \$max_attempts ]; do
-                                echo "Health check attempt \$attempt/\$max_attempts..."
-                                if curl -f -s --max-time 5 http://\$SERVICE_IP:${env.SERVICE_PORT}/actuator/health; then
-                                    echo ""
-                                    echo "✅ Health check passed for ${env.SERVICE_NAME}"
-                                    break
-                                fi
-                                sleep 5
-                                attempt=\$((attempt + 1))
-                            done
-                            
-                            if [ \$attempt -gt \$max_attempts ]; then
-                                echo "⚠️ Health check attempts exhausted, but continuing pipeline"
-                            fi
+                            echo "No pods found for ${env.SERVICE_NAME}"
                         fi
-                    """
-                }
+                    else
+                        echo "Service IP: \$SERVICE_IP"
+                        echo "Trying health check..."
+                        
+                        max_attempts=10
+                        attempt=1
+                        
+                        while [ \$attempt -le \$max_attempts ]; do
+                            echo "Health check attempt \$attempt/\$max_attempts..."
+                            if curl -f -s --max-time 5 http://\$SERVICE_IP:${env.SERVICE_PORT}/actuator/health; then
+                                echo ""
+                                echo "✅ Health check passed for ${env.SERVICE_NAME}"
+                                break
+                            fi
+                            sleep 5
+                            attempt=\$((attempt + 1))
+                        done
+                        
+                        if [ \$attempt -gt \$max_attempts ]; then
+                            echo "⚠️ Health check attempts exhausted, but continuing pipeline"
+                        fi
+                    fi
+                """
             }
         }
         
@@ -356,53 +346,49 @@ pipeline {
                 equals expected: 'develop', actual: params.BRANCH_NAME
             }
             steps {
-                script {
-                    sh """
-                        echo "Creating PR to staging branch..."
-                        
-                        # Configure git
-                        git config user.name "Jenkins CI"
-                        git config user.email "jenkins@ecommerce.local"
-                        
-                        # Create staging branch from current state
-                        STAGING_BRANCH="staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}"
-                        git checkout -B \$STAGING_BRANCH
-                        git push origin \$STAGING_BRANCH || echo "Branch push failed, continuing..."
-                        
-                        # Create PR using GitHub API
-                        REPO_NAME=\$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
-                        
-                        curl -X POST \
-                            -H "Authorization: token ${env.GITHUB_TOKEN}" \
-                            -H "Accept: application/vnd.github.v3+json" \
-                            -H "Content-Type: application/json" \
-                            https://api.github.com/repos/\$REPO_NAME/pulls \
-                            -d '{
-                                "title": "🚀 Auto-promotion: '${env.SERVICE_NAME}' '${env.IMAGE_TAG}' to staging",
-                                "head": "'staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}'",
-                                "base": "staging",
-                                "body": "## Automatic Promotion to Staging\\n\\n**Service:** '${env.SERVICE_NAME}'\\n**Version:** '${env.IMAGE_TAG}'\\n**Build:** '${env.BUILD_NUMBER}'\\n\\n### ✅ Validations Completed\\n- Unit Tests: Passed\\n- Code Quality: SonarQube analyzed\\n- Security Scan: Trivy completed\\n- Docker Image: Built and pushed to GCR\\n- Deployment: Successfully deployed to dev\\n\\n### 📦 Artifacts\\n- **Image:** '${env.BUILT_IMAGE}'\\n- **Latest:** '${env.BUILT_LATEST_IMAGE}'\\n\\n### 🔗 Links\\n- [Jenkins Build]('${env.BUILD_URL}')\\n\\n**Ready for staging deployment! 🚀**"
-                            }' || echo "PR creation completed (may already exist or failed)"
-                    """
-                }
+                sh """
+                    echo "Creating PR to staging branch..."
+                    
+                    # Configure git
+                    git config user.name "Jenkins CI"
+                    git config user.email "jenkins@ecommerce.local"
+                    
+                    # Create staging branch from current state
+                    STAGING_BRANCH="staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}"
+                    git checkout -B \$STAGING_BRANCH
+                    git push origin \$STAGING_BRANCH || echo "Branch push failed, continuing..."
+                    
+                    # Create PR using GitHub API
+                    REPO_NAME=\$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
+                    
+                    curl -X POST \
+                        -H "Authorization: token ${env.GITHUB_TOKEN}" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        -H "Content-Type: application/json" \
+                        https://api.github.com/repos/\$REPO_NAME/pulls \
+                        -d '{
+                            "title": "🚀 Auto-promotion: '${env.SERVICE_NAME}' '${env.IMAGE_TAG}' to staging",
+                            "head": "'staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}'",
+                            "base": "staging",
+                            "body": "## Automatic Promotion to Staging\\n\\n**Service:** '${env.SERVICE_NAME}'\\n**Version:** '${env.IMAGE_TAG}'\\n**Build:** '${env.BUILD_NUMBER}'\\n\\n### ✅ Validations Completed\\n- Unit Tests: Passed\\n- Code Quality: SonarQube analyzed\\n- Security Scan: Trivy completed\\n- Docker Image: Built and pushed to GCR\\n- Deployment: Successfully deployed to dev\\n\\n### 📦 Artifacts\\n- **Image:** '${env.BUILT_IMAGE}'\\n- **Latest:** '${env.BUILT_LATEST_IMAGE}'\\n\\n### 🔗 Links\\n- [Jenkins Build]('${env.BUILD_URL}')\\n\\n**Ready for staging deployment! 🚀**"
+                        }' || echo "PR creation completed (may already exist or failed)"
+                """
             }
         }
     }
     
     post {
         always {
-            node {
-                script {
-                    try {
-                        sh """
-                            echo "Cleaning up Docker images..."
-                            docker rmi ${env.BUILT_IMAGE} || true
-                            docker rmi ${env.BUILT_LATEST_IMAGE} || true
-                            docker system prune -f || true
-                        """
-                    } catch (Exception e) {
-                        echo "Cleanup failed: ${e.getMessage()}"
-                    }
+            script {
+                try {
+                    sh """
+                        echo "Cleaning up Docker images..."
+                        docker rmi ${env.BUILT_IMAGE} || true
+                        docker rmi ${env.BUILT_LATEST_IMAGE} || true
+                        docker system prune -f || true
+                    """
+                } catch (Exception e) {
+                    echo "Cleanup failed: ${e.getMessage()}"
                 }
             }
         }
