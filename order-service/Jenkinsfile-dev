@@ -56,7 +56,20 @@ pipeline {
                         # Configure Docker socket permissions
                         echo "Configurando permisos de Docker..."
                         if [ -S /var/run/docker.sock ]; then
-                            sudo chmod 666 /var/run/docker.sock || echo "No se pudo cambiar permisos del socket Docker"
+                            # Obtener el grupo del socket Docker
+                            DOCKER_GROUP=$(stat -c %g /var/run/docker.sock)
+                            echo "Grupo del socket Docker: $DOCKER_GROUP"
+                            
+                            # Agregar el usuario jenkins al grupo
+                            if ! groups jenkins | grep -q $DOCKER_GROUP; then
+                                echo "Agregando usuario jenkins al grupo $DOCKER_GROUP"
+                                groupadd -g $DOCKER_GROUP docker || true
+                                usermod -aG $DOCKER_GROUP jenkins || true
+                            fi
+                            
+                            # Verificar permisos
+                            ls -l /var/run/docker.sock
+                            groups jenkins
                         fi
                         
                         # Install Google Cloud SDK
@@ -391,6 +404,11 @@ pipeline {
                         echo "Verificando Docker CLI..."
                         $DOCKER_CLI --version || echo "Docker CLI no disponible"
                         
+                        # Verificar permisos de Docker
+                        echo "Verificando permisos de Docker..."
+                        ls -l /var/run/docker.sock
+                        groups jenkins
+                        
                         # Verificar que tenemos el JAR construido
                         JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" | head -n 1)
                         if [ -z "$JAR_FILE" ]; then
@@ -427,37 +445,16 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 EOF
                         fi
                         
-                        # Intentar construir la imagen con diferentes métodos
+                        # Intentar construir la imagen
                         echo "Intentando construir imagen con Docker CLI local..."
-                        if ! $DOCKER_CLI build \
+                        $DOCKER_CLI build \
                             -t ${BUILT_IMAGE} \
                             -t ${BUILT_LATEST_IMAGE} \
                             --build-arg SERVICE_NAME=${SERVICE_NAME} \
                             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
                             --build-arg VERSION=${IMAGE_TAG} \
                             --build-arg VCS_REF=$(git rev-parse HEAD) \
-                            . ; then
-                            
-                            echo "ERROR: Falló la construcción de la imagen con Docker CLI local"
-                            echo "Verificando permisos de Docker..."
-                            ls -l /var/run/docker.sock || echo "No se puede acceder al socket Docker"
-                            echo "Intentando con sudo..."
-                            
-                            # Intentar con sudo si está disponible
-                            if command -v sudo >/dev/null 2>&1; then
-                                sudo $DOCKER_CLI build \
-                                    -t ${BUILT_IMAGE} \
-                                    -t ${BUILT_LATEST_IMAGE} \
-                                    --build-arg SERVICE_NAME=${SERVICE_NAME} \
-                                    --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-                                    --build-arg VERSION=${IMAGE_TAG} \
-                                    --build-arg VCS_REF=$(git rev-parse HEAD) \
-                                    .
-                            else
-                                echo "sudo no está disponible"
-                                exit 1
-                            fi
-                        fi
+                            .
                         
                         # Verificar que la imagen se construyó
                         echo "Verificando imágenes construidas:"
