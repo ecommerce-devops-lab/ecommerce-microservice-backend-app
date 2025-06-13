@@ -6,6 +6,7 @@ pipeline {
         string(name: 'COMMIT_SHA', defaultValue: 'HEAD', description: 'Commit SHA')
         booleanParam(name: 'SKIP_SONAR', defaultValue: false, description: 'Skip SonarQube analysis')
         booleanParam(name: 'SKIP_SECURITY_SCAN', defaultValue: false, description: 'Skip Trivy security scan')
+        booleanParam(name: 'SKIP_DEPLOY', defaultValue: true, description: 'Skip deployment (no k8s configured)')
     }
     
     environment {
@@ -21,8 +22,11 @@ pipeline {
         SONAR_TOKEN = credentials('sonarqube-token')
         GITHUB_TOKEN = credentials('github-token')
         
-        // Tool paths
-        PATH = "/usr/local/bin:/usr/bin:/bin:${env.PATH}"
+        // Local tool paths
+        GCLOUD_PATH = "${env.WORKSPACE}/.tools/google-cloud-sdk/bin"
+        DOCKER_PATH = "${env.WORKSPACE}/.tools/bin"
+        KUBECTL_PATH = "${env.WORKSPACE}/.tools/bin"
+        PATH = "${env.DOCKER_PATH}:${env.GCLOUD_PATH}:${env.KUBECTL_PATH}:/usr/local/bin:/usr/bin:/bin"
     }
     
     tools {
@@ -31,48 +35,64 @@ pipeline {
     }
     
     stages {
-        stage('Install Dependencies') {
+        stage('🔧 Setup Tools') {
             steps {
                 script {
                     sh '''
-                        echo "Installing required tools..."
+                        echo "Setting up tools in user space..."
                         
-                        # Install Docker if not present
-                        if ! command -v docker &> /dev/null; then
+                        # Create tools directory
+                        mkdir -p ${WORKSPACE}/.tools/bin
+                        cd ${WORKSPACE}/.tools
+                        
+                        # Install Docker CLI (static binary, no root needed)
+                        if [ ! -f "bin/docker" ]; then
                             echo "Installing Docker CLI..."
-                            curl -fsSL https://get.docker.com -o get-docker.sh
-                            sh get-docker.sh
+                            curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz | tar xzf - --strip 1 -C bin docker/docker
+                            chmod +x bin/docker
                         fi
                         
-                        # Install Google Cloud SDK if not present
-                        if ! command -v gcloud &> /dev/null; then
+                        # Install Google Cloud SDK
+                        if [ ! -d "google-cloud-sdk" ]; then
                             echo "Installing Google Cloud SDK..."
-                            curl https://sdk.cloud.google.com | bash
-                            source $HOME/google-cloud-sdk/path.bash.inc
-                            export PATH=$PATH:$HOME/google-cloud-sdk/bin
+                            curl https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-456.0.0-linux-x86_64.tar.gz | tar -xzf -
+                            ./google-cloud-sdk/install.sh --quiet --path-update=false --bash-completion=false --usage-reporting=false
                         fi
                         
-                        # Install kubectl if not present
-                        if ! command -v kubectl &> /dev/null; then
+                        # Install kubectl
+                        if [ ! -f "bin/kubectl" ]; then
                             echo "Installing kubectl..."
-                            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                            curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
                             chmod +x kubectl
-                            mv kubectl /usr/local/bin/ 2>/dev/null || mv kubectl $HOME/bin/ || echo "kubectl installed locally"
+                            mv kubectl bin/
                         fi
                         
-                        # Install jq if not present
-                        if ! command -v jq &> /dev/null; then
+                        # Install jq
+                        if [ ! -f "bin/jq" ]; then
                             echo "Installing jq..."
-                            apt-get update && apt-get install -y jq || yum install -y jq || echo "jq installation failed"
+                            curl -L https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -o bin/jq
+                            chmod +x bin/jq
                         fi
                         
-                        echo "Tools installation completed"
+                        # Install Trivy
+                        if [ ! -f "bin/trivy" ]; then
+                            echo "Installing Trivy..."
+                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b bin v0.48.3
+                        fi
+                        
+                        echo "Tools setup completed"
+                        echo "Verifying installations:"
+                        ${WORKSPACE}/.tools/bin/docker --version || echo "Docker: FAILED"
+                        ${WORKSPACE}/.tools/google-cloud-sdk/bin/gcloud --version | head -1 || echo "gcloud: FAILED"
+                        ${WORKSPACE}/.tools/bin/kubectl version --client --short || echo "kubectl: FAILED"
+                        ${WORKSPACE}/.tools/bin/jq --version || echo "jq: FAILED"
+                        ${WORKSPACE}/.tools/bin/trivy --version || echo "trivy: FAILED"
                     '''
                 }
             }
         }
         
-        stage('Initialize') {
+        stage('🏁 Initialize') {
             steps {
                 script {
                     // Set dynamic environment variables
@@ -91,26 +111,24 @@ pipeline {
                     echo "GCP Registry: ${env.GCP_REGISTRY}"
                     echo "Built Image: ${env.BUILT_IMAGE}"
                     
-                    // Initialize GCP with better error handling
+                    // Initialize GCP
                     sh '''
-                        # Check if tools are available
-                        which gcloud || (echo "gcloud not found in PATH" && exit 1)
-                        which docker || (echo "docker not found in PATH" && exit 1)
-                        
+                        export PATH=${DOCKER_PATH}:${GCLOUD_PATH}:${KUBECTL_PATH}:$PATH
                         export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
                         
-                        # Authenticate with GCP
+                        echo "Authenticating with GCP..."
                         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
                         gcloud config set project $GCP_PROJECT_ID
                         gcloud auth configure-docker gcr.io --quiet
                         
                         echo "GCP authentication completed"
+                        gcloud config list
                     '''
                 }
             }
         }
         
-        stage('Checkout & Change Detection') {
+        stage('📥 Checkout & Change Detection') {
             steps {
                 checkout([
                     $class: 'GitSCM',
@@ -143,7 +161,7 @@ pipeline {
             }
         }
         
-        stage('Unit Tests') {
+        stage('🧪 Unit Tests') {
             steps {
                 dir("${env.SERVICE_NAME}") {
                     sh '''
@@ -173,7 +191,7 @@ pipeline {
             }
         }
         
-        stage('SonarQube Analysis') {
+        stage('📊 SonarQube Analysis') {
             when {
                 expression { !params.SKIP_SONAR }
             }
@@ -194,7 +212,7 @@ pipeline {
             }
         }
         
-        stage('Quality Gate') {
+        stage('🚪 Quality Gate') {
             when {
                 expression { !params.SKIP_SONAR }
             }
@@ -219,7 +237,7 @@ pipeline {
             }
         }
         
-        stage('Build Application') {
+        stage('📦 Build Application') {
             steps {
                 dir("${env.SERVICE_NAME}") {
                     sh '''
@@ -233,56 +251,55 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
+        stage('🐳 Build Docker Image') {
             steps {
                 dir("${env.SERVICE_NAME}") {
-                    sh """
+                    sh '''
+                        export PATH=${DOCKER_PATH}:$PATH
+                        
                         echo "Building Docker image..."
                         docker build \
-                            -t ${env.BUILT_IMAGE} \
-                            -t ${env.BUILT_LATEST_IMAGE} \
-                            --build-arg SERVICE_NAME=${env.SERVICE_NAME} \
-                            --build-arg BUILD_DATE=\$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-                            --build-arg VERSION=${env.IMAGE_TAG} \
-                            --build-arg VCS_REF=\$(git rev-parse HEAD) \
+                            -t ${BUILT_IMAGE} \
+                            -t ${BUILT_LATEST_IMAGE} \
+                            --build-arg SERVICE_NAME=${SERVICE_NAME} \
+                            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                            --build-arg VERSION=${IMAGE_TAG} \
+                            --build-arg VCS_REF=$(git rev-parse HEAD) \
                             .
                         
                         echo "Images built:"
-                        docker images | grep ${env.SERVICE_NAME} || echo "No images found with ${env.SERVICE_NAME}"
-                    """
+                        docker images | grep ${SERVICE_NAME} || echo "No images found with ${SERVICE_NAME}"
+                    '''
                 }
             }
         }
         
-        stage('Security Scan with Trivy') {
+        stage('🔒 Security Scan with Trivy') {
             when {
                 expression { !params.SKIP_SECURITY_SCAN }
             }
             steps {
-                sh """
-                    echo "Installing Trivy..."
-                    if ! command -v trivy &> /dev/null; then
-                        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
-                    fi
+                sh '''
+                    export PATH=${DOCKER_PATH}:${WORKSPACE}/.tools/bin:$PATH
                     
-                    echo "Scanning image ${env.BUILT_IMAGE}..."
+                    echo "Scanning image ${BUILT_IMAGE}..."
                     trivy image \
                         --format json \
-                        --output ${env.SERVICE_NAME}-trivy-report.json \
+                        --output ${SERVICE_NAME}-trivy-report.json \
                         --severity HIGH,CRITICAL \
                         --no-progress \
-                        ${env.BUILT_IMAGE} || echo "Trivy scan completed with warnings"
+                        ${BUILT_IMAGE} || echo "Trivy scan completed with warnings"
                     
                     # Check for vulnerabilities but don't fail the build in dev
-                    if [ -f "${env.SERVICE_NAME}-trivy-report.json" ]; then
-                        HIGH_CRITICAL=\$(cat ${env.SERVICE_NAME}-trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' 2>/dev/null || echo "0")
-                        echo "Found \$HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
+                    if [ -f "${SERVICE_NAME}-trivy-report.json" ]; then
+                        HIGH_CRITICAL=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' ${SERVICE_NAME}-trivy-report.json 2>/dev/null || echo "0")
+                        echo "Found $HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
                         
-                        if [ "\$HIGH_CRITICAL" -gt 10 ]; then
-                            echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found (\$HIGH_CRITICAL). Consider reviewing before promoting to staging."
+                        if [ "$HIGH_CRITICAL" -gt 10 ]; then
+                            echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found ($HIGH_CRITICAL). Consider reviewing before promoting to staging."
                         fi
                     fi
-                """
+                '''
             }
             post {
                 always {
@@ -298,55 +315,111 @@ pipeline {
             }
         }
         
-        stage('Push to GCP Registry') {
+        stage('📤 Push to GCP Registry') {
             steps {
-                sh """
+                sh '''
+                    export PATH=${DOCKER_PATH}:${GCLOUD_PATH}:$PATH
+                    
                     echo "Pushing images to GCP Registry..."
-                    docker push ${env.BUILT_IMAGE}
-                    docker push ${env.BUILT_LATEST_IMAGE}
+                    docker push ${BUILT_IMAGE}
+                    docker push ${BUILT_LATEST_IMAGE}
                     
                     echo "Images pushed successfully:"
-                    echo "- ${env.BUILT_IMAGE}"
-                    echo "- ${env.BUILT_LATEST_IMAGE}"
-                """
+                    echo "- ${BUILT_IMAGE}"
+                    echo "- ${BUILT_LATEST_IMAGE}"
+                '''
             }
         }
         
-        stage('Deploy to Dev Environment') {
+        stage('🚀 Deploy to Dev Environment') {
+            when {
+                expression { !params.SKIP_DEPLOY }
+            }
             steps {
-                sh """
+                sh '''
+                    export PATH=${KUBECTL_PATH}:$PATH
+                    
                     echo "Checking Kubernetes deployment..."
                     
                     # Check if kubectl is working
                     kubectl version --client || echo "kubectl not properly configured"
                     
                     # Check if deployment exists
-                    if kubectl get deployment ${env.SERVICE_NAME} -n ecommerce-dev >/dev/null 2>&1; then
+                    if kubectl get deployment ${SERVICE_NAME} -n ecommerce-dev >/dev/null 2>&1; then
                         echo "Updating existing deployment..."
-                        kubectl set image deployment/${env.SERVICE_NAME} \
-                            ${env.SERVICE_NAME}=${env.BUILT_IMAGE} \
+                        kubectl set image deployment/${SERVICE_NAME} \
+                            ${SERVICE_NAME}=${BUILT_IMAGE} \
                             -n ecommerce-dev
                         
-                        kubectl rollout status deployment/${env.SERVICE_NAME} \
+                        kubectl rollout status deployment/${SERVICE_NAME} \
                             -n ecommerce-dev --timeout=300s
                     else
-                        echo "Deployment ${env.SERVICE_NAME} not found in ecommerce-dev namespace"
+                        echo "Deployment ${SERVICE_NAME} not found in ecommerce-dev namespace"
                         echo "Skipping deployment step - ensure Kubernetes cluster is configured"
                     fi
                     
                     # Show current status if possible
-                    kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} 2>/dev/null || echo "Could not check pods"
-                    kubectl get services -n ecommerce-dev -l app=${env.SERVICE_NAME} 2>/dev/null || echo "Could not check services"
-                """
+                    kubectl get pods -n ecommerce-dev -l app=${SERVICE_NAME} 2>/dev/null || echo "Could not check pods"
+                    kubectl get services -n ecommerce-dev -l app=${SERVICE_NAME} 2>/dev/null || echo "Could not check services"
+                '''
             }
         }
         
-        stage('Create PR to Staging') {
+        stage('🧪 Health Check Verification') {
+            when {
+                expression { !params.SKIP_DEPLOY }
+            }
+            steps {
+                sh '''
+                    export PATH=${KUBECTL_PATH}:$PATH
+                    
+                    echo "Performing health check for ${SERVICE_NAME}..."
+                    
+                    # Try to get service IP
+                    SERVICE_IP=$(kubectl get service ${SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || kubectl get service ${SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
+                    
+                    if [ -z "$SERVICE_IP" ]; then
+                        echo "Could not get service IP, checking pod directly..."
+                        POD_NAME=$(kubectl get pods -n ecommerce-dev -l app=${SERVICE_NAME} -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+                        
+                        if [ -n "$POD_NAME" ]; then
+                            echo "Found pod: $POD_NAME"
+                            kubectl exec $POD_NAME -n ecommerce-dev -- curl -f -s http://localhost:${SERVICE_PORT}/actuator/health || echo "Health check endpoint not accessible"
+                        else
+                            echo "No pods found for ${SERVICE_NAME}"
+                        fi
+                    else
+                        echo "Service IP: $SERVICE_IP"
+                        echo "Trying health check..."
+                        
+                        max_attempts=5
+                        attempt=1
+                        
+                        while [ $attempt -le $max_attempts ]; do
+                            echo "Health check attempt $attempt/$max_attempts..."
+                            if curl -f -s --max-time 5 http://$SERVICE_IP:${SERVICE_PORT}/actuator/health; then
+                                echo ""
+                                echo "✅ Health check passed for ${SERVICE_NAME}"
+                                break
+                            fi
+                            sleep 5
+                            attempt=$((attempt + 1))
+                        done
+                        
+                        if [ $attempt -gt $max_attempts ]; then
+                            echo "⚠️ Health check attempts exhausted, but continuing pipeline"
+                        fi
+                    fi
+                '''
+            }
+        }
+        
+        stage('📝 Create PR to Staging') {
             when {
                 equals expected: 'develop', actual: params.BRANCH_NAME
             }
             steps {
-                sh """
+                sh '''
                     echo "Creating PR to staging branch..."
                     
                     # Configure git
@@ -354,25 +427,25 @@ pipeline {
                     git config user.email "jenkins@ecommerce.local"
                     
                     # Create staging branch from current state
-                    STAGING_BRANCH="staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}"
-                    git checkout -B \$STAGING_BRANCH
-                    git push origin \$STAGING_BRANCH || echo "Branch push failed, continuing..."
+                    STAGING_BRANCH="staging-${SERVICE_NAME}-${BUILD_NUMBER}"
+                    git checkout -B $STAGING_BRANCH
+                    git push origin $STAGING_BRANCH || echo "Branch push failed, continuing..."
                     
                     # Create PR using GitHub API
-                    REPO_NAME=\$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
+                    REPO_NAME=$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
                     
                     curl -X POST \
-                        -H "Authorization: token ${env.GITHUB_TOKEN}" \
+                        -H "Authorization: token ${GITHUB_TOKEN}" \
                         -H "Accept: application/vnd.github.v3+json" \
                         -H "Content-Type: application/json" \
-                        https://api.github.com/repos/\$REPO_NAME/pulls \
+                        https://api.github.com/repos/$REPO_NAME/pulls \
                         -d '{
-                            "title": "🚀 Auto-promotion: '${env.SERVICE_NAME}' '${env.IMAGE_TAG}' to staging",
-                            "head": "'staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}'",
+                            "title": "🚀 Auto-promotion: '${SERVICE_NAME}' '${IMAGE_TAG}' to staging",
+                            "head": "'staging-${SERVICE_NAME}-${BUILD_NUMBER}'",
                             "base": "staging",
-                            "body": "## Automatic Promotion to Staging\\n\\n**Service:** '${env.SERVICE_NAME}'\\n**Version:** '${env.IMAGE_TAG}'\\n**Build:** '${env.BUILD_NUMBER}'\\n\\n### ✅ Validations Completed\\n- Unit Tests: Passed\\n- Code Quality: SonarQube analyzed\\n- Security Scan: Trivy completed\\n- Docker Image: Built and pushed to GCR\\n\\n### 📦 Artifacts\\n- **Image:** '${env.BUILT_IMAGE}'\\n- **Latest:** '${env.BUILT_LATEST_IMAGE}'\\n\\n### 🔗 Links\\n- [Jenkins Build]('${env.BUILD_URL}')\\n\\n**Ready for staging deployment! 🚀**"
+                            "body": "## Automatic Promotion to Staging\\n\\n**Service:** '${SERVICE_NAME}'\\n**Version:** '${IMAGE_TAG}'\\n**Build:** '${BUILD_NUMBER}'\\n\\n### ✅ Validations Completed\\n- Unit Tests: Passed\\n- Code Quality: SonarQube analyzed\\n- Security Scan: Trivy completed\\n- Docker Image: Built and pushed to GCR\\n\\n### 📦 Artifacts\\n- **Image:** '${BUILT_IMAGE}'\\n- **Latest:** '${BUILT_LATEST_IMAGE}'\\n\\n### 🔗 Links\\n- [Jenkins Build]('${BUILD_URL}')\\n\\n**Ready for staging deployment! 🚀**"
                         }' || echo "PR creation completed (may already exist or failed)"
-                """
+                '''
             }
         }
     }
@@ -381,12 +454,14 @@ pipeline {
         always {
             script {
                 try {
-                    sh """
+                    sh '''
+                        export PATH=${DOCKER_PATH}:$PATH
+                        
                         echo "Cleaning up Docker images..."
-                        docker rmi ${env.BUILT_IMAGE} 2>/dev/null || true
-                        docker rmi ${env.BUILT_LATEST_IMAGE} 2>/dev/null || true
+                        docker rmi ${BUILT_IMAGE} 2>/dev/null || true
+                        docker rmi ${BUILT_LATEST_IMAGE} 2>/dev/null || true
                         docker system prune -f 2>/dev/null || true
-                    """
+                    '''
                 } catch (Exception e) {
                     echo "Cleanup failed: ${e.getMessage()}"
                 }
