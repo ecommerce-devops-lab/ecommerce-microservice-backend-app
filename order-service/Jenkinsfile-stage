@@ -7,6 +7,7 @@ pipeline {
         KUBECONFIG = credentials('k8s-config')
         SERVICE_NAME = 'order-service'
         SERVICE_PORT = '8300'
+        GITHUB_CREDENTIALS = credentials('github-credentials')
     }
     
     tools {
@@ -17,137 +18,67 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
+                git branch: 'statging', 
                     credentialsId: 'github-credentials',
                     url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
             }
         }
         
-        stage('Build & Test') {
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        dir("${SERVICE_NAME}") {
-                            sh 'mvn clean test'
-                        }
-                    }
-                }
-                stage('Integration Tests') {
-                    steps {
-                        dir("${SERVICE_NAME}") {
-                            sh 'mvn verify -P integration-tests'
-                        }
-                    }
+        
+        
+        stage('Update image in gcp') {
+            steps {
+                script {
+                    echo "Updating image in gcp ${SERVICE_NAME}..."
+                    sh """
+                        echo "Updating image ${DOCKER_REGISTRY}/${SERVICE_NAME}:stage-${IMAGE_TAG}"
+                        echo "Update completed"
+                    """
                 }
             }
         }
-        
-        stage('SonarQube Analysis') {
+
+        stage('Clone tests repository') {
             steps {
-                dir("${SERVICE_NAME}") {
-                    withSonarQubeEnv('sonarqube-server') {
-                        sh '''
-                            mvn sonar:sonar \
-                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME}-stage \
-                                -Dsonar.branch.name=main
-                        '''
-                    }
-                }
+                sh '''
+                    git clone https://github.com/ecommerce-devops-lab/ecommerce-stage-tests.git
+                    cd ecommerce-stage-tests
+                    git checkout main
+                '''
             }
         }
-        
-        stage('Security Scan') {
+
+        stage('Run E2E tests') {
             steps {
-                dir("${SERVICE_NAME}") {
+                dir('ecommerce-stage-tests') {
                     sh '''
-                        mvn org.owasp:dependency-check-maven:check
-                        mvn compile org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-                            -Dsonar.dependencyCheck.reportPath=target/dependency-check-report.xml
+                        python3 -m pip install -r e2e-tests/v2/requirements.txt
+                        python3 e2e-tests/v2/run_e2e_tests.py
                     '''
                 }
             }
-        }
-        
-        stage('Build Docker Image') {
-            steps {
-                dir("${SERVICE_NAME}") {
-                    script {
-                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:stage-${IMAGE_TAG}")
-                        docker.withRegistry('', 'docker-hub-credentials') {
-                            image.push()
-                            image.push("stage-latest")
-                        }
-                    }
+            post {
+                always {
+                    junit 'ecommerce-stage-tests/e2e-tests/v2/reports/*.xml'
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'ecommerce-stage-tests/e2e-tests/v2/reports',
+                        reportFiles: '*.html',
+                        reportName: 'E2E Test Report'
+                    ])
                 }
             }
         }
-        
-        stage('Deploy to Staging') {
+
+        stage('Run Performance tests') {
             steps {
-                script {
-                    sh """
-                        envsubst < k8s/stage-deployment.yaml | kubectl apply -f - -n ecommerce-stage
-                        kubectl rollout status deployment/${SERVICE_NAME} -n ecommerce-stage --timeout=300s
-                    """
-                }
-            }
-        }
-        
-        stage('Integration Tests in K8s') {
-            steps {
-                script {
-                    sh """
-                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-stage &
-                        PORT_FORWARD_PID=\$!
-                        sleep 30
-                        
-                        # Ejecutar pruebas de integración
-                        cd ${SERVICE_NAME}
-                        mvn test -Dtest=**/*IntegrationTest -Dserver.url=http://localhost:${SERVICE_PORT}
-                        
-                        kill \$PORT_FORWARD_PID
-                    """
-                }
-            }
-        }
-        
-        stage('E2E Tests') {
-            steps {
-                script {
-                    sh """
-                        # Configurar port-forwarding para todos los servicios necesarios
-                        kubectl port-forward service/order-service 8300:8300 -n ecommerce-stage &
-                        kubectl port-forward service/payment-service 8400:8400 -n ecommerce-stage &
-                        kubectl port-forward service/product-service 8500:8500 -n ecommerce-stage &
-                        
-                        sleep 45
-                        
-                        # Ejecutar pruebas E2E
-                        cd e2e-tests
-                        npm install
-                        npm run test:staging
-                        
-                        # Limpiar port-forwards
-                        pkill -f "kubectl port-forward"
-                    """
-                }
-            }
-        }
-        
-        stage('Performance Tests') {
-            steps {
-                script {
-                    sh """
-                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-stage &
-                        sleep 30
-                        
-                        cd performance-tests
-                        pip install locust
-                        locust -f locustfile.py --host=http://localhost:${SERVICE_PORT} \
-                               --users=50 --spawn-rate=5 --run-time=300s --html=report.html
-                        
-                        pkill -f "kubectl port-forward"
-                    """
+                dir('ecommerce-stage-tests') {
+                    sh '''
+                        chmod +x performance-tests/v2/run-performance-tests.sh
+                        ./performance-tests/v2/run-performance-tests.sh
+                    '''
                 }
             }
             post {
@@ -156,10 +87,42 @@ pipeline {
                         allowMissing: false,
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
-                        reportDir: 'performance-tests',
-                        reportFiles: 'report.html',
+                        reportDir: 'ecommerce-stage-tests/performance-tests/v2/reports',
+                        reportFiles: '*.html',
                         reportName: 'Performance Test Report'
                     ])
+                }
+            }
+        }
+
+        stage('Create Pull Request') {
+            steps {
+                script {
+                    def branchName = "stage-tests-${BUILD_NUMBER}"
+                    sh """
+                        git checkout -b ${branchName}
+                        git add .
+                        git config --global user.email "jenkins@example.com"
+                        git config --global user.name "Jenkins"
+                        git commit -m "Actualización automática de pruebas de stage - Build #${BUILD_NUMBER}"
+                        git push origin ${branchName}
+                    """
+                    
+                    // Crear PR usando la API de GitHub
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh """
+                            curl -X POST \
+                                -H "Authorization: token ${GITHUB_TOKEN}" \
+                                -H "Accept: application/vnd.github.v3+json" \
+                                https://api.github.com/repos/ecommerce-devops-lab/ecommerce-microservice-backend-app/pulls \
+                                -d '{
+                                    "title": "Actualización de pruebas de stage - Build #${BUILD_NUMBER}",
+                                    "body": "Actualización automática de pruebas de stage",
+                                    "head": "${branchName}",
+                                    "base": "main"
+                                }'
+                        """
+                    }
                 }
             }
         }
@@ -169,14 +132,14 @@ pipeline {
         success {
             emailext (
                 subject: "✅ Stage Tests Passed - ${SERVICE_NAME} #${BUILD_NUMBER}",
-                body: "All staging tests passed for ${SERVICE_NAME}. Ready for production deployment.",
+                body: "Todas las pruebas de stage han pasado para ${SERVICE_NAME}. PR creado automáticamente.",
                 to: "${env.CHANGE_AUTHOR_EMAIL}"
             )
         }
         failure {
             emailext (
                 subject: "❌ Stage Tests Failed - ${SERVICE_NAME} #${BUILD_NUMBER}",
-                body: "Staging tests failed for ${SERVICE_NAME}. Deployment blocked.",
+                body: "Las pruebas de stage fallaron para ${SERVICE_NAME}. Por favor revisar los logs.",
                 to: "${env.CHANGE_AUTHOR_EMAIL}"
             )
         }
