@@ -240,37 +240,39 @@ pipeline {
                 dir("${env.SERVICE_NAME}") {
                     withSonarQubeEnv('sonarqube-server') {
                         sh '''
-                            echo "Configurando entorno Java..."
+                            echo "Running SonarQube analysis for Community Edition..."
+                            echo "Current directory: $(pwd)"
+                            echo "Service: ${SERVICE_NAME}"
+                            echo "Branch: ${BRANCH_NAME}"
                             
-                            # Crear directorio para Java si no existe
-                            mkdir -p ${WORKSPACE}/.tools/java
-                            
-                            # Descargar e instalar OpenJDK si no está instalado
-                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
-                                echo "Instalando OpenJDK 17..."
-                                cd ${WORKSPACE}/.tools
-                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
-                                tar xzf openjdk.tar.gz
-                                mv jdk-17* java/openjdk-17
-                                rm openjdk.tar.gz
+                            # Diferentes configuraciones según el branch
+                            if [ "${BRANCH_NAME}" = "main" ] || [ "${BRANCH_NAME}" = "master" ]; then
+                                PROJECT_KEY="ecommerce-${SERVICE_NAME}"
+                                PROJECT_NAME="E-commerce ${SERVICE_NAME}"
+                            else
+                                # Para branches de desarrollo, usar suffix
+                                PROJECT_KEY="ecommerce-${SERVICE_NAME}-${BRANCH_NAME}"
+                                PROJECT_NAME="E-commerce ${SERVICE_NAME} (${BRANCH_NAME})"
                             fi
                             
-                            # Configurar Java
-                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
-                            export PATH="$JAVA_HOME/bin:$PATH"
+                            echo "Project Key: $PROJECT_KEY"
+                            echo "Project Name: $PROJECT_NAME"
                             
-                            # Verificar la instalación
-                            echo "JAVA_HOME: $JAVA_HOME"
-                            echo "Java version:"
-                            $JAVA_HOME/bin/java -version
-                            
-                            mvn sonar:sonar \
-                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME}-dev \
-                                -Dsonar.projectName="E-commerce ${SERVICE_NAME} (DEV)" \
-                                -Dsonar.branch.name=${BRANCH_NAME} \
-                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                            # Ejecutar análisis SonarQube (Community Edition compatible)
+                            mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                                -Dsonar.projectKey=$PROJECT_KEY \
+                                -Dsonar.projectName="$PROJECT_NAME" \
+                                -Dsonar.projectVersion=${IMAGE_TAG} \
                                 -Dsonar.java.source=17 \
-                                -Dsonar.exclusions=**/target/**,**/generated-sources/**
+                                -Dsonar.java.target=17 \
+                                -Dsonar.sources=src/main/java \
+                                -Dsonar.tests=src/test/java \
+                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                                -Dsonar.junit.reportPaths=target/surefire-reports \
+                                -Dsonar.exclusions=**/target/**,**/generated-sources/**,**/*Test.java,**/*Tests.java \
+                                -Dsonar.test.exclusions=**/target/**,**/generated-sources/** \
+                                -Dsonar.maven.scanAll=false \
+                                -Dmaven.test.skip=true
                         '''
                     }
                 }
@@ -489,7 +491,7 @@ pipeline {
             when {
                 allOf {
                     equals expected: 'develop', actual: params.BRANCH_NAME
-                    // expression { env.GITHUB_TOKEN != null }  // Only if GitHub token is available
+                    expression { env.GITHUB_TOKEN != null }
                 }
             }
             steps {
