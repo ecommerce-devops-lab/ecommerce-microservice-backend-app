@@ -173,45 +173,29 @@ pipeline {
                         sh '''
                             echo "Configurando entorno Java..."
                             
-                            # Verificar la instalación de Java
-                            if [ -n "$JAVA_HOME" ]; then
-                                echo "JAVA_HOME ya está configurado: $JAVA_HOME"
-                            else
-                                # Intentar encontrar Java en las ubicaciones comunes
-                                if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
-                                    export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-                                elif [ -d "/opt/java/openjdk" ]; then
-                                    export JAVA_HOME="/opt/java/openjdk"
-                                else
-                                    # Usar el Java proporcionado por Jenkins
-                                    export JAVA_HOME="${tool 'OpenJDK-17'}"
-                                fi
+                            # Crear directorio para Java si no existe
+                            mkdir -p ${WORKSPACE}/.tools/java
+                            
+                            # Descargar e instalar OpenJDK si no está instalado
+                            if [ ! -d "${WORKSPACE}/.tools/java/openjdk-17" ]; then
+                                echo "Instalando OpenJDK 17..."
+                                cd ${WORKSPACE}/.tools
+                                curl -L https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz -o openjdk.tar.gz
+                                tar xzf openjdk.tar.gz
+                                mv jdk-17* java/openjdk-17
+                                rm openjdk.tar.gz
                             fi
                             
-                            # Verificar que Java está disponible
-                            if [ ! -d "$JAVA_HOME" ]; then
-                                echo "ERROR: No se pudo encontrar JAVA_HOME válido"
-                                exit 1
-                            fi
-                            
-                            # Agregar Java al PATH
+                            # Configurar Java
+                            export JAVA_HOME="${WORKSPACE}/.tools/java/openjdk-17"
                             export PATH="$JAVA_HOME/bin:$PATH"
                             
-                            # Verificar el ejecutable de Java
-                            JAVA_EXEC="$JAVA_HOME/bin/java"
-                            if [ ! -x "$JAVA_EXEC" ]; then
-                                echo "ERROR: No se encontró el ejecutable de Java en $JAVA_EXEC"
-                                echo "Contenido del directorio bin:"
-                                ls -la "$JAVA_HOME/bin" || true
-                                exit 1
-                            fi
-                            
+                            # Verificar la instalación
                             echo "JAVA_HOME: $JAVA_HOME"
                             echo "Java version:"
-                            "$JAVA_EXEC" -version
+                            $JAVA_HOME/bin/java -version
                             
                             echo "Ejecutando pruebas unitarias para ${SERVICE_NAME}..."
-                            "$JAVA_EXEC" -version
                             mvn clean test \
                                 -Dmaven.test.failure.ignore=false \
                                 -Dspring.profiles.active=test \
