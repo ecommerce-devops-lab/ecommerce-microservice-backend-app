@@ -1,0 +1,34 @@
+Count,Message,Traceback,Nodes
+13,'HighLoadUser' object has no attribute 'schedule_task',"  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""/home/juanmad/Desktop/Universidad/Semestre_7/ecommerce-microservice-backend-app/ecommerce-tests/performance-tests/locustfile.py"", line 259, in complete_checkout
+    self.schedule_task(CheckoutFlow)
+    ^^^^^^^^^^^^^^^^^^
+",local
+28,"Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:
+
+with self.client.request(..., catch_response=True) as response:
+    response.success()","  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 340, in run
+    self.execute_next_task()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 373, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/user/task.py"", line 490, in execute_task
+    task(self.user)
+    ~~~~^^^^^^^^^^^
+  File ""/home/juanmad/Desktop/Universidad/Semestre_7/ecommerce-microservice-backend-app/ecommerce-tests/performance-tests/locustfile.py"", line 276, in health_checks
+    response.success()
+    ~~~~~~~~~~~~~~~~^^
+  File ""/home/juanmad/.local/lib/python3.13/site-packages/locust/clients.py"", line 405, in success
+    raise LocustError(
+        ""Tried to set status on a request that has not yet been made. Make sure you use a with-block, like this:\n\nwith self.client.request(..., catch_response=True) as response:\n    response.success()""
+    )
+",local
