@@ -1,117 +1,370 @@
 pipeline {
     agent any
     
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'develop', description: 'Branch to build')
+        string(name: 'COMMIT_SHA', defaultValue: 'HEAD', description: 'Commit SHA')
+        booleanParam(name: 'SKIP_SONAR', defaultValue: false, description: 'Skip SonarQube analysis')
+        booleanParam(name: 'SKIP_SECURITY_SCAN', defaultValue: false, description: 'Skip Trivy security scan')
+    }
+    
     environment {
-        DOCKER_REGISTRY = 'juanmadiaz45'
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        KUBECONFIG = credentials('k8s-config')
+        // GCP Configuration
+        GCP_PROJECT_ID = 'ecommerce-microservices-back'
+        GCP_REGISTRY = "gcr.io/${GCP_PROJECT_ID}"
+        
+        // Dynamic service detection from job name
+        SERVICE_NAME = "${env.JOB_NAME}".split('-dev')[0]
+        
+        // Versioning
+        IMAGE_TAG = "${params.COMMIT_SHA.take(7)}-${BUILD_NUMBER}"
+        
+        // Service configuration (will be set dynamically)
+        SERVICE_PORT = getServicePort(env.SERVICE_NAME)
+        
+        // Credentials
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
         SONAR_TOKEN = credentials('sonarqube-token')
-        SERVICE_NAME = 'shipping-service'
-        SERVICE_PORT = '8600'
+        GITHUB_TOKEN = credentials('github-token')
+        SLACK_WEBHOOK = credentials('slack-webhook-url')
     }
     
     tools {
-        maven 'Maven-3.8.4'
-        jdk 'OpenJDK-11'
+        maven 'Maven-3.9.4'
+        jdk 'OpenJDK-17'
     }
     
     stages {
-        stage('Checkout') {
+        stage('🏁 Initialize') {
             steps {
-                git branch: 'develop', 
-                    credentialsId: 'github-credentials',
-                    url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                dir("${SERVICE_NAME}") {
-                    sh 'mvn clean compile'
+                script {
+                    currentBuild.description = "Building ${env.SERVICE_NAME}:${env.IMAGE_TAG}"
+                    
+                    echo "=== Pipeline Configuration ==="
+                    echo "Service: ${env.SERVICE_NAME}"
+                    echo "Port: ${env.SERVICE_PORT}"
+                    echo "Image Tag: ${env.IMAGE_TAG}"
+                    echo "Branch: ${params.BRANCH_NAME}"
+                    echo "GCP Registry: ${env.GCP_REGISTRY}"
+                    
+                    // Initialize GCP
+                    sh '''
+                        export GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS
+                        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                        gcloud config set project $GCP_PROJECT_ID
+                        gcloud auth configure-docker gcr.io --quiet
+                    '''
                 }
             }
         }
         
-        stage('Unit Tests') {
+        stage('📥 Checkout & Change Detection') {
             steps {
-                dir("${SERVICE_NAME}") {
-                    sh 'mvn test'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "${params.BRANCH_NAME}"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git',
+                        credentialsId: 'github-credentials'
+                    ]]
+                ])
+                
+                script {
+                    // Detect changes for this specific service
+                    def hasChanges = sh(
+                        script: """
+                            if [ "${params.BRANCH_NAME}" = "develop" ] && [ "${params.COMMIT_SHA}" != "HEAD" ]; then
+                                git diff --name-only ${params.COMMIT_SHA}~1 ${params.COMMIT_SHA} | grep -q "^${env.SERVICE_NAME}/" || echo "no-changes"
+                            else
+                                echo "force-build"
+                            fi
+                        """,
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (hasChanges == 'no-changes') {
+                        currentBuild.result = 'NOT_BUILT'
+                        currentBuild.description = "No changes detected for ${env.SERVICE_NAME}"
+                        echo "No changes detected for ${env.SERVICE_NAME}, but continuing build as requested"
+                        // No hacer error() para permitir builds manuales
+                    }
+                }
+            }
+        }
+        
+        stage('🧪 Unit Tests') {
+            steps {
+                dir("${env.SERVICE_NAME}") {
+                    sh '''
+                        echo "Running unit tests for ${SERVICE_NAME}..."
+                        mvn clean test \
+                            -Dmaven.test.failure.ignore=false \
+                            -Dspring.profiles.active=test \
+                            -DforkCount=2 \
+                            -DreuseForks=true
+                    '''
                 }
             }
             post {
                 always {
-                    publishTestResults testResultsPattern: "${SERVICE_NAME}/target/surefire-reports/*.xml"
-                    publishCoverage adapters: [jacocoAdapter()], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                    publishTestResults(
+                        testResultsPattern: "${env.SERVICE_NAME}/target/surefire-reports/*.xml",
+                        allowEmptyResults: false
+                    )
+                    publishCoverage([
+                        adapters: [jacocoAdapter("${env.SERVICE_NAME}/target/site/jacoco/jacoco.xml")],
+                        sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                    ])
                 }
             }
         }
         
-        stage('SonarQube Analysis') {
+        stage('📊 SonarQube Analysis') {
+            when {
+                not { params.SKIP_SONAR }
+            }
             steps {
-                dir("${SERVICE_NAME}") {
+                dir("${env.SERVICE_NAME}") {
                     withSonarQubeEnv('sonarqube-server') {
                         sh '''
                             mvn sonar:sonar \
-                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME} \
-                                -Dsonar.host.url=$SONAR_HOST_URL \
-                                -Dsonar.login=$SONAR_TOKEN
+                                -Dsonar.projectKey=ecommerce-${SERVICE_NAME}-dev \
+                                -Dsonar.projectName="E-commerce ${SERVICE_NAME} (DEV)" \
+                                -Dsonar.branch.name=${BRANCH_NAME} \
+                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                                -Dsonar.java.source=17 \
+                                -Dsonar.exclusions=**/target/**,**/generated-sources/**
                         '''
                     }
                 }
             }
         }
         
-        stage('Quality Gate') {
+        stage('🚪 Quality Gate') {
+            when {
+                not { params.SKIP_SONAR }
+            }
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-        
-        stage('Package') {
-            steps {
-                dir("${SERVICE_NAME}") {
-                    sh 'mvn package -DskipTests'
-                }
-            }
-        }
-        
-        stage('Build Docker Image') {
-            steps {
-                dir("${SERVICE_NAME}") {
                     script {
-                        def image = docker.build("${DOCKER_REGISTRY}/${SERVICE_NAME}:dev-${IMAGE_TAG}")
-                        docker.withRegistry('', 'docker-hub-credentials') {
-                            image.push()
-                            image.push("dev-latest")
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
                         }
                     }
                 }
             }
         }
         
-        stage('Deploy to Dev') {
+        stage('📦 Build Application') {
+            steps {
+                dir("${env.SERVICE_NAME}") {
+                    sh '''
+                        echo "Building application ${SERVICE_NAME}..."
+                        mvn package -DskipTests \
+                            -Dspring.profiles.active=dev \
+                            -Dmaven.javadoc.skip=true \
+                            -B -V
+                    '''
+                }
+            }
+        }
+        
+        stage('🐳 Build Docker Image') {
+            steps {
+                dir("${env.SERVICE_NAME}") {
+                    script {
+                        def gcpImage = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:${env.IMAGE_TAG}"
+                        def gcpLatestImage = "${env.GCP_REGISTRY}/${env.SERVICE_NAME}:dev-latest"
+                        
+                        sh """
+                            echo "Building Docker image..."
+                            docker build \
+                                -t ${gcpImage} \
+                                -t ${gcpLatestImage} \
+                                --build-arg SERVICE_NAME=${env.SERVICE_NAME} \
+                                --build-arg BUILD_DATE=\$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+                                --build-arg VERSION=${env.IMAGE_TAG} \
+                                --build-arg VCS_REF=\$(git rev-parse HEAD) \
+                                .
+                            
+                            echo "Images built:"
+                            docker images | grep ${env.SERVICE_NAME}
+                        """
+                        
+                        env.BUILT_IMAGE = gcpImage
+                        env.BUILT_LATEST_IMAGE = gcpLatestImage
+                    }
+                }
+            }
+        }
+        
+        stage('🔒 Security Scan with Trivy') {
+            when {
+                not { params.SKIP_SECURITY_SCAN }
+            }
             steps {
                 script {
                     sh """
-                        kubectl config use-context minikube
-                        envsubst < k8s/dev-deployment.yaml | kubectl apply -f - -n ecommerce-dev
-                        kubectl rollout status deployment/${SERVICE_NAME} -n ecommerce-dev
+                        echo "Installing Trivy..."
+                        # Install Trivy if not present
+                        if ! command -v trivy &> /dev/null; then
+                            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
+                        fi
+                        
+                        echo "Scanning image ${env.BUILT_IMAGE}..."
+                        
+                        # Scan the built image
+                        trivy image \
+                            --format json \
+                            --output ${env.SERVICE_NAME}-trivy-report.json \
+                            --severity HIGH,CRITICAL \
+                            --no-progress \
+                            ${env.BUILT_IMAGE}
+                        
+                        # Check for HIGH and CRITICAL vulnerabilities
+                        HIGH_CRITICAL=\$(trivy image --format json --quiet ${env.BUILT_IMAGE} | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length')
+                        
+                        echo "Found \$HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
+                        
+                        # Allow up to 10 HIGH/CRITICAL vulnerabilities for dev environment
+                        if [ "\$HIGH_CRITICAL" -gt 10 ]; then
+                            echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found (\$HIGH_CRITICAL). Consider reviewing before promoting to staging."
+                            # Don't fail in dev, just warn
+                        fi
+                    """
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "${env.SERVICE_NAME}-trivy-report.json", allowEmptyArchive: true
+                }
+            }
+        }
+        
+        stage('📤 Push to GCP Registry') {
+            steps {
+                script {
+                    sh """
+                        echo "Pushing images to GCP Registry..."
+                        docker push ${env.BUILT_IMAGE}
+                        docker push ${env.BUILT_LATEST_IMAGE}
+                        
+                        echo "Images pushed successfully:"
+                        echo "- ${env.BUILT_IMAGE}"
+                        echo "- ${env.BUILT_LATEST_IMAGE}"
                     """
                 }
             }
         }
         
-        stage('Smoke Tests') {
+        stage('🚀 Deploy to Dev Environment') {
             steps {
                 script {
                     sh """
-                        sleep 30
-                        kubectl port-forward service/${SERVICE_NAME} ${SERVICE_PORT}:${SERVICE_PORT} -n ecommerce-dev &
-                        sleep 10
-                        curl -f http://localhost:${SERVICE_PORT}/actuator/health || exit 1
-                        pkill -f "kubectl port-forward"
+                        echo "Deploying ${env.SERVICE_NAME} to development environment..."
+                        
+                        # Update Kubernetes deployment
+                        kubectl set image deployment/${env.SERVICE_NAME} \
+                            ${env.SERVICE_NAME}=${env.BUILT_IMAGE} \
+                            -n ecommerce-dev
+                        
+                        # Wait for rollout to complete
+                        kubectl rollout status deployment/${env.SERVICE_NAME} \
+                            -n ecommerce-dev --timeout=300s
+                        
+                        # Get deployment status
+                        kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME}
+                        kubectl get services -n ecommerce-dev -l app=${env.SERVICE_NAME}
+                    """
+                }
+            }
+        }
+        
+        stage('🧪 Health Check Verification') {
+            steps {
+                script {
+                    sh """
+                        echo "Performing health check for ${env.SERVICE_NAME}..."
+                        
+                        # Get service endpoint
+                        SERVICE_IP=\$(kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.spec.clusterIP}')
+                        
+                        if [ -z "\$SERVICE_IP" ]; then
+                            echo "Could not get service IP, checking pod directly..."
+                            POD_NAME=\$(kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME} -o jsonpath='{.items[0].metadata.name}')
+                            kubectl port-forward -n ecommerce-dev \$POD_NAME ${env.SERVICE_PORT}:${env.SERVICE_PORT} &
+                            PF_PID=\$!
+                            sleep 5
+                            SERVICE_IP="localhost"
+                        fi
+                        
+                        echo "Service IP: \$SERVICE_IP"
+                        echo "Service Port: ${env.SERVICE_PORT}"
+                        
+                        # Health check with retry
+                        max_attempts=30
+                        attempt=1
+                        
+                        while [ \$attempt -le \$max_attempts ]; do
+                            echo "Health check attempt \$attempt/\$max_attempts..."
+                            
+                            if curl -f -s http://\$SERVICE_IP:${env.SERVICE_PORT}/actuator/health; then
+                                echo ""
+                                echo "✅ Health check passed for ${env.SERVICE_NAME}"
+                                break
+                            fi
+                            
+                            echo "Health check failed, waiting 10 seconds..."
+                            sleep 10
+                            attempt=\$((attempt + 1))
+                        done
+                        
+                        # Kill port-forward if it was started
+                        if [ ! -z "\$PF_PID" ]; then
+                            kill \$PF_PID 2>/dev/null || true
+                        fi
+                        
+                        if [ \$attempt -gt \$max_attempts ]; then
+                            echo "❌ Health check failed after \$max_attempts attempts"
+                            exit 1
+                        fi
+                    """
+                }
+            }
+        }
+        
+        stage('📝 Create PR to Staging') {
+            when {
+                equals expected: 'develop', actual: params.BRANCH_NAME
+            }
+            steps {
+                script {
+                    sh """
+                        echo "Creating PR to staging branch..."
+                        
+                        # Configure git
+                        git config user.name "Jenkins CI"
+                        git config user.email "jenkins@tu-dominio.com"
+                        
+                        # Create staging branch from current state
+                        git checkout -B staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}
+                        git push origin staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}
+                        
+                        # Create PR using GitHub API
+                        REPO_NAME=\$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
+                        
+                        curl -X POST \
+                            -H "Authorization: token ${env.GITHUB_TOKEN}" \
+                            -H "Accept: application/vnd.github.v3+json" \
+                            -H "Content-Type: application/json" \
+                            https://api.github.com/repos/\$REPO_NAME/pulls \
+                            -d '{
+                                "title": "🚀 Auto-promotion: '${env.SERVICE_NAME}' '${env.IMAGE_TAG}' to staging",
+                                "head": "staging-'${env.SERVICE_NAME}'-'${env.BUILD_NUMBER}'",
+                                "base": "staging",
+                                "body": "## Automatic Promotion to Staging\\n\\n**Service:** '${env.SERVICE_NAME}'\\n**Version:** '${env.IMAGE_TAG}'\\n**Build:** '${env.BUILD_NUMBER}'\\n\\n### ✅ Validations Completed\\n- Unit Tests: Passed\\n- Code Quality: SonarQube passed\\n- Security Scan: Trivy completed\\n- Docker Image: Built and pushed to GCR\\n- Deployment: Successfully deployed to dev\\n- Health Check: Verified\\n\\n### 📦 Artifacts\\n- **Image:** '${env.BUILT_IMAGE}'\\n- **Latest:** '${env.BUILT_LATEST_IMAGE}'\\n\\n### 🔗 Links\\n- [Jenkins Build]('${env.BUILD_URL}')\\n- [Test Results]('${env.BUILD_URL}'testReport/)\\n- [SonarQube Report](https://sonarqube.tu-dominio.com/dashboard?id=ecommerce-'${env.SERVICE_NAME}'-dev)\\n\\n**Ready for staging deployment! 🚀**"
+                            }' || echo "PR creation completed (may already exist)"
                     """
                 }
             }
@@ -120,21 +373,105 @@ pipeline {
     
     post {
         always {
-            cleanWs()
+            script {
+                // Cleanup local Docker images
+                sh """
+                    echo "Cleaning up Docker images..."
+                    docker rmi ${env.BUILT_IMAGE} || true
+                    docker rmi ${env.BUILT_LATEST_IMAGE} || true
+                    docker system prune -f || true
+                """
+            }
         }
+        
         success {
-            emailext (
-                subject: "✅ Dev Deploy Success - ${SERVICE_NAME} #${BUILD_NUMBER}",
-                body: "Development deployment completed successfully for ${SERVICE_NAME}",
-                to: "${env.CHANGE_AUTHOR_EMAIL}"
-            )
+            script {
+                def message = """✅ *Build Successful* - ${env.SERVICE_NAME}
+                
+🏷️ **Version:** ${env.IMAGE_TAG}
+🐳 **Image:** \`${env.BUILT_IMAGE}\`
+🚀 **Deployed to:** Development Environment
+📊 **Build:** #${env.BUILD_NUMBER}
+🔗 **Pipeline:** ${env.BUILD_URL}
+
+✅ **Next Steps:**
+• PR created to staging branch
+• Ready for staging deployment
+• Health checks passed"""
+
+                sendSlackNotification('good', message)
+            }
         }
+        
         failure {
-            emailext (
-                subject: "❌ Dev Deploy Failed - ${SERVICE_NAME} #${BUILD_NUMBER}",
-                body: "Development deployment failed for ${SERVICE_NAME}. Check Jenkins logs.",
-                to: "${env.CHANGE_AUTHOR_EMAIL}"
-            )
+            script {
+                def message = """❌ *Build Failed* - ${env.SERVICE_NAME}
+                
+🏷️ **Version:** ${env.IMAGE_TAG}
+📊 **Build:** #${env.BUILD_NUMBER}
+🔗 **Pipeline:** ${env.BUILD_URL}
+⏰ **Duration:** ${currentBuild.durationString}
+
+🔍 **Action Required:**
+• Check console output for errors
+• Review failed stage logs
+• Fix issues and retry build"""
+
+                sendSlackNotification('danger', message)
+            }
+        }
+        
+        unstable {
+            script {
+                def message = """⚠️ *Build Unstable* - ${env.SERVICE_NAME}
+                
+🏷️ **Version:** ${env.IMAGE_TAG}
+📊 **Build:** #${env.BUILD_NUMBER}
+🔗 **Pipeline:** ${env.BUILD_URL}
+
+⚠️ **Issues Found:**
+• Some tests may have failed
+• Quality gates may have warnings
+• Review test results before promoting"""
+
+                sendSlackNotification('warning', message)
+            }
+        }
+    }
+}
+
+// Helper Functions
+def getServicePort(serviceName) {
+    def servicePorts = [
+        'order-service': '8300',
+        'payment-service': '8400',
+        'product-service': '8500',
+        'shipping-service': '8600',
+        'user-service': '8700',
+        'api-gateway': '8080',
+        'service-discovery': '8761',
+        'cloud-config': '8888'
+    ]
+    return servicePorts[serviceName] ?: '8080'
+}
+
+def sendSlackNotification(String color, String message) {
+    if (env.SLACK_WEBHOOK) {
+        try {
+            sh """
+                curl -X POST -H 'Content-type: application/json' \
+                    --data '{
+                        "attachments": [{
+                            "color": "${color}",
+                            "text": "${message}",
+                            "footer": "Jenkins CI/CD Pipeline",
+                            "ts": ${System.currentTimeMillis() / 1000}
+                        }]
+                    }' \
+                    ${env.SLACK_WEBHOOK}
+            """
+        } catch (Exception e) {
+            echo "Failed to send Slack notification: ${e.getMessage()}"
         }
     }
 }

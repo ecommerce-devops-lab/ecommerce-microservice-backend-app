@@ -9,16 +9,30 @@ on:
       - 'product-service/**'
       - 'shipping-service/**'
       - 'user-service/**'
+      - 'api-gateway/**'
+      - 'service-discovery/**'
+      - 'cloud-config/**'
   pull_request:
     branches: [ develop ]
+    paths:
+      - 'order-service/**'
+      - 'payment-service/**'
+      - 'product-service/**'
+      - 'shipping-service/**'
+      - 'user-service/**'
+      - 'api-gateway/**'
+      - 'service-discovery/**'
+      - 'cloud-config/**'
 
 env:
   JENKINS_URL: ${{ secrets.JENKINS_URL }}
   JENKINS_USER: ${{ secrets.JENKINS_USER }}
   JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+  GCP_PROJECT_ID: 'ecommerce-microservices-back'
 
 jobs:
   detect-changes:
+    name: 🔍 Detect Service Changes
     runs-on: ubuntu-latest
     outputs:
       order-service: ${{ steps.changes.outputs.order-service }}
@@ -26,9 +40,19 @@ jobs:
       product-service: ${{ steps.changes.outputs.product-service }}
       shipping-service: ${{ steps.changes.outputs.shipping-service }}
       user-service: ${{ steps.changes.outputs.user-service }}
+      api-gateway: ${{ steps.changes.outputs.api-gateway }}
+      service-discovery: ${{ steps.changes.outputs.service-discovery }}
+      cloud-config: ${{ steps.changes.outputs.cloud-config }}
+      changed-services: ${{ steps.summary.outputs.changed-services }}
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@v2
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🔍 Detect Changes
+        uses: dorny/paths-filter@v2
         id: changes
         with:
           filters: |
@@ -42,39 +66,484 @@ jobs:
               - 'shipping-service/**'
             user-service:
               - 'user-service/**'
+            api-gateway:
+              - 'api-gateway/**'
+            service-discovery:
+              - 'service-discovery/**'
+            cloud-config:
+              - 'cloud-config/**'
+      
+      - name: 📋 Summary of Changes
+        id: summary
+        run: |
+          CHANGED_SERVICES=""
+          
+          if [ "${{ steps.changes.outputs.order-service }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES order-service"
+          fi
+          if [ "${{ steps.changes.outputs.payment-service }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES payment-service"
+          fi
+          if [ "${{ steps.changes.outputs.product-service }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES product-service"
+          fi
+          if [ "${{ steps.changes.outputs.shipping-service }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES shipping-service"
+          fi
+          if [ "${{ steps.changes.outputs.user-service }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES user-service"
+          fi
+          if [ "${{ steps.changes.outputs.api-gateway }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES api-gateway"
+          fi
+          if [ "${{ steps.changes.outputs.service-discovery }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES service-discovery"
+          fi
+          if [ "${{ steps.changes.outputs.cloud-config }}" == "true" ]; then
+            CHANGED_SERVICES="$CHANGED_SERVICES cloud-config"
+          fi
+          
+          echo "changed-services=${CHANGED_SERVICES}" >> $GITHUB_OUTPUT
+          echo "🔄 Changed services: ${CHANGED_SERVICES}"
 
+  # Core Business Services
   trigger-order-service:
+    name: 🛒 Build Order Service
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.order-service == 'true' }}
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Trigger Jenkins Job
+      - name: 🚀 Trigger Jenkins Pipeline
         run: |
-          curl -X POST \
+          echo "🚀 Triggering Jenkins pipeline for order-service..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
             -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
-            "${{ secrets.JENKINS_URL }}/job/order-service-dev/build" \
-            --data-urlencode json='{"parameter": [{"name":"BRANCH_NAME", "value":"'${GITHUB_REF_NAME}'"},{"name":"COMMIT_SHA", "value":"'${GITHUB_SHA}'"}]}'
+            "${{ secrets.JENKINS_URL }}/job/shipping-service-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/shipping-service-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/shipping-service-dev/'
+            });
+
+  trigger-user-service:
+    name: 👤 Build User Service
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.user-service == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Trigger Jenkins Pipeline
+        run: |
+          echo "🚀 Triggering Jenkins pipeline for user-service..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/user-service-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/user-service-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/user-service-dev/'
+            });
+
+  # Infrastructure Services
+  trigger-api-gateway:
+    name: 🌐 Build API Gateway
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.api-gateway == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Trigger Jenkins Pipeline
+        run: |
+          echo "🚀 Triggering Jenkins pipeline for api-gateway..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/api-gateway-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/api-gateway-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/api-gateway-dev/'
+            });
+
+  trigger-service-discovery:
+    name: 🔍 Build Service Discovery
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.service-discovery == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Trigger Jenkins Pipeline
+        run: |
+          echo "🚀 Triggering Jenkins pipeline for service-discovery..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/service-discovery-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/service-discovery-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/service-discovery-dev/'
+            });
+
+  trigger-cloud-config:
+    name: ⚙️ Build Cloud Config
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.cloud-config == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Trigger Jenkins Pipeline
+        run: |
+          echo "🚀 Triggering Jenkins pipeline for cloud-config..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL }}/job/cloud-config-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/cloud-config-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/cloud-config-dev/'
+            });
+
+  # Post-build summary
+  build-summary:
+    name: 📊 Build Summary
+    needs: [
+      detect-changes,
+      trigger-order-service,
+      trigger-payment-service,
+      trigger-product-service,
+      trigger-shipping-service,
+      trigger-user-service,
+      trigger-api-gateway,
+      trigger-service-discovery,
+      trigger-cloud-config
+    ]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📊 Generate Build Summary
+        run: |
+          echo "# 🚀 Development Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔄 Services Processed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          CHANGED_SERVICES="${{ needs.detect-changes.outputs.changed-services }}"
+          
+          if [ -z "$CHANGED_SERVICES" ]; then
+            echo "No services were changed in this push." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "The following services were built:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            for service in $CHANGED_SERVICES; do
+              echo "- ✅ **$service**: Pipeline triggered successfully" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Pipeline Details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔗 Jenkins Pipelines" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for service in $CHANGED_SERVICES; do
+            echo "- [$service-dev](${{ secrets.JENKINS_URL }}/job/$service-dev/)" >> $GITHUB_STEP_SUMMARY
+          done
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📈 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. 🔍 Monitor Jenkins pipelines for completion" >> $GITHUB_STEP_SUMMARY
+          echo "2. 📊 Review SonarQube reports" >> $GITHUB_STEP_SUMMARY
+          echo "3. 🔒 Check Trivy security scan results" >> $GITHUB_STEP_SUMMARY
+          echo "4. 🚀 Verify deployments to development environment" >> $GITHUB_STEP_SUMMARY
+          echo "5. 📝 Review auto-generated PRs to staging branch" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📣 Slack Notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        run: |
+          CHANGED_SERVICES="${{ needs.detect-changes.outputs.changed-services }}"
+          
+          if [ -n "$CHANGED_SERVICES" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{
+                \"text\": \"🚀 Development Pipeline Triggered\",
+                \"attachments\": [{
+                  \"color\": \"good\",
+                  \"fields\": [
+                    {
+                      \"title\": \"Services Built\",
+                      \"value\": \"${CHANGED_SERVICES// /\\n}\",
+                      \"short\": true
+                    },
+                    {
+                      \"title\": \"Branch\",
+                      \"value\": \"${{ github.ref_name }}\",
+                      \"short\": true
+                    },
+                    {
+                      \"title\": \"Triggered by\",
+                      \"value\": \"${{ github.actor }}\",
+                      \"short\": true
+                    },
+                    {
+                      \"title\": \"Commit\",
+                      \"value\": \"<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\",
+                      \"short\": true
+                    }
+                  ],
+                  \"footer\": \"GitHub Actions\",
+                  \"ts\": $(date +%s)
+                }]
+              }" \
+              ${{ secrets.SLACK_WEBHOOK_URL }} || echo "Slack notification failed"
+          fi
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} }}/job/order-service-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/order-service-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/order-service-dev/'
+            });
 
   trigger-payment-service:
+    name: 💳 Build Payment Service
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.payment-service == 'true' }}
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Trigger Jenkins Job
+      - name: 🚀 Trigger Jenkins Pipeline
         run: |
-          curl -X POST \
+          echo "🚀 Triggering Jenkins pipeline for payment-service..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
             -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
-            "${{ secrets.JENKINS_URL }}/job/payment-service-dev/build" \
-            --data-urlencode json='{"parameter": [{"name":"BRANCH_NAME", "value":"'${GITHUB_REF_NAME}'"},{"name":"COMMIT_SHA", "value":"'${GITHUB_SHA}'"}]}'
+            "${{ secrets.JENKINS_URL }}/job/payment-service-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/payment-service-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/payment-service-dev/'
+            });
 
   trigger-product-service:
+    name: 📦 Build Product Service
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.product-service == 'true' }}
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Trigger Jenkins Job
+      - name: 🚀 Trigger Jenkins Pipeline
         run: |
-          curl -X POST \
+          echo "🚀 Triggering Jenkins pipeline for product-service..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
             -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
-            "${{ secrets.JENKINS_URL }}/job/product-service-dev/build" \
-            --data-urlencode json='{"parameter": [{"name":"BRANCH_NAME", "value":"'${GITHUB_REF_NAME}'"},{"name":"COMMIT_SHA", "value":"'${GITHUB_SHA}'"}]}'
+            "${{ secrets.JENKINS_URL }}/job/product-service-dev/buildWithParameters" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "COMMIT_SHA=${{ github.sha }}" \
+            --data-urlencode "SKIP_SONAR=false" \
+            --data-urlencode "SKIP_SECURITY_SCAN=false")
+          
+          HTTP_CODE="${RESPONSE: -3}"
+          
+          if [[ "$HTTP_CODE" == "201" ]] || [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Pipeline triggered successfully"
+          else
+            echo "❌ Failed to trigger pipeline. HTTP Code: $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: 📝 Update Commit Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'pending',
+              context: 'jenkins/product-service-dev',
+              description: 'Jenkins pipeline started',
+              target_url: '${{ secrets.JENKINS_URL }}/job/product-service-dev/'
+            });
+
+  trigger-shipping-service:
+    name: 🚚 Build Shipping Service
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.shipping-service == 'true' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Trigger Jenkins Pipeline
+        run: |
+          echo "🚀 Triggering Jenkins pipeline for shipping-service..."
+          
+          RESPONSE=$(curl -w "%{http_code}" -s -X POST \
+            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+            "${{ secrets.JENKINS_URL
