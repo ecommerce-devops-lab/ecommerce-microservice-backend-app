@@ -426,7 +426,7 @@ pipeline {
                         sh '''
                             if [ ! -f "Dockerfile" ]; then
                                 echo "Creating Dockerfile..."
-                                cat > Dockerfile << 'EOF'
+                                cat > Dockerfile << 'DOCKERFILE_END'
         FROM openjdk:17-jre-slim
 
         ARG SERVICE_NAME
@@ -445,14 +445,14 @@ pipeline {
         COPY target/*.jar app.jar
 
         # Exponer el puerto específico del servicio
-        EXPOSE ${SERVICE_PORT}
+        EXPOSE 8080
 
         # Variables de entorno para Spring Boot
         ENV SPRING_PROFILES_ACTIVE=dev
         ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
         ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
-        EOF
+        DOCKERFILE_END
                                 echo "✅ Dockerfile creado"
                             fi
                             
@@ -460,7 +460,7 @@ pipeline {
                             cat Dockerfile
                         '''
                         
-                        // Intentar construir la imagen con diferentes estrategias
+                        // Intentar construir la imagen
                         sh '''
                             export DOCKER_CLI="${WORKSPACE}/.tools/bin/docker"
                             
@@ -468,61 +468,52 @@ pipeline {
                             echo "Docker CLI: $DOCKER_CLI"
                             echo "Built Image: ${BUILT_IMAGE}"
                             echo "Built Latest: ${BUILT_LATEST_IMAGE}"
+                            echo "Current directory: $(pwd)"
+                            echo "Files in directory:"
+                            ls -la
                             
-                            # Estrategia 1: Docker directo
-                            if $DOCKER_CLI build \\
-                                -t ${BUILT_IMAGE} \\
-                                -t ${BUILT_LATEST_IMAGE} \\
-                                --build-arg SERVICE_NAME=${SERVICE_NAME} \\
-                                --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
-                                --build-arg VERSION=${IMAGE_TAG} \\
-                                --build-arg VCS_REF=$(git rev-parse HEAD) \\
-                                . ; then
-                                
+                            # Verificar que Docker CLI funciona
+                            echo "Testing Docker CLI..."
+                            if ! $DOCKER_CLI version; then
+                                echo "❌ Docker CLI not working"
+                                exit 1
+                            fi
+                            
+                            # Construir la imagen
+                            echo "Building Docker image..."
+                            BUILD_ARGS="--build-arg SERVICE_NAME=${SERVICE_NAME}"
+                            BUILD_ARGS="$BUILD_ARGS --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+                            BUILD_ARGS="$BUILD_ARGS --build-arg VERSION=${IMAGE_TAG}"
+                            BUILD_ARGS="$BUILD_ARGS --build-arg VCS_REF=$(git rev-parse HEAD)"
+                            
+                            echo "Build arguments: $BUILD_ARGS"
+                            
+                            if $DOCKER_CLI build -t ${BUILT_IMAGE} -t ${BUILT_LATEST_IMAGE} $BUILD_ARGS .; then
                                 echo "✅ Docker build successful"
+                                
+                                # Verificar imágenes construidas
+                                echo "=== Verification ==="
+                                echo "Images built:"
+                                $DOCKER_CLI images | grep ${SERVICE_NAME} || echo "No images found"
                                 
                             else
                                 echo "❌ Docker build failed"
                                 echo "Checking Docker daemon status..."
                                 
-                                # Verificar si Docker daemon está corriendo
                                 if ! $DOCKER_CLI version >/dev/null 2>&1; then
                                     echo "❌ Docker daemon not accessible"
-                                    echo "Available options:"
-                                    echo "1. Run Jenkins with proper Docker permissions"
-                                    echo "2. Use Docker-in-Docker (DinD)"
-                                    echo "3. Use Kaniko for building without Docker daemon"
+                                    echo "This is likely a permissions issue."
+                                    echo "Solutions:"
+                                    echo "1. Add Jenkins user to docker group"
+                                    echo "2. Run Jenkins container with docker group access"
+                                    echo "3. Use Docker-in-Docker"
                                     exit 1
                                 fi
                                 
-                                # Estrategia 2: Intentar con diferentes permisos
-                                echo "Attempting to fix socket permissions temporarily..."
-                                
-                                # Cambiar permisos temporalmente (si tenemos acceso)
-                                if [ -w /var/run/docker.sock ]; then
-                                    chmod 666 /var/run/docker.sock
-                                    $DOCKER_CLI build \\
-                                        -t ${BUILT_IMAGE} \\
-                                        -t ${BUILT_LATEST_IMAGE} \\
-                                        --build-arg SERVICE_NAME=${SERVICE_NAME} \\
-                                        --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
-                                        --build-arg VERSION=${IMAGE_TAG} \\
-                                        --build-arg VCS_REF=$(git rev-parse HEAD) \\
-                                        .
-                                else
-                                    echo "❌ Cannot modify socket permissions"
-                                    echo "Please configure Jenkins with proper Docker access"
-                                    exit 1
-                                fi
+                                echo "Docker daemon is accessible but build failed"
+                                echo "Check the build logs above for specific errors"
+                                exit 1
                             fi
-                            
-                            # Verificar imágenes construidas
-                            echo "=== Verification ==="
-                            echo "Images built:"
-                            $DOCKER_CLI images | grep ${SERVICE_NAME} || echo "No images found"
-                            
-                            echo "All available images:"
-                            $DOCKER_CLI images | head -10
                         '''
                     }
                 }
