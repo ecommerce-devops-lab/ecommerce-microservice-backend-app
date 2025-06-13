@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    parameters {
+        booleanParam(name: 'SKIP_PERFORMANCE_TESTS', defaultValue: false, description: 'Skip performance tests')
+    }
+    
     environment {
         DOCKER_REGISTRY = 'juanmadiaz45'
         IMAGE_TAG = "${BUILD_NUMBER}"
@@ -11,20 +15,18 @@ pipeline {
     }
     
     tools {
-        maven 'Maven-3.8.4'
-        jdk 'OpenJDK-11'
+        maven 'Maven-3.9.4'
+        jdk 'OpenJDK-17'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'statging', 
+                git branch: 'staging', 
                     credentialsId: 'github-credentials',
                     url: 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git'
             }
         }
-        
-        
         
         stage('Update image in gcp') {
             steps {
@@ -73,6 +75,9 @@ pipeline {
         }
 
         stage('Run Performance tests') {
+            when {
+                expression { return !params.SKIP_PERFORMANCE_TESTS }
+            }
             steps {
                 dir('ecommerce-stage-tests') {
                     sh '''
