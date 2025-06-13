@@ -169,15 +169,39 @@ pipeline {
             steps {
                 dir("${env.SERVICE_NAME}") {
                     script {
-                        // Ensure JAVA_HOME is set correctly
+                        // Configuración mejorada de Java
                         sh '''
-                            echo "Setting up Java environment..."
-                            export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+                            echo "Configurando entorno Java..."
+                            
+                            # Verificar la instalación de Java
+                            if [ -n "$JAVA_HOME" ]; then
+                                echo "JAVA_HOME ya está configurado: $JAVA_HOME"
+                            else
+                                # Intentar encontrar Java en las ubicaciones comunes
+                                if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+                                    export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+                                elif [ -d "/opt/java/openjdk" ]; then
+                                    export JAVA_HOME="/opt/java/openjdk"
+                                else
+                                    # Usar el Java proporcionado por Jenkins
+                                    export JAVA_HOME="${tool 'OpenJDK-17'}"
+                                fi
+                            fi
+                            
+                            # Verificar que Java está disponible
+                            if [ ! -d "$JAVA_HOME" ]; then
+                                echo "ERROR: No se pudo encontrar JAVA_HOME válido"
+                                exit 1
+                            fi
+                            
+                            # Agregar Java al PATH
+                            export PATH="$JAVA_HOME/bin:$PATH"
+                            
                             echo "JAVA_HOME: $JAVA_HOME"
                             echo "Java version:"
                             java -version
                             
-                            echo "Running unit tests for ${SERVICE_NAME}..."
+                            echo "Ejecutando pruebas unitarias para ${SERVICE_NAME}..."
                             mvn clean test \
                                 -Dmaven.test.failure.ignore=false \
                                 -Dspring.profiles.active=test \
