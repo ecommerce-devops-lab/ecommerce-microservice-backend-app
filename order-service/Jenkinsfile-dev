@@ -13,14 +13,14 @@ pipeline {
         GCP_PROJECT_ID = 'ecommerce-microservices-back'
         GCP_REGISTRY = "gcr.io/${GCP_PROJECT_ID}"
         
-        // Dynamic service detection from job name
-        SERVICE_NAME = "${env.JOB_NAME}".split('-dev')[0]
+        // Service name will be set dynamically in the Initialize stage
+        SERVICE_NAME = ''
         
         // Versioning
         IMAGE_TAG = "${params.COMMIT_SHA.take(7)}-${BUILD_NUMBER}"
         
         // Service configuration (will be set dynamically)
-        SERVICE_PORT = getServicePort(env.SERVICE_NAME)
+        SERVICE_PORT = ''
         
         // Credentials
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-service-account-key')
@@ -38,6 +38,10 @@ pipeline {
         stage('🏁 Initialize') {
             steps {
                 script {
+                    // Set dynamic environment variables
+                    env.SERVICE_NAME = env.JOB_NAME.split('-dev')[0]
+                    env.SERVICE_PORT = getServicePort(env.SERVICE_NAME)
+                    
                     currentBuild.description = "Building ${env.SERVICE_NAME}:${env.IMAGE_TAG}"
                     
                     echo "=== Pipeline Configuration ==="
@@ -86,7 +90,6 @@ pipeline {
                         currentBuild.result = 'NOT_BUILT'
                         currentBuild.description = "No changes detected for ${env.SERVICE_NAME}"
                         echo "No changes detected for ${env.SERVICE_NAME}, but continuing build as requested"
-                        // No hacer error() para permitir builds manuales
                     }
                 }
             }
@@ -121,7 +124,7 @@ pipeline {
         
         stage('📊 SonarQube Analysis') {
             when {
-                not { params.SKIP_SONAR }
+                expression { !params.SKIP_SONAR }
             }
             steps {
                 dir("${env.SERVICE_NAME}") {
@@ -142,7 +145,7 @@ pipeline {
         
         stage('🚪 Quality Gate') {
             when {
-                not { params.SKIP_SONAR }
+                expression { !params.SKIP_SONAR }
             }
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
@@ -201,20 +204,17 @@ pipeline {
         
         stage('🔒 Security Scan with Trivy') {
             when {
-                not { params.SKIP_SECURITY_SCAN }
+                expression { !params.SKIP_SECURITY_SCAN }
             }
             steps {
                 script {
                     sh """
                         echo "Installing Trivy..."
-                        # Install Trivy if not present
                         if ! command -v trivy &> /dev/null; then
                             curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.3
                         fi
                         
                         echo "Scanning image ${env.BUILT_IMAGE}..."
-                        
-                        # Scan the built image
                         trivy image \
                             --format json \
                             --output ${env.SERVICE_NAME}-trivy-report.json \
@@ -222,15 +222,12 @@ pipeline {
                             --no-progress \
                             ${env.BUILT_IMAGE}
                         
-                        # Check for HIGH and CRITICAL vulnerabilities
                         HIGH_CRITICAL=\$(trivy image --format json --quiet ${env.BUILT_IMAGE} | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length')
                         
                         echo "Found \$HIGH_CRITICAL HIGH/CRITICAL vulnerabilities"
                         
-                        # Allow up to 10 HIGH/CRITICAL vulnerabilities for dev environment
                         if [ "\$HIGH_CRITICAL" -gt 10 ]; then
                             echo "WARNING: Too many HIGH/CRITICAL vulnerabilities found (\$HIGH_CRITICAL). Consider reviewing before promoting to staging."
-                            # Don't fail in dev, just warn
                         fi
                     """
                 }
@@ -263,17 +260,13 @@ pipeline {
                 script {
                     sh """
                         echo "Deploying ${env.SERVICE_NAME} to development environment..."
-                        
-                        # Update Kubernetes deployment
                         kubectl set image deployment/${env.SERVICE_NAME} \
                             ${env.SERVICE_NAME}=${env.BUILT_IMAGE} \
                             -n ecommerce-dev
                         
-                        # Wait for rollout to complete
                         kubectl rollout status deployment/${env.SERVICE_NAME} \
                             -n ecommerce-dev --timeout=300s
                         
-                        # Get deployment status
                         kubectl get pods -n ecommerce-dev -l app=${env.SERVICE_NAME}
                         kubectl get services -n ecommerce-dev -l app=${env.SERVICE_NAME}
                     """
@@ -286,8 +279,6 @@ pipeline {
                 script {
                     sh """
                         echo "Performing health check for ${env.SERVICE_NAME}..."
-                        
-                        # Get service endpoint
                         SERVICE_IP=\$(kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || kubectl get service ${env.SERVICE_NAME} -n ecommerce-dev -o jsonpath='{.spec.clusterIP}')
                         
                         if [ -z "\$SERVICE_IP" ]; then
@@ -299,28 +290,20 @@ pipeline {
                             SERVICE_IP="localhost"
                         fi
                         
-                        echo "Service IP: \$SERVICE_IP"
-                        echo "Service Port: ${env.SERVICE_PORT}"
-                        
-                        # Health check with retry
                         max_attempts=30
                         attempt=1
                         
                         while [ \$attempt -le \$max_attempts ]; do
                             echo "Health check attempt \$attempt/\$max_attempts..."
-                            
                             if curl -f -s http://\$SERVICE_IP:${env.SERVICE_PORT}/actuator/health; then
                                 echo ""
                                 echo "✅ Health check passed for ${env.SERVICE_NAME}"
                                 break
                             fi
-                            
-                            echo "Health check failed, waiting 10 seconds..."
                             sleep 10
                             attempt=\$((attempt + 1))
                         done
                         
-                        # Kill port-forward if it was started
                         if [ ! -z "\$PF_PID" ]; then
                             kill \$PF_PID 2>/dev/null || true
                         fi
@@ -342,16 +325,12 @@ pipeline {
                 script {
                     sh """
                         echo "Creating PR to staging branch..."
-                        
-                        # Configure git
                         git config user.name "Jenkins CI"
                         git config user.email "jenkins@tu-dominio.com"
                         
-                        # Create staging branch from current state
                         git checkout -B staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}
                         git push origin staging-${env.SERVICE_NAME}-${env.BUILD_NUMBER}
                         
-                        # Create PR using GitHub API
                         REPO_NAME=\$(echo 'https://github.com/ecommerce-devops-lab/ecommerce-microservice-backend-app.git' | sed 's|https://github.com/||' | sed 's|\\.git||')
                         
                         curl -X POST \
@@ -374,7 +353,6 @@ pipeline {
     post {
         always {
             script {
-                // Cleanup local Docker images
                 sh """
                     echo "Cleaning up Docker images..."
                     docker rmi ${env.BUILT_IMAGE} || true
@@ -387,7 +365,7 @@ pipeline {
         success {
             script {
                 def message = """✅ *Build Successful* - ${env.SERVICE_NAME}
-                
+                    
 🏷️ **Version:** ${env.IMAGE_TAG}
 🐳 **Image:** ${env.BUILT_IMAGE}
 🚀 **Deployed to:** Development Environment
@@ -406,7 +384,7 @@ pipeline {
         failure {
             script {
                 def message = """❌ *Build Failed* - ${env.SERVICE_NAME}
-                
+                    
 🏷️ **Version:** ${env.IMAGE_TAG}
 📊 **Build:** #${env.BUILD_NUMBER}
 🔗 **Pipeline:** ${env.BUILD_URL}
@@ -424,7 +402,7 @@ pipeline {
         unstable {
             script {
                 def message = """⚠️ *Build Unstable* - ${env.SERVICE_NAME}
-                
+                    
 🏷️ **Version:** ${env.IMAGE_TAG}
 📊 **Build:** #${env.BUILD_NUMBER}
 🔗 **Pipeline:** ${env.BUILD_URL}
