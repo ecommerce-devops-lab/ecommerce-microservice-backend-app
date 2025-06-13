@@ -369,13 +369,62 @@ pipeline {
                 sh '''
                     export PATH=${DOCKER_PATH}:${GCLOUD_PATH}:$PATH
                     
-                    echo "Pushing images to GCP Registry..."
-                    docker push ${BUILT_IMAGE} || echo "Push to GCP failed - check credentials and project access"
-                    docker push ${BUILT_LATEST_IMAGE} || echo "Push to GCP latest failed"
+                    echo "Configurando autenticación con GCP..."
                     
-                    echo "Push attempt completed for:"
-                    echo "- ${BUILT_IMAGE}"
-                    echo "- ${BUILT_LATEST_IMAGE}"
+                    # Verificar que tenemos las credenciales
+                    if [ ! -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+                        echo "ERROR: No se encontró el archivo de credenciales de GCP"
+                        exit 1
+                    fi
+                    
+                    # Autenticar con GCP usando la cuenta de servicio
+                    echo "Autenticando con GCP usando cuenta de servicio..."
+                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: Falló la autenticación con GCP"
+                        exit 1
+                    fi
+                    
+                    # Configurar el proyecto
+                    echo "Configurando proyecto GCP: $GCP_PROJECT_ID"
+                    gcloud config set project $GCP_PROJECT_ID
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: No se pudo configurar el proyecto GCP"
+                        exit 1
+                    fi
+                    
+                    # Configurar Docker para usar GCR
+                    echo "Configurando Docker para usar Google Container Registry..."
+                    gcloud auth configure-docker gcr.io --quiet
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: No se pudo configurar Docker con GCR"
+                        exit 1
+                    fi
+                    
+                    # Verificar que la imagen existe localmente
+                    if ! docker images | grep -q "${SERVICE_NAME}.*${IMAGE_TAG}"; then
+                        echo "ERROR: No se encontró la imagen local ${BUILT_IMAGE}"
+                        exit 1
+                    fi
+                    
+                    echo "Pushing images to GCP Registry..."
+                    echo "- Pushing ${BUILT_IMAGE}"
+                    docker push ${BUILT_IMAGE}
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: Falló el push de ${BUILT_IMAGE}"
+                        exit 1
+                    fi
+                    
+                    echo "- Pushing ${BUILT_LATEST_IMAGE}"
+                    docker push ${BUILT_LATEST_IMAGE}
+                    if [ $? -ne 0 ]; then
+                        echo "ERROR: Falló el push de ${BUILT_LATEST_IMAGE}"
+                        exit 1
+                    fi
+                    
+                    echo "Imágenes publicadas exitosamente en GCP Registry"
+                    echo "  - ${BUILT_IMAGE}"
+                    echo "  - ${BUILT_LATEST_IMAGE}"
                 '''
             }
         }
