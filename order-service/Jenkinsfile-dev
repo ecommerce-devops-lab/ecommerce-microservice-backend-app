@@ -284,7 +284,6 @@ pipeline {
             steps {
                 dir("${env.SERVICE_NAME}") {
                     sh '''
-                        export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
                         
                         echo "Building application ${SERVICE_NAME}..."
                         mvn package -DskipTests \
