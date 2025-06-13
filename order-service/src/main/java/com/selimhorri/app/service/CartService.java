@@ -2,20 +2,20 @@ package com.selimhorri.app.service;
 
 import java.util.List;
 
-import com.selimhorri.app.dto.OrderDto;
+import com.selimhorri.app.dto.CartDto;
 
-public interface OrderService {
+public interface CartService {
 
-	List<OrderDto> findAll();
+	List<CartDto> findAll();
 
-	OrderDto findById(final Integer orderId);
+	CartDto findById(final Integer cartId);
 
-	OrderDto save(final OrderDto orderDto);
+	CartDto save(final CartDto cartDto);
 
-	OrderDto update(final OrderDto orderDto);
+	CartDto update(final CartDto cartDto);
 
-	OrderDto update(final Integer orderId, final OrderDto orderDto);
+	CartDto update(final Integer cartId, final CartDto cartDto);
 
-	void deleteById(final Integer orderId);
+	void deleteById(final Integer cartId);
 
 }
