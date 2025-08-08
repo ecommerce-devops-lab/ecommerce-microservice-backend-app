@@ -1,6 +1,7 @@
 # eCommerce Microservices Platform
 
 **Juan Manuel Díaz Moreno**
+
 **Miguel Gonzalez**
 
 ## Project Overview
